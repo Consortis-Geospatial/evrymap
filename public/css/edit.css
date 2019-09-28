@@ -1,0 +1,29 @@
+﻿#editLyrList {
+    min-height:300px;   
+}
+.form-group.required .control-label:after {
+    content: "*";
+    color: red;
+}
+.required-sel {
+    border: 1px solid red;
+}
+
+.msgPanel {
+    position: fixed;
+    z-index: 9999;
+    right: 5px;
+    bottom: 50px;
+    max-width: 20em;
+    max-height: 15em;
+}
+
+
+.ui-button.cancelButton {
+    border: 1px solid #aaaaaa
+    /*{borderColorContent}*/
+    ;
+    color: #FF0000
+    /*{fcContent}*/
+    ;
+}

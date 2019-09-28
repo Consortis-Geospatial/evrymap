@@ -1,0 +1,81 @@
+<!-- views/partials/head.ejs -->
+<meta charset="utf-8" />
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title><%= gConfig.logotitle%></title>
+
+<link href="css/jquery-ui-1.10.0.custom.css" rel="stylesheet" />
+<link href="css/jquery.ui.dialog-collapse.css" rel="stylesheet" />
+<link href="css/bootstrap.min.css" rel="stylesheet" />
+
+<link href="css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="css/buttons.bootstrap.min.css" rel="stylesheet" />
+<link href="css/ol_464.css" rel="stylesheet" />
+<link href="css/citiPortal.css" rel="stylesheet" />
+<link href="css/bootstrap-slider.min.css" rel="stylesheet" />
+<link href="css/all.css" rel="stylesheet" />
+<link href="css/bs_radios.css" rel="stylesheet" />
+<link href="css/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href="css/jquery.dropdown.min.css" rel="stylesheet" />
+<link href='css/edit.css' rel='stylesheet' />
+<link href="css/measurecontrol.css" rel="stylesheet" />
+<link href="css/layercontrol.css" rel="stylesheet" />
+<link href="css/ol-ext.min.css" rel="stylesheet" />
+<link href="css/bootstrap-tagsinput.css" rel="stylesheet" />
+<!-- Main JSs libraries -->
+<script src="scripts/jquery-1.10.2.min.js"></script>
+<script src="scripts/jquery.i18n.min.js"></script>
+<script src="scripts/popper.min.js"></script>
+<script src="scripts/tether.min.js"></script>
+<script src="scripts/bootstrap.min.js"></script>
+
+<script src="scripts/jquery.dataTables.min.js"></script>
+<script src="scripts/datatables.bootstrap.min.js"></script>
+<script src="scripts/dataTables.buttons.min.js"></script>
+<script src="scripts/buttons.bootstrap.min.js"></script>
+<script src="scripts/buttons.flash.min.js"></script>
+<script src="scripts/jszip.min.js"></script>
+<script src="scripts/buttons.html5.min.js"></script>
+<script src="scripts/buttons.print.min.js"></script>
+<script src="scripts/bootstrap-tagsinput.min.js"></script>
+<script src="scripts/proj4.js"></script>
+<script src="scripts/bootstrap-select.min.js"></script>
+<link href="css/bootstrap-select.min.css" rel="stylesheet" />
+
+<% if (typeof gConfig.useGMap !== "undefined" && gConfig.useGMap.trim() != '' && gConfig.useGMap === true && typeof gConfig.gMapKey!== "undefined"  && gConfig.gMapKey.trim() != '') { %>
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3&key=" + gConfig.gMapKey +></script>
+<script type="text/javascript" src="scripts/ol3gm.js"></script>
+<link rel="stylesheet" href="css/ol3gm.css" type="text/css" />
+<script>
+    var useGMap = true;
+</script>
+
+<%} else { %>
+
+<script src="scripts/ol.js"></script>
+<%} %>
+<script src="scripts/bootstrap-slider.min.js"></script>
+<script src="scripts/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="scripts/jquery.ui.dialog-collapse.js"></script>
+<script src="scripts/bootstrap-toggle.min.js"></script>
+<script src="scripts/jquery.sortable.js"></script>
+<script src="scripts/jquery.dropdown.min.js"></script>
+
+<script src="scripts/xml2json.js"></script>
+<!-- For converting JSON to Shapefile -->
+<script src="scripts/shpwrite.js"></script>
+<script
+    src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL,Object.assign">
+</script>
+<script src="scripts/ol-ext.min.js"></script>
+<script src="scripts/math.min.js"></script>
+<script src="scripts/jquery.dirrty.js"></script>
+<!-- <script src="scripts/jquery.fileupload.js"></script>
+<script src="scripts/jquery.ui.widget.js"></script>
+<script src="scripts/jquery.iframe-transport.js"></script> -->
+
+<script>
+    var mymap;
+</script>

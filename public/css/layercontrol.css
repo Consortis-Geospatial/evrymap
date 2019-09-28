@@ -1,0 +1,70 @@
+﻿.just-padding {
+    padding-left: 15px;
+    padding-right: 15px;
+    max-height: 500px;
+    max-width: 400px;
+}
+
+.list-group.list-group-root {
+    padding: 0;
+    overflow: hidden;
+    max-width: 380px;
+}
+
+    .list-group.list-group-root .list-group {
+        margin-bottom: 0;
+    }
+
+    .list-group.list-group-root .list-group-item {
+        border-radius: 0;
+        border-width: 1px 0 0 0;
+    }
+
+    .list-group.list-group-root > .list-group-item:first-child {
+        border-top-width: 0;
+    }
+
+    .list-group.list-group-root > .list-group > .list-group-item {
+        padding-left: 30px;
+    }
+
+    .list-group.list-group-root > .list-group > .list-group > .list-group-item {
+        padding-left: 45px;
+    }
+
+.list-group-item .glyphicon {
+    margin-right: 5px;
+}
+
+.list-item-legend {
+    border: 0;
+}
+
+.glyphicon-none:before {
+    content: "\2122";
+    color: transparent !important;
+}
+
+.ol-legendcontrol {
+    /*background-color: rgba(255, 255, 255, 0.4);*/
+    border-radius: 4px;
+    padding: 2px;
+    /*position: absolute;*/
+    width: 30px;
+    /*top: 10px;
+    margin-right: 40px;*/
+}
+/* Important part */
+#legendDialog {
+    overflow-y: initial !important;
+    max-width: 450px;
+}
+
+#LegendBody {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+#modLyrDialog {
+    backdrop: false;
+}

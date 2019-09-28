@@ -1,0 +1,65 @@
+﻿{
+  
+    "title": "Layer",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Όνομα επιπέδου",
+        "minLength": 4,
+        "default": ""
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "WMS",
+          "GeoJson"
+        ]
+      },
+      "mapfile": {
+        "type": "string",
+        "description": "Όνομα επιπέδου",
+        "minLength": 1,
+        "default": "C:\\mapportal\\mapfiles\\mapfile.map"
+      },
+      "group": {
+        "type": "string",
+        "description": "Όνομα Ομάδας",
+        "minLength": 1,
+        "default": "C:\\mapportal\\mapfiles\\mapfile.map"
+      },
+      "label": {
+        "type": "string",
+        "description": "Όνομα επιπέδου",
+        "minLength": 1,
+        "default": ""
+      },
+      "position": {
+        "type": "string",
+        "enum": [
+          "left",
+          "right"
+        ]
+      },
+      "table_name": {
+        "type": "string",
+        "description": "Όνομα Ομάδας",
+        "minLength": 1,
+        "default": "C:\\mapportal\\mapfiles\\mapfile.map"
+      },
+      "color": {
+        "type": "string",
+        "format": "color",
+        "title": "favorite color",
+        "default": "#ffa500"
+      },
+      "width": {
+        "type": "integer",
+        "description": "Πάχος γραμμής",
+        "title": "Πάχος γραμμής",
+        "default": 2,
+        "minimum": 1,
+        "maximum": 99
+      }
+  }
+}

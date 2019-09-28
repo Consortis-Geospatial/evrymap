@@ -1,0 +1,186 @@
+<!-- views/index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include partials/head %>
+</head>
+
+<body>
+    <div id="mainparent" class="container-fluid">
+    <header>
+        <% include partials/header %>
+    </header>
+    
+    
+        <div id="divStatus" runat="server" clientidmode="Static" class="alert-warning"
+            style="display: none; z-index: 99999999999">
+            <div style="padding: 0px;">
+                <div id="divStatusMsg" runat="server" clientidmode="Static" class="alert-warning"
+                    style="width: 100%; height: 100%">
+                    <strong>
+                        <span id="spMsg" runat="server" clientidmode="Static"
+                            style="font-size: 1.5em; width: 100%; height: 100%; margin: 0.5em"
+                            class="glyphicon glyphicon-warning-sign">
+                        </span>
+                    </strong>
+                </div>
+            </div>
+        </div>
+        <!-- <form id="form1" role="form" method="POST" action="/login"> -->
+            <div id="modLogin" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 id="lblLoginTitle" class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <img class="login-profile-img" src="css/images/login.png" alt="">
+                            <fieldset>
+                                <div class="form-group" style="padding-left: 50px; padding-right: 50px">
+                                    <label id="lblUsername" for="txbUsername" data-i18n="_USERNAME"></label>
+                                    <input id="txbUsername" type="text" 
+                                        class="form-control" style="padding:5px" placeholder="username" name="txbUsername"
+                                        type="text">
+                                </div>
+                                <div class="form-group" style="padding-left: 50px; padding-right: 50px">
+                                    <label id="lblPassword" for="txbPassword" data-i18n="_PASSWORD"></label>
+                                    <input id="txbPassword" ClientIDMode="Static" runat="server"
+                                        class="form-control" Style="padding: 5px" placeholder="Password" name="txbPassword"
+                                        type="password" value="">
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="row pull-right">
+                                <div class="col-lg-12">
+                                    <div class="btn-group">
+
+                                        <button type="button" id="btnCloseLogin" data-dismiss="modal"
+                                            class="btn btn-default">Κλείσιμο</button>
+                                        <input type="submit" id="btnLogin" name="btnLogin"
+                                            class="btn btn-primary">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+        <!-- </form> -->
+        <div id="mapid">
+            <input type="hidden" id="hidMS" />
+            <input type="hidden" id="hidJConfig" />
+        </div>
+        <div style="display: none;">
+            <!-- Popup -->
+            <div id="popup"></div>
+        </div>
+        <div style="display: none; min-width: 150px;">
+            <!-- Popup -->
+            <div id="cPopup" style="min-width: 150px;"></div>
+        </div>
+        <div class="msgPanel panel panel-info" id="divMsg" style="display: none">
+            <div class="panel-heading">
+                <h3 class="panel-title" id="pnlMsgTitle">Παρουσιάστηκε σφάλμα</h3>
+            </div>
+            <div class="panel-body" id="pnlMsg">
+            </div>
+        </div>
+        <div class="panel panel-default" id="divAttrsForm" style="display: none">
+            <div class="panel-body" id="attrContent">
+            </div>
+        </div>
+        <div class="panel panel-default" id="divStartEditForm" style="display: none">
+            <div class="panel-body">
+                <input type="hidden" id="hidEditLayer" />
+                <div class="row" id="editLyrList">
+                </div>
+            </div>
+        </div>
+        <div class="btn-group bottomtb dropup" role="toolbar" id="bottomToolbar" data-toggle="buttons">
+            <button class="btn btn-primary bottomtb" id="btnOpenXY">
+                <img src="css/images/marker-white.png" style="width: 20px;" />
+            </button>
+        </div>
+        <div class="btn-toolbar lefttb" id="leftToolbar" role="toolbar" aria-label="Εργαλεία περιήγησης χάρτη">
+            <div class="btn-group-vertical" data-toggle="buttons" id="zoomTools">
+            </div>
+        </div>
+        <div class="input-group scalebar col-lg-2" role="toolbar">
+            <span class="input-group-addon" id="lblScaleBar" style="background-color: #7e8893">Κλίμακα 1:</span>
+            <input list="scales" id="curScale" type="text" min="0" max="1000000" class="form-control"
+                style="width: 150%" />
+            <datalist id="scales">
+                <option value="100"></option>
+                <option value="200"></option>
+                <option value="500"></option>
+                <option value="1000"></option>
+                <option value="2000"></option>
+                <option value="5000"></option>
+                <option value="10000"></option>
+                <option value="20000"></option>
+                <option value="50000"></option>
+                <option value="100000"></option>
+                <option value="500000"></option>
+                <option value="1000000"></option>
+            </datalist>
+        </div>
+        <div class="graphicscale" role="toolbar" id="graphicScaleBar">
+        </div>
+
+        <div class="wait">
+            <!-- Place at bottom of page -->
+        </div>
+    </div>
+
+    <footer class="footer">
+        <% include partials/footer %>
+    </footer>
+    <!-- Custom tools libraries -->
+    <script src=<%- "\"i18n/" + gConfig.lang + ".js\"" %>></script>
+    <script src="scripts/citimap/mapportal.js" defer></script>
+    <script src="scripts/citimap/user.js"></script>
+    <script src='scripts/citimap/searchmap.js'></script>
+    <script src='scripts/citimap/searchadv.js' defer></script>
+    <script src="scripts/citimap/layers.js"></script>
+    <script src='scripts/citimap/measurecontrol.js' defer></script>
+    <script src='scripts/citimap/zoom2coords.js' defer></script>
+    <script src='scripts/citimap/esri.js' defer></script>
+     <!-- Print control libraries -->
+    <script src='scripts/pdfmake.min.js' defer></script>
+    <script src='scripts/vfs_fonts.js' defer></script>
+    <script src='scripts/citimap/printcontrol.js' defer></script>
+
+    <!-- Address Search Mod -->
+    <!--<script src=<%-"\"scripts/citimap/" + gConfig.searchaddressmod + "\" defer" %>></script> -->
+    
+<%- '<script>' + 'var configfile =\'' + gConfig.configJson +'\'; var lang=\'' +  gConfig.lang +'\'; var proxyUrl=\'' +  ((gConfig.proxyUrl).endsWith('/') ? gConfig.proxyUrl : gConfig.proxyUrl +'/') +'\';</script>' %>
+    <script src='scripts/citimap/layercontrol.js' defer></script>
+    <script src='scripts/citimap/ogc.js' defer></script>
+    <% if (typeof gConfig.loadeditmod !== "undefined" && gConfig.loadeditmod=== true) { %>
+
+        <script src='modules/editor/featureedit.js' defer></script>
+        <script src='modules/editor/featureeditadv.js' defer></script>
+        <script src='modules/editor/featureeditforms.js' defer></script>
+<%} %>
+<% if (typeof gConfig.custommods !== "undefined") { %> 
+<% gConfig.custommods.forEach(function(mod) { %>
+<% var js=mod.js; %>
+<% js.forEach(function(scr) { %>
+<script src=<%- "\"modules/" + scr.split(':')[0]+ "\"" %>></script>
+<% }) %>
+<% }) %>
+<% } %>
+<script src='scripts/citimap/comms.js' defer></script>
+<script src='scripts/citimap/wmst.js' defer></script>
+         
+</body>
+
+</html>

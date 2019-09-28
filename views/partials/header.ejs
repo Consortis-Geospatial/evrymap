@@ -1,0 +1,34 @@
+<!-- views/partials/header.ejs -->
+
+<nav class="navbar navbar-inverse" role="navigation" id="cnavbar">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topmenu">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" style="padding: 1px" href="#">
+            <img src= <%=  gConfig.sitelogo   %> alt= <%= gConfig.logotitle %>>
+            <span class="navbar-text"><%= gConfig.sitetitle%></span>
+        </a>
+    </div>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse navbar-inverse" id="topmenu">
+        <ul class="nav navbar-nav navbar-right" id="usermenu" runat="server" clientidmode="static">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-user fa-lg"></i><span class="caret"></span></a>
+                <ul id="login-dp" class="dropdown-menu">
+                    <li>
+                        <a href="#" class="dropdown-toggle" id="lnkLogin" runat="server" clientidmode="Static"><b>Login</b> </a>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-toggle btn disabled pull-left" style="color:dimgrey;font-style:italic" id="lnkOptions" runat="server" clientidmode="Static"><b>Ρυθμίσεις</b> </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!-- /.navbar-collapse -->

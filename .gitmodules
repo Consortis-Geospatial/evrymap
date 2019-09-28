@@ -1,0 +1,18 @@
+[submodule "modules/ktimajs"]
+	path = modules/ktimajs
+	url = https://gaiocorp.visualstudio.com/DefaultCollection/ktimajs/_git/ktimajs
+[submodule "modules/maptheyajs"]
+	path = modules/maptheyajs
+	url = https://gaiocorp.visualstudio.com/DefaultCollection/maptheyajs/_git/maptheyajs
+[submodule "modules/lrmjs"]
+	path = modules/lrmjs
+	url = https://gaiocorp.visualstudio.com/DefaultCollection/lrmJS/_git/lrmJS
+[submodule "modules/cpfjs"]
+	path = modules/cpfjs
+	url = https://gaiocorp.visualstudio.com/DefaultCollection/_git/cpfJS
+[submodule "public/modules/lrmjs"]
+	path = public/modules/lrmjs
+	url = https://gaiocorp.visualstudio.com/DefaultCollection/lrmJS/_git/lrmJS
+[submodule "modules/lrm"]
+	path = modules/lrm
+	url = https://gaiocorp.visualstudio.com/DefaultCollection/lrm/_git/lrm.nodejs
