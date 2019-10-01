@@ -1,4 +1,4 @@
-﻿html, body {
+html, body {
     height: 100%;
     width: 100%;
     margin: 0;
@@ -115,6 +115,16 @@ textarea {
     text-align: left;
 }
 
+/* #cnavbar {
+    position: relative;
+    top: 0;
+    width: 100%;
+    height: 50px;
+    margin-bottom: 0;
+}
+
+
+
 #nvheader {
     padding-left: 0;
     position: fixed;
@@ -134,7 +144,7 @@ textarea {
     background-repeat: no-repeat;
     background-position: left;
     margin-left: 5px;
-}
+} */
 
 /*.popover-content {
     color: red;
@@ -175,27 +185,14 @@ textarea {
     border-radius: 50%;
 }
 
-#cnavbar {
-    height: 50px;
-    margin-bottom: 0;
-}
+
 
 #nvbr {
     margin-top: 15px;
     margin-right: 2px;
 }
 
-.navbar-text {
-    position: relative;
-    width: 100%;
-    left: 220px;
-    text-align: center;
-    margin: auto;
-    top: -33px;
-    padding-left: 60px;
-    font-size: 19px;
-	  font-weight: bold;
-}
+
 
 .ui-dialog-titlebar {
     background-color: rgb(51, 122, 183);
@@ -236,8 +233,8 @@ textarea {
 
 /* Navigation buttons */
 .lefttb {
-    position: fixed;
-    z-index: 1000;
+    position: absolute;
+    /* z-index: 1000; */
     left: 0.9%;
     top: 6em;
 }

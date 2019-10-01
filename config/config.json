@@ -1,5 +1,5 @@
 {
-    "proxyUrl": "http://localhost:8181/proxy/",
+    "proxyUrl": "http://localhost:3000/proxy/",
     "proxyRedirect": "http://localhost:3692",
     "configJson":"layerconfig-lrm.json",
     "searchaddressmod" :"address_nominatim.js",
