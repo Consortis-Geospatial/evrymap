@@ -382,7 +382,7 @@
                     } else {
                         wfsUrl = window.location.protocol + '//' + mapservUrl + '?map=' + val.mapfile;
                     }
-                    tmpvector = mapUtils.createVectorJsonLayer(val.mapfile, val.table_name, val.color, val.linewidth, mapSettings.useWrappedMS);
+                    tmpvector = mapUtils.createVectorJsonLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS);
                     tmpvector.set('name', val.name);
                     tmpvector.set('table_name', val.table_name);
                     tmpvector.set('tag', [val.type, wfsUrl]);
@@ -598,7 +598,16 @@
 
             return mymap;
         },
-        createVectorJsonLayer: function (mapfile, table_name, color, linewidth, iswrapped) {
+        createVectorJsonLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped) {
+            let vectorStyle= new ol.style.Style();
+            let fill;
+            if ((typeof hasfill !== "undefined" || hasfill===true) && typeof fillcolor !== "undefined") {
+                fill = new ol.style.Fill({
+                    color: fillcolor
+                });
+            } else {
+                fill=false;
+            }
             var geoJsonLayer = new ol.layer.Vector({
                 source: new ol.source.Vector({
                     format: new ol.format.GeoJSON({ defaultDataProjection: projcode, featureProjection: projcode }),
@@ -621,9 +630,7 @@
                     crossOrigin: 'anonymous'
                 }),
                 style: new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: color
-                    }),
+                    fill,
                     stroke: new ol.style.Stroke({
                         color: color,
                         width: linewidth
