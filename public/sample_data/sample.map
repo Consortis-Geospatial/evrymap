@@ -1,0 +1,186 @@
+MAP
+  CONFIG "PROJ_LIB" "/usr/share/proj/"
+  DEFRESOLUTION 96
+  EXTENT 104009 3850806 1007944 4623934
+  FONTSET "/home/pano/Code Repositories/evrymap/public/sample_data/ms_templates/font.list"
+  IMAGETYPE "png24"
+  NAME "EVRYMAP"
+  RESOLUTION 96
+  SHAPEPATH ""
+  SIZE 1580 905
+  STATUS ON
+  SYMBOLSET "ms_templates/symbols.sym"
+  UNITS METERS
+  CONFIG "MS_ERRORFILE" "ms_error.txt"
+  DEBUG 5
+
+  OUTPUTFORMAT
+    NAME "png24"
+    MIMETYPE "image/png"
+    DRIVER "AGG/PNG"
+    EXTENSION "png"
+    IMAGEMODE RGB
+    TRANSPARENT FALSE
+  END # OUTPUTFORMAT
+
+  OUTPUTFORMAT
+    NAME "print"
+    MIMETYPE "image/png"
+    DRIVER "AGG/PNG"
+    EXTENSION "png"
+    IMAGEMODE RGB
+    TRANSPARENT FALSE
+  END # OUTPUTFORMAT
+
+  OUTPUTFORMAT
+    NAME "geojson"
+    MIMETYPE "application/json; subtype=geojson; charset=utf-8"
+    DRIVER "OGR/GEOJSON"
+    IMAGEMODE FEATURE
+    TRANSPARENT FALSE
+    FORMATOPTION "STORAGE=stream"
+    FORMATOPTION "FORM=SIMPLE"
+  END # OUTPUTFORMAT
+
+  OUTPUTFORMAT
+    NAME "CSV"
+    MIMETYPE "text/csv"
+    DRIVER "OGR/CSV"
+    IMAGEMODE FEATURE
+    TRANSPARENT FALSE
+    FORMATOPTION "LCO:GEOMETRY=AS_WKT"
+    FORMATOPTION "STORAGE=filesystem"
+    FORMATOPTION "FORM=simple"
+    FORMATOPTION "LCO:COORDINATE_PRECISION=4"
+    FORMATOPTION "FILENAME=result.csv"
+  END # OUTPUTFORMAT
+
+  OUTPUTFORMAT
+    NAME "SHAPEZIP"
+    DRIVER "OGR/ESRI Shapefile"
+    IMAGEMODE FEATURE
+    TRANSPARENT FALSE
+    FORMATOPTION "STORAGE=filesystem"
+    FORMATOPTION "FORM=zip"
+    FORMATOPTION "LCO:COORDINATE_PRECISION=4"
+    FORMATOPTION "FILENAME=shapefile.zip"
+  END # OUTPUTFORMAT
+
+  PROJECTION
+      "proj=tmerc"
+      "lat_0=0"
+      "lon_0=24"
+      "k=0.9996"
+      "x_0=500000"
+      "y_0=0"
+      "datum=GGRS87"
+      "units=m"
+      "no_defs"
+  END # PROJECTION
+
+  LEGEND
+    KEYSIZE 20 10
+    KEYSPACING 5 5
+    LABEL
+      SIZE 10
+      OFFSET 0 0
+      SHADOWSIZE 1 1
+    END # LABEL
+    STATUS OFF
+  END # LEGEND
+
+  QUERYMAP
+    SIZE -1 -1
+    STATUS OFF
+    STYLE HILITE
+  END # QUERYMAP
+
+  SCALEBAR
+    INTERVALS 4
+    LABEL
+      SIZE 10
+      OFFSET 0 0
+      SHADOWSIZE 1 1
+    END # LABEL
+    SIZE 200 3
+    STATUS OFF
+    UNITS MILES
+  END # SCALEBAR
+
+  WEB
+    METADATA
+      "wfs_srs"	"EPSG:2100"
+      "distance_units"	"MS_METERS"
+      "wms_feature_info_mime_type"	"geojson"
+      "coordsys_name"	"GGRS87 / Greek Grid"
+      "wfs_title"	"EVRYMAP WFS Service"
+      "wfs_onlineresource"	"http://localhost/cgi-bin/mapserv?map=/home/pano/Code Repositories/evrymap/public/sample_data/sample.map"
+      "wfs_enable_request"	"*"
+      "wfs_abstract"	"EVRYMAP WFS Service sample data"
+    END # METADATA
+  END # WEB
+
+
+  LAYER
+    COMPOSITE
+      OPACITY 50
+    END # COMPOSITE
+    DATA "greek_admin_boundaries.shp"
+    ENCODING "ISO-8859-7"
+    LABELITEM 'NAME'
+    METADATA
+      "wms_srs"	"EPSG:2100"
+      "wms_onlineresource"	"https://192.168.0.204/mapserver/mapserv?map=E:\\maps\\pblrmi.map&"
+      "wms_enable_request"	"*"
+      "wfs_featureid"	"NAME"
+      "gml_featureid"	"NAME"
+      "wms_feature_info_mime_type"	"geojson"
+      "coordsys_name"	"+init=epsg:2100"
+      "wfs_title"	"Greek Admin Boundaries"
+      "wfs_getfeature_formatlist"	"geojson,CSV,SHAPEZIP"
+      "gml_include_items"	"all"
+      "wfs_abstract"	"Greek Admin Boundaries WFS Service"
+      "wms_title"	"Greek Admin Boundaries"
+    END # METADATA
+    NAME "kallikratis"
+    PROJECTION
+      "proj=tmerc"
+      "lat_0=0"
+      "lon_0=24"
+      "k=0.9996"
+      "x_0=500000"
+      "y_0=0"
+      "datum=GGRS87"
+      "units=m"
+      "no_defs"
+    END # PROJECTION
+    STATUS DEFAULT
+    TEMPLATE "query"
+    TILEITEM "location"
+    TYPE POLYGON
+    UNITS METERS
+    CLASS
+      NAME "Admin Boundaries Polygons"
+      LABEL
+        FONT "opensansjkjkj1"
+
+        COLOR  150 150 150
+        OUTLINECOLOR 255 255 255
+        TYPE TRUETYPE
+        SIZE 8
+        OFFSET 0 0
+        POSITION AUTO
+        #SHADOWSIZE 1 1
+      END # LABEL
+      STYLE
+        COLOR 255 255 128
+        OUTLINECOLOR 0 0 0
+        SIZE 8
+      END # STYLE
+      TEXT ""
+      TITLE "Boundary Polygons"
+    END # CLASS
+END
+
+END # MAP
+

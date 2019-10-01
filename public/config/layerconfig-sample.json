@@ -1,0 +1,32 @@
+{
+  "map": {
+    "mapserver": "localhost",
+    "mapservexe": "cgi-bin/mapserv",
+    "initzoomlevel" : 4,
+    "mcenter": "404380,4492757",
+    "projcode": "EPSG:2100",
+    "projdescr": "+title=GGRS87 / Greek Grid +proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=-199.87,74.79,246.62,0,0,0,0 +units=m +no_defs",
+    "mapextent": "-104009,3850806,1007944,4623934",
+    "xyzoomlevel": "5",
+    "address_country": "gr"
+  },
+  "layers": [
+    {
+      "name": "OSM",
+      "type": "OSM",
+      "label": "Χάρτης OSM",
+      "display_on_startup": true
+    },
+    {
+      "name": "kallikratis",
+      "type": "WMS",
+      "mapfile": "/home/pano/Code Repositories/evrymap/public/sample_data/sample.map",
+      "label": "Admin Boundaries",
+      "display_on_startup": true,
+      "queryable": true,
+      "table_name": "kallikratis",
+      "search_fields": "NAME:Municipal Unit Name",
+      "identify_fields": "NAME:Municipal Unit Name"
+    }
+  ]
+}
