@@ -41,3 +41,16 @@ The main app configuration is controlled in `$root_folder/config/config.json` wh
         }
     ]
 }```
+Where:
+- **configJson** Application-specific configuration file e.g. `layerconfig-sample.json`. 
+- **searchaddressmod** The javascript to be used for  _address geocoding_ e.g. `address_nominatim.js` Currently only [Nominatim](https://nominatim.org/release-docs/latest/) is supported
+- **loadeditmod**  true ή false (case sensitive) Whether to load the _Editor Module_ (for digitizing/editing layer data)
+- **sitetitle** The title that will appear on the header e.g. 'Sample Site'
+- **sitelogo** The full image path for the header image e.g. `css/images/EVRIMAP_Color_Negative.png`
+- **logotitle**" Alt-title for the image e.g. `"EVRYMAP logo"
+- **custommods**" A list of any additional modules to load. **MORE INFO TO FOLLOW**
+- **lang** Language in which all controls will appear. Currently only Greek (el-GR) and English (en-US) are supported
+- **editConnectionType** Database type. Currently only the values "MSSQL" or "POSTGRES" are supported. Applies only if the loadedit mode value is set to true
+- **editConnection** References one of the connection names that are defined in _connections_ list 
+
+```
