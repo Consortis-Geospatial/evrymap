@@ -41,6 +41,7 @@ The main app configuration is controlled in `$root_folder/config/config.json` wh
         }
     ]
 }```
+
 Where:
 - **configJson** Application-specific configuration file e.g. `layerconfig-sample.json`. 
 - **searchaddressmod** The javascript to be used for  _address geocoding_ e.g. `address_nominatim.js` Currently only [Nominatim](https://nominatim.org/release-docs/latest/) is supported
@@ -53,4 +54,3 @@ Where:
 - **editConnectionType** Database type. Currently only the values "MSSQL" or "POSTGRES" are supported. Applies only if the loadedit mode value is set to true
 - **editConnection** References one of the connection names that are defined in _connections_ list 
 
-```
