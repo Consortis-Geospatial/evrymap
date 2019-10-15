@@ -41,6 +41,7 @@ The main app configuration is controlled in `$root_folder/config/config.json` wh
         }
     ]
 }
+```
 dd
 
 
