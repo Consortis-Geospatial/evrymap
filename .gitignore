@@ -1,1 +1,5 @@
 node_modules/
+/public/config/layerconfig-lrm.json
+/public/config/layerconfig-pbmi.json
+/public/config/layerconfig-vt.json
+/config/config.json

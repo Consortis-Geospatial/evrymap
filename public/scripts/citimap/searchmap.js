@@ -239,7 +239,7 @@
                                 var glyph = searchLayer.get("custom_record_action").glyphicon;
                                 //str = str + "&nbsp;<a href='#' title='" + tt + "' onclick=\"" + action + "('" + JSON.stringify(data) + "')" + "><i class='glyphicon " + glyph + "'></i></a>";
                                 var oc = " onclick=\"" + action + "('hid" + tblid + "Custom" + meta.row + "');\"";
-                                //console.log(oc);
+                                //Escape special characters and replace single quotes with a space
                                 let objval = JSON.stringify(row).replace(/\\n/g, "\\n")
                                     .replace(/\\'/g, "\\'")
                                     .replace(/\\"/g, '\\"')
@@ -247,12 +247,11 @@
                                     .replace(/\\r/g, "\\r")
                                     .replace(/\\t/g, "\\t")
                                     .replace(/\\b/g, "\\b")
-                                    .replace(/\\f/g, "\\f");
+                                    .replace(/\\f/g, "\\f")
+                                    .replace(/'/g, ' ');
                                 //console.log(objval);
                                 str = str + '&nbsp;<a href="#" id="lnk' + tblid + 'Custom' + meta.row + '" title="' + tt + '" ' + oc + '><i class="glyphicon ' + glyph + '"></i></a>';
                                 str = str + '<input type="hidden" id="hid' + tblid + 'Custom' + meta.row + '" value=\'' + objval + '\'>';
-                                //str = str + '<input type="hidden" id="hid' + tblid + 'Custom' + meta.row + '" value=' + row + '">';
-                                //$('#' + tblid + "Custom" + meta.row).on("click", window[action](data));
                             }
                         }
                         return str;
