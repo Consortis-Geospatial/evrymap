@@ -133,9 +133,9 @@
         formatLength: function (line) {
             //Make sure we reproject if required
             var projLine = mapUtils.convertGeometryToDestProjection('LineString', line);
-            //console.log('Format Length - ProjLine: ' + projLine.getLength() + 'Input line length: ' + projLine.getLength() + 'Projline on sphere length: ' + ol.Sphere.getLength(projLine));
-            //var length = ol.Sphere.getLength(projLine);
-            var length = projLine.getLength();
+            // Fix for #3 - Measure tools not working properly with lon/lat data
+            let p=mymap.getView().getProjection();
+            var length = projLine.getLength() * p.getMetersPerUnit();
             var output;
             if (length > 1000) {
                 output = (Math.round(length / 1000 * 100) / 100) +
@@ -148,11 +148,12 @@
         },
         formatLengthInM: function (line) {
             var length;
+            let p=mymap.getView().getProjection();
             if (line instanceof ol.geom.Polygon) {
                 let perimeter = new ol.geom.LineString(line.getLinearRing(0).getCoordinates());
-                length = perimeter.getLength();
+                length = perimeter.getLength() * p.getMetersPerUnit();
             } else {
-                length = line.getLength();
+                length = line.getLength() * p.getMetersPerUnit();
             }
             var output;
             output = (Math.round(length * 100) / 100);
@@ -161,9 +162,16 @@
         formatArea: function (polygon) {
             //Make sure we reproject if required
             var projPoly = mapUtils.convertGeometryToDestProjection('Polygon', polygon);
-            var area = projPoly.getArea();
-            var output;
-            if (area > 10000) {
+            let p=mymap.getView().getProjection();
+            var area=0;
+            if (p.getUnits()==="degrees") {
+                let wgs84Sphere = new ol.Sphere(6378137);
+                let coordinates = projPoly.getLinearRing(0).getCoordinates();
+                area = Math.abs(wgs84Sphere.geodesicArea(coordinates));
+            } else {
+                area = projPoly.getArea();
+            }
+           if (area > 10000) {
                 output = (Math.abs(Math.round(area / 1000000 * 100) / 100)) +
                     ' ' + 'km<sup>2</sup>';
             } else {
@@ -176,16 +184,28 @@
             //Make sure we reproject if required
             var projPoly = mapUtils.convertGeometryToDestProjection('Polygon', polygon);
             var area = 0;
+            let p=mymap.getView().getProjection();
             // OL doesn't seem to calculate multipolygon areas correctly so adding areas each polygon
             if (projPoly.getType() === "Multipolygon") { // Will never get here since we are converting it to a polygon first. But... just in case
                 $.each(projPoly.getPolygons(), function (i, part) {
-                    area = area + part.getArea();
+                    if (p.getUnits()==="degrees") { // Check if we are in lon/lat
+                        let wgs84Sphere = new ol.Sphere(6378137);
+                        let coordinates = part.getLinearRing(0).getCoordinates();
+                        area = Math.abs(wgs84Sphere.geodesicArea(coordinates));
+                    } else {
+                        area = area + part.getArea() * p.getMetersPerUnit();
+                    }
                 });
             } else {
                 $.each(projPoly.getLinearRings(), function (i, ring) {
-                    area = area + ring.getArea();
+                    if (p.getUnits()==="degrees") {
+                        let wgs84Sphere = new ol.Sphere(6378137);
+                        let coordinates = part.getLinearRing(0).getCoordinates();
+                        area = Math.abs(wgs84Sphere.geodesicArea(coordinates));
+                    } else {
+                        area = area + ring.getArea() * p.getMetersPerUnit();
+                    }
                 });
-               //area = projPoly.getArea();
             }
             if (isNaN(area)) {
                 area = 0;
