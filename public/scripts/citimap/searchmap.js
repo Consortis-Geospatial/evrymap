@@ -221,7 +221,7 @@
                 $('#searchResultsUl').append('<li class="nav-item"><a class="nav-link" href="#tabS' + tblid + '" data-toggle="tab">' + lyrlabel + '</a>');
                 $('#tabContentSearchResults').append('<div role="tabpanel" class="tab-pane" id="tabS' + tblid + '"></div>');
 
-                var theader = '<br /><table class="table table-striped table-bordered" style="width:100%;" id="tbl' + tblid + '"><thead style="width:100%"><tr>';//
+                var theader = '<br /><table class="table table-striped table-bordered" style="width:100%;" id="tbl' + tblid + '"><thead style="width:100%"><tr>'; //
                 //Get the field names from the first feature
                 var fRec = jsonObj.features[0];
                 var cols = [];
@@ -290,15 +290,17 @@
                                 break;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         visFieldIdx.push(j);
                     }
                     j++;
                 });
 
                 $.each(fRec.properties, function (key, val) {
-                    var tmp = { data: 'properties.' + key, name: key };
+                    var tmp = {
+                        data: 'properties.' + key,
+                        name: key
+                    };
                     //console.log('val: ' + val);
                     cols.push(tmp);
                     var lbl = key;
@@ -327,15 +329,20 @@
                         }
                     });
                 });
-                var dt = $('#tbl' + tblid).DataTable({
-                    dom: 'Bfrtip',
-                    buttons: [
-                        {
+                var dt = $('#tbl' + tblid)
+                    .on('init.dt', function () {
+                        //Add event when tab is shown to always adjust the table columns
+                        $("a[href='#tabS" + tblid + "']").on('shown.bs.tab', function (e) {
+                            $('#tbl' + tblid).DataTable().columns.adjust();
+                        });
+                    })
+                    .DataTable({
+                        dom: 'Bfrtip',
+                        buttons: [{
                             extend: 'collection',
                             text: $.i18n._('_ACTIONS') + '&nbsp;<span class="caret"></span>',
                             className: 'btn-success',
-                            buttons: [
-                                {
+                            buttons: [{
                                     id: 'btnExport2Shp',
                                     text: $.i18n._('_EXPORTTOSHP'),
                                     action: function (e, dt, node, config) {
@@ -385,37 +392,49 @@
                                 "copyTitle": "Copy to clipboard",
                                 "copyKeys": "Press <i>ctrl</i> or <i>⌘</i> + <i>C</i> to copy the table data<br>to your system clipboard.<br><br>To cancel, click this message or press escape."
                             }
+                        }],
+                        "columnDefs": [{
+                                sorting: false,
+                                orderable: false,
+                                targets: [0],
+                                order: [
+                                    [0, 'asc']
+                                ]
+                            },
+                            {
+                                "className": "dt-center",
+                                "targets": [0]
+                            },
+                            {
+                                "width": "20px",
+                                "targets": 0
+                            },
+                            {
+                                "targets": visFieldIdx,
+                                "visible": true,
+                                "searchable": true
+                            },
+                            {
+                                "targets": '_all',
+                                "visible": false,
+                                "searchable": false
+                            }
+                        ],
+                        "data": feat,
+                        "columns": cols,
+                        "scrollY": "200px",
+                        "scrollCollapse": true,
+                        "scrollX": "50%",
+                        language: {
+                            url: 'i18n/' + langDt
                         }
-                    ],
-                    "columnDefs": [
-                        { sorting: false, orderable: false, targets: [0], order: [[0, 'asc']] },
-                        { "className": "dt-center", "targets": [0] },
-                        { "width": "20px", "targets": 0 },
-                        {
-                            "targets": visFieldIdx,
-                            "visible": true,
-                            "searchable": true
-                        },
-                        {
-                            "targets": '_all',
-                            "visible": false,
-                            "searchable": false
-                        }
-                    ],
-                    "data": feat,
-                    "columns": cols,
-                    "scrollY": "200px",
-                    "scrollCollapse": true,
-                    "scrollX": "50%",
-                    language: {
-                        url: 'i18n/' + langDt
-                    }
-                });
+                    });
                 dt.order([0, 'asc']).draw();
                 //Trying to fix columns styling when there are more than one tabs
-                //$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                //    dt.columns.adjust();
-                //});
+                //  $("a[href='#tabS" +tblid +"']").on('hide.bs.tab', function(e){
+                //     $('#tbl' + tblid).DataTable().columns.adjust().draw();
+                // });
+
 
                 // Add event listener for opening and closing details
                 if (searchLayer.get("has_relation")) {
@@ -427,8 +446,7 @@
                             // This row is already open - close it
                             row.child.hide();
                             tr.removeClass('shown');
-                        }
-                        else {
+                        } else {
                             if (typeof searchLayer.get("relation_details") === "undefined") {
                                 alert("No relation information found - please check config files for layer " + lyrname);
                                 return false;
