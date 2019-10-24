@@ -271,7 +271,7 @@
                 } else if (val.type === "WMS") {
                     var wmsUrl = '';
                     let mapSettings = mapPortal.readConfig("map");
-
+                    var tmplyr;
                     mapserver = mapSettings.mapserver;
                     if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
                         wmsUrl = window.location.protocol + '//' + mapservUrl + '/' + val.mapfile.split('\\')[val.mapfile.split('\\').length - 1].split('.')[0];
@@ -282,7 +282,7 @@
                     if (typeof val.tiled === "undefined" || val.tiled === false) {
                        
                        
-                        var tmplyr =
+                        tmplyr =
                             new ol.layer.Image({
                                 source: new ol.source.ImageWMS({
                                     url: wmsUrl,
