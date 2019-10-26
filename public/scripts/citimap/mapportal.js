@@ -4,6 +4,7 @@
     }
     $('body').i18n();
 };
+var projDef;
 var mapPortal = (function (configfile) {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("config") !== null) {
@@ -92,6 +93,9 @@ var mapPortal = (function (configfile) {
             $('#divStatus').delay(2000).fadeOut(500);
         },
         readConfig: function (prop) {
+            // Get projection definitions
+            mapPortal.readProjDef();
+            // Read layer config file
             var ret;
             $.ajax({
                 url: 'config/' + configfile,
@@ -105,12 +109,25 @@ var mapPortal = (function (configfile) {
                 },
                 failure: function (response) {
                     alert(response.responseText);
-                },
-                complete: function (response) {
-                    $(".wait").hide();
                 }
             });
             return ret;
+        },
+        readProjDef: function () {
+            $.ajax({
+                url: 'config/projdef.json',
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    projDef = data;
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                }
+            });
         }
     };
 })(configfile);
