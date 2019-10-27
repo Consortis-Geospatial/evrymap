@@ -15,13 +15,19 @@
             $('#legendButton').prop('title', $.i18n._('_LEGEND'));
             $('#legendButton').on('click', function() {
                 $('#graphicLegend').toggle();
-            })
+            });
         },
         createLegendDialogUI: function (map) {
             $.i18n.load(uiStrings);
             var modLyrDialog = document.createElement('div');
             modLyrDialog.setAttribute('id', 'modLyrDialog');
             var divhtml = '<div class="container-fluid">' +
+                '<div class="row">' +
+                '    <div class="col-lg-12">' +
+                '        <label for="txbSearchLegend">' + $.i18n._("_SEARCH") + '</label>' +
+                '        <input type="text" class="form-control" id="txbSearchLegend" onkeypress="legendUtilities.searchLayerControlList();" placeholder="' + $.i18n._("_SEARCH") + '..." value="">' +
+                '   </div>' +
+                '</div>' +
                 '<div class="row">' +
                 '    <div class="col-lg-12">' +
                 '        <div class="list-group" id="layerList"></div>' +
@@ -54,8 +60,8 @@
                     if ($('#btnLegendActions').length === 0) {
                         var actionshtml = '<div id="btnLegendActions" class="btn-group dropup" role="group" aria-label="...">' +
                             '<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-                            $.i18n._('_ACTIONS') +
-                            '<span class="caret"></span>' +
+                            $.i18n._('_ACTIONS') + '&nbsp;' +
+                            '<span class="caret"</span>' +
                             '</button>' +
                             '<ul class="dropdown-menu">' +
                             '    <li><a href="#" onclick="$(\'#modLyrDialog\').dialog(\'close\');$(\'#dlgAddWMS\').dialog(\'open\');">' + $.i18n._('_WXSADD') + '...</a></li>' +
@@ -69,6 +75,14 @@
                     }
                 }
             });
+        },
+        searchLayerControlList: function () {
+            var s= $("#txbSearchLegend").val();
+            if (s === '') {
+                $("#layerList").children(".list-item-legend").show();
+            } else {
+                $("#layerList").children(".list-item-legend").not(":contains(" + s + ")").hide();
+            }
         },
         createSaveViewsDlg: function (map) {
             if ($('#modSavedViews').length === 0) {
@@ -195,7 +209,7 @@
                 classIdent = 'padding-left:30px;';
             }
             if (typeof tag !== "undefined") {
-                htmlLegendContent = htmlLegendContent + '<div id="legendLayer_' + name + '" href="#" class="list-group-item list-item-legend" data-toggle="collapse" style="' + classIdent + '"><h5>';
+                htmlLegendContent = htmlLegendContent + '<div id="legendLayer_' + name + '" href="#" class="list-group-item list-item-legend" data-toggle="collapse" style="' + classIdent + '">';
                 // Allow reordering only in top level layers
                 if (typeof layer.get("group") === "undefined" && layer.get("group") !== "") {
                     htmlLegendContent = htmlLegendContent + '<span title="' + $.i18n._("_REORDERLAYER") + '"><img class="reorder" src="css/images/icons8-drag-reorder-filled-50.png" style="width:20px;height:20px;cursor:move;padding-right:5px"></span>';
@@ -276,14 +290,14 @@
                     var subname = sublayer.get('name');
                     var subtag = sublayer.get('tag');
                     var sublabel = sublayer.get('label');
-                    htmlLegendContent = htmlLegendContent + '<a href="#" class="list-group-item list-item-legend" data-toggle="collapse"><h5>';
+                    htmlLegendContent = htmlLegendContent + '<a href="#" class="list-group-item list-item-legend" data-toggle="collapse">';
                     htmlLegendContent = htmlLegendContent + '<span id="lbl' + sublabel + '">' + sublabel + '</span></h5>';
                     // Make sure we have a 'tag' property on the layer
                     if (typeof subtag !== "undefined") {
                         if (subtag[0] !== "" && subtag[0] === "WMS") {
                             var lyrUrl = subtag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + subname + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                             htmlLegendContent = htmlLegendContent + '<p><img src="' + lyrUrl + '" /></p>';
-                            $('#legendImgList').append('<li class="list-group-item"><img src="' + lyrUrl + '" /></li>');
+                            $('#legendImgList').append('<li class="list-group-item"><h5>' + sublabel +'</h5><img src="' + lyrUrl + '" /></li>');
                         }
                     }
                     htmlLegendContent = htmlLegendContent + '</a>';
@@ -350,13 +364,13 @@
         },
         createLegendGroup: function (grpName, type) {
             var grphtml = '';
-            grphtml = grphtml + '<div id="legendGroup_' + grpName + '" class="list-group-item list-item-legend" data-toggle="collapse"><h5><strong>' +
+            grphtml = grphtml + '<div id="legendGroup_' + grpName + '" class="list-group-item list-item-legend" data-toggle="collapse"><strong>' +
                 '<span title="' + $.i18n._("_REORDERLAYER") + '"><img class="reorder" src="css/images/icons8-drag-reorder-filled-50.png" style="width:20px;height:20px;cursor:move;padding-right:5px"></span>' +
                 '<a href="#lgCollapse_' + grpName + '" data-toggle="collapse" onclick="legendUtilities.toggleChevron(this);"><i class="glyphicon glyphicon-chevron-right"></i></a>' +
                 '<i id="icon' + grpName + '" class="glyphicon glyphicon-eye-open text-success" aria-hidden="true" style="cursor:pointer" title="' + $.i18n._("_TOGGLEVISIBLE") + '" onclick="legendUtilities.toggleGroupLayerVisibility(this.id)"></i>' +
                 '<span id="spanGroupSelect' + grpName + '" style="color:orange;padding-right:2px" title="' + $.i18n._("_TOGGLESELECTABLE") + '"><i id="chkSelect' + grpName + '" class="glyphicon glyphicon-flash" style="cursor: pointer" onclick="legendUtilities.toggleGroupLayerSelect(this.id)";></i></span>' +
                 '</strong > ' +
-                '<span id="lbl' + grpName + '">' + grpName + '</span></strong></h5>' +
+                '<span id="lbl' + grpName + '">' + grpName + '</span></strong>' +
                 '<div class="list-group collapse" id="lgCollapse_' + grpName + '"></div></div>';
             $('#layerList').append(grphtml);
             // Make the legend list sortable
