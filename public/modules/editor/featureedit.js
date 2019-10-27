@@ -362,6 +362,12 @@ var featureEdit = (function () {
             });
 
             $mymap.addInteraction(this.drawIntrAct);
+            // Undo last point by pressing <esc>
+            var di=this.drawIntrAct;
+            document.addEventListener('keydown', function(e) {
+                if (e.which == 27)
+                    di.removeLastPoint();
+            });
             this.drawIntrAct.on('drawend', featureEditForms.prepareNewEditForm);
             if (typeof editLayer.get("edit_snapping_layers") !== "undefined") {
                 $.each(editLayer.get("edit_snapping_layers"), function (i, snap_layer) {
