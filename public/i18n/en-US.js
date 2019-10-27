@@ -158,5 +158,6 @@
     "_PREFERENCES": "Preferences",
     "_ANDOPERATOR": "All values (AND)",
     "_OROPERATOR": "Any value (OR)",
-    "_PAN": "Click and drag on the map to pan"
+    "_PAN": "Click and drag on the map to pan",
+    "_LEGEND" :"Map Legend"
 };

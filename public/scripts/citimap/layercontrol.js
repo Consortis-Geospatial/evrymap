@@ -10,6 +10,12 @@
             });
             //Create and Add Saved views dialog
             legendUtilities.createSaveViewsDlg();
+            // Graphic Legend
+            $('#lblGLegend').html($.i18n._('_LEGEND'));
+            $('#legendButton').prop('title', $.i18n._('_LEGEND'));
+            $('#legendButton').on('click', function() {
+                $('#graphicLegend').toggle();
+            })
         },
         createLegendDialogUI: function (map) {
             $.i18n.load(uiStrings);
@@ -236,6 +242,7 @@
                 if (tag[0] !== "" && tag[0] === "WMS") {
                     var lyrUrl = tag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + name + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                     htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img src="' + lyrUrl + '" /></span></p>';
+                    $('#legendImgList').append('<li class="list-group-item"><h5>' + label +'</h5><img src="' + lyrUrl + '" /></li>');
                 } else if (tag[0] !== "" && tag[0] === "GeoJSON") {
                     if (typeof layer.get('legend_image') !== "undefined" && layer.get('legend_image').trim() !== "") {
                         var legimgstring = layer.get('legend_image');
@@ -247,10 +254,12 @@
                         }
                         $.each(legimgstring.split(','), function (index, item) {
                             htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" />' + item.split(':')[1] + '<span></p>';
+                            $('#legendImgList').append('<li class="list-group-item"><h5>' + label +'</h5><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" /></li>');
                         });
                     }
                 } else if (tag[0] !== "" && tag[0] === "ESRIRESTTILE") {
                     esriUtils.drawEsriRestLegend(tag[1], name);
+                    //TODO: Draw legend on the standalone legend window
                 }
             }
             // Create metadata link
@@ -274,6 +283,7 @@
                         if (subtag[0] !== "" && subtag[0] === "WMS") {
                             var lyrUrl = subtag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + subname + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                             htmlLegendContent = htmlLegendContent + '<p><img src="' + lyrUrl + '" /></p>';
+                            $('#legendImgList').append('<li class="list-group-item"><img src="' + lyrUrl + '" /></li>');
                         }
                     }
                     htmlLegendContent = htmlLegendContent + '</a>';
