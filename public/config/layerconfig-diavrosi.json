@@ -3,10 +3,10 @@
     "mapserver": "localhost",
     "mapservexe": "mapserver/mapserv",
     "initzoomlevel" : 4,
-    "mcenter": "404380,4492757",
-    "projcode": "EPSG:2100",
-    "projdescr": "+title=GGRS87 / Greek Grid +proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=-199.87,74.79,246.62,0,0,0,0 +units=m +no_defs",
-    "mapextent": "-104009,3850806,1007944,4623934",
+    "mcenter": "24.6691,38.19565",
+    "projcode": "EPSG:4326",
+    "projdescr": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+    "mapextent": "18.2272980684169,33.5602987523285,31.1109019315831,42.8328212476714",
     "xyzoomlevel": "5",
     "address_country": "gr"
   },
@@ -35,7 +35,7 @@
     {
       "name": "kallikratis",
       "type": "WMS",
-      "mapfile": "C:\\Consortis Projects\\evrymap\\public\\sample_data\\sample.map",
+      "mapfile": "C:\\Consortis Projects\\evrymap\\public\\sample_data\\diavrosi.map",
       "label": "Admin Boundaries",
       "display_on_startup": true,
       "queryable": true,

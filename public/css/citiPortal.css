@@ -27,6 +27,16 @@ textarea {
 
 #mapid {
     height: 100%;
+    width: 100%;
+    position: relative;
+    /* position: absolute; */
+}
+
+#mapid2 {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    /* position: relative; */
 }
 
 #mapbuttons {
@@ -349,3 +359,19 @@ tr.shown td.details-control {
     -webkit-overflow-scrolling: touch;
 }
 
+.displayMap {
+    display: inherit;
+}
+
+.hideMap {
+    display: none;
+}
+
+#velocitySelId {
+    position: fixed;
+    z-index: 999;
+    right: 0.9%;
+    top: 4em;
+    width: 30%;
+    text-align: right;
+}

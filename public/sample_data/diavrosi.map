@@ -3,7 +3,7 @@ MAP
   CONFIG "MS_ERRORFILE" "C:\\Consortis Projects\\evrymap\\public\\sample_data\\ms_error.txt"
   DEBUG 5
   DEFRESOLUTION 96
-  EXTENT 18869.4240924087 3850806 1093083.57590759 4623934
+  EXTENT 18.2272980684169 33.5602987523285 31.1109019315831 42.8328212476714
   FONTSET "C:\\Program Files (x86)\\MapManager\\templates\\font.list"
   IMAGETYPE "png24"
   NAME "EVRYMAP"
@@ -12,7 +12,7 @@ MAP
   SIZE 843 607
   STATUS ON
   SYMBOLSET "C:\\Program Files (x86)\\MapManager\\templates\\symbols.sym"
-  UNITS METERS
+  UNITS DD
 
   OUTPUTFORMAT
     NAME "png24"
@@ -67,14 +67,8 @@ MAP
   END # OUTPUTFORMAT
 
   PROJECTION
-    "proj=tmerc"
-    "lat_0=0"
-    "lon_0=24"
-    "k=0.9996"
-    "x_0=500000"
-    "y_0=0"
-    "datum=GGRS87"
-    "units=m"
+    "proj=longlat"
+    "datum=WGS84"
     "no_defs"
   END # PROJECTION
   LEGEND
@@ -112,7 +106,7 @@ MAP
       "distance_units"	"MS_METERS"
       "mapmanager_version"	"1.1.0.0"
       "wms_feature_info_mime_type"	"geojson"
-      "coordsys_name"	"GGRS87 / Greek Grid"
+      "coordsys_name"	"Longitude-Latitude / WGS 84"
       "wfs_title"	"EVRYMAP WFS Service"
       "wfs_onlineresource"	"http://localhost/mapserver/mapserv?map=C:\\Consortis Projects\\evrymap\\public\\sample_data\\sample.map&"
       "wfs_enable_request"	"*"
@@ -128,7 +122,7 @@ MAP
     ENCODING "ISO-8859-7"
     LABELITEM "name"
     METADATA
-      "wms_srs"	"EPSG:2100"
+      "wms_srs"	"EPSG:4326, EPSG:3857, EPSG:2100"
       "wms_onlineresource"	"http://localhost/mapserver/mapserv?map=C:\\Consortis Projects\\evrymap\\public\\sample_data\\sample.map&"
       "wms_enable_request"	"*"
       "wfs_featureid"	"NAME"
