@@ -745,6 +745,23 @@
                 return;
             }
             legendUtilities.listSavedViews(svList);
+        },
+        velocityDisableBtns: function(disable) {
+            if (disable) {
+                $("#bottomToolbar button").each(function() {
+                    if ($(this).attr("id") !== "btnVelocity") {
+                        $(this).prop("disabled", true);
+                    } else {
+                        $(this).prop("disabled", false);
+                    }
+                });
+                $(".searchpanel").css("display", "none");
+            } else {
+                $("#bottomToolbar button").each(function() {
+                    $(this).prop("disabled", false);
+                });
+                $(".searchpanel").css("display", "initial");
+            }
         }
     };
 })();
@@ -781,8 +798,44 @@ app.SaveViewControl = function (opt_options) {
     });
 };
 
+app.VelocityViewControl = function (opt_options) {
+    var clickStatus = false;
+    var options = opt_options || {};
+    var element = document.createElement('button');
+    element.innerHTML = 'test'; // '<img src="css/images/layers-white.png" style="width: 20px;" />';
+    element.className = 'btn btn-primary bottomtb';
+    // element.setAttribute('title', $.i18n._('_LAYERS'));
+    element.setAttribute('title', 'Velocity');
+    element.setAttribute('id', 'btnVelocity');
+    element.addEventListener('click', function () {
+        if (!clickStatus) {
+            // classes displayMap, hideMap are located in cityportal.css
+            // $('#mapid').removeClass('displayMap').addClass('hideMap');
+            // $('#' + velocitySelect.getVelocitySettings().mapId).removeClass('hideMap').addClass('displayMap');
+            mapUtils.addWind(new Date().toISOString());
+            $('#mapid').css('position', 'absolute');
+            clickStatus = true;
+        } else {
+            // classes displayMap, hideMap are located in cityportal.css
+            // $('#' + velocitySelect.getVelocitySettings().mapId).removeClass('displayMap').addClass('hideMap');
+            // $('#mapid').removeClass('hideMap').addClass('displayMap');
+            // hide velocity select element
+            $("#velocitySelId select").hide();
+            mapUtils.removeWind();
+            $('#mapid').css('position', 'relative');
+            clickStatus = false;
+        }
+        legendUtilities.velocityDisableBtns(clickStatus);
+    }, false);
+    ol.control.Control.call(this, {
+        element: element,
+        target: options.target
+    });
+}
+
 ol.inherits(app.LayerControl, ol.control.Control);
 ol.inherits(app.SaveViewControl, ol.control.Control);
+ol.inherits(app.VelocityViewControl, ol.control.Control);
 
 $(document).ready(function () {
     //Get the map reference
@@ -794,4 +847,7 @@ $(document).ready(function () {
     //Add legend control button
     $map.getControls().push(new app.LayerControl({ 'target': 'bottomToolbar' }));
     $map.getControls().push(new app.SaveViewControl({ 'target': 'bottomToolbar' }));
+    if (velocitySelect.getVelocitySettings().mapId && velocitySelect.velocityLayerIsLoaded()) {
+        $map.getControls().push(new app.VelocityViewControl({ 'target': 'bottomToolbar' }));
+    }
 });

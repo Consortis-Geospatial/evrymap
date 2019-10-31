@@ -71,6 +71,12 @@
             <input type="hidden" id="hidMS" />
             <input type="hidden" id="hidJConfig" />
         </div>
+        <!-- check if velocity map is enabled -->
+        <%if (gConfig.useVelocityMap) { %>
+        <div id="mapid2">
+            <div></div>
+        </div>
+        <% } %>
         <!-- <header> -->
         <% include partials/header %>
         <!-- </header> -->
