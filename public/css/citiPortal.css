@@ -10,6 +10,8 @@ html, body {
     white-space: normal;
 }
 
+.ui-autocomplete { position: absolute; cursor: default;z-index:9999 !important;} 
+
 /* Set width on the form input elements since they're 100% wide by default */
 /*input,
 select,

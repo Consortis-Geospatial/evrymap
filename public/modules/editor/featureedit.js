@@ -115,6 +115,7 @@ var featureEdit = (function () {
             $('#btnStopEdits').prop("title", $.i18n._('_EDITSTOP'));
         },
         initAddHole: function () {
+            $('#mapid').css('cursor', 'crosshair');
             var currentEditLayerName = $('#hidEditLayer').val().trim();
             if (currentEditLayerName === "") {
                 alert("Could not find edit layer for create");
@@ -133,6 +134,7 @@ var featureEdit = (function () {
                 }
             }
             featureEdit.unselectEditTools();
+            $('#mapid').css('cursor', 'crosshair');
             $('#btnAddHole').addClass("active");
             $mymap = $('#mapid').data('map');
             mapUtils.resetMapInteractions($mymap);
@@ -181,6 +183,7 @@ var featureEdit = (function () {
             //}
         },
         initAddPart: function (in_geom ) {
+            $('#mapid').css('cursor', 'crosshair');
             var currentEditLayerName = $('#hidEditLayer').val().trim();
             if (currentEditLayerName === "") {
                 alert("Could not find edit layer for create");
@@ -199,6 +202,7 @@ var featureEdit = (function () {
                 }
             }
             featureEdit.unselectEditTools();
+            $('#mapid').css('cursor', 'crosshair');
             $('#btnCreate').removeClass("active");
             $('#btnAddPart').addClass("active");
             $mymap = $('#mapid').data('map');
@@ -294,6 +298,7 @@ var featureEdit = (function () {
             $('#btnLrmSearch').addClass("active");
         },
         initDrawing: function () {
+            
             var currentEditLayerName = $('#hidEditLayer').val().trim();
             if (currentEditLayerName === "") {
                 alert("Could not find edit layer for create");
@@ -312,7 +317,7 @@ var featureEdit = (function () {
                 }
             }
             featureEdit.unselectEditTools();
-            
+            $('#mapid').css('cursor', 'crosshair');
             $('#btnCreate').addClass("active");
             $mymap = $('#mapid').data('map');
             mapUtils.resetMapInteractions($mymap);
@@ -376,6 +381,7 @@ var featureEdit = (function () {
             }
         },
         initMerge: function () {
+            $('#mapid').css('cursor', 'pointer');
             var isComplete = false;
             var currentEditLayerName = $('#hidEditLayer').val().trim();
             if (currentEditLayerName === "") {
@@ -464,6 +470,7 @@ var featureEdit = (function () {
         },
         initSplit: function () {
             featureEdit.unselectEditTools();
+            $('#mapid').css('cursor', 'crosshair');
             $('#btnSplit').addClass("active");
             var currentEditLayerName = $('#hidEditLayer').val().trim();
             if (currentEditLayerName === "") {
@@ -526,7 +533,7 @@ var featureEdit = (function () {
                 }
             }
             featureEdit.unselectEditTools();
-           
+            $('#mapid').css('cursor', 'crosshair');
             $mymap = $('#mapid').data('map');
             mapUtils.resetMapInteractions($mymap);
             $('#btnEdit').addClass("active");
@@ -1000,6 +1007,7 @@ var featureEdit = (function () {
             // Reset editlayer variable
             originalEditLayer = null;
             $("#hidEditLayer").val("");
+            $('#mapid').css('cursor', 'default');
         },
         refreshVectorLayer: function (layername) {
             var lyr = legendUtilities.getLayerByName(layername);

@@ -159,5 +159,6 @@
     "_ANDOPERATOR": "All values (AND)",
     "_OROPERATOR": "Any value (OR)",
     "_PAN": "Click and drag on the map to pan",
-    "_LEGEND" :"Map Legend"
+    "_LEGEND" :"Map Legend",
+    "_CANNOTEDIT" : "Cannot edit this layer. Please check its configuration"
 };
