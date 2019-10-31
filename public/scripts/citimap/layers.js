@@ -87,8 +87,7 @@
                 if (nav_his.length === 1 && (size === -1 || size === 0)) {
                     $('#btnPrevEx').prop("disabled", true);
                     $('#btnNextEx').prop("disabled", true);
-                }
-                else {
+                } else {
                     $('#btnPrevEx').prop("disabled", false);
                     if (size < nav_his.length - 1) {
                         $('#btnNextEx').prop("disabled", false);
@@ -127,8 +126,7 @@
                 }
             });
 
-            mymap.on('postrender', function (event) {
-            });
+            mymap.on('postrender', function (event) {});
 
             mymap.on('change', function (event) {
                 //anonymousUser.writeSettings(mymap);
@@ -148,8 +146,8 @@
             $('#curScale').on('input', function () {
                 var val = this.value;
                 if ($('#scales').find('option').filter(function () {
-                    return this.value === val;
-                }).length) {
+                        return this.value === val;
+                    }).length) {
                     mapUtils.zoomToScale(mymap, Number($('#curScale').val()));
                 }
             });
@@ -196,24 +194,38 @@
             }
         },
         createMap: function (layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields) {
-            // Set source projection
-            proj4.defs(
-                projcode,
-                projdescr
-            );
-            // Set destination projection (used for measuring and coordinate display)
-            proj4.defs(
-                destprojcode,
-                destprojdescr
-            );
+            // Set source and destination projections
+            if (typeof projDef === "undefined") { //Projection definitions is not set
+                proj4.defs(
+                    projcode,
+                    projdescr
+                );
+                // Set destination projection (used for measuring and coordinate display)
+                proj4.defs(
+                    destprojcode,
+                    destprojdescr
+                );
+            } else {
+                $.each(projDef, function (key, val) { 
+                    if (key=== projcode ) {
+                        proj4.defs(
+                            destprojcode,
+                            val
+                        );
+                    }
+                }); 
+                $.each(projDef, function (key, val) { 
+                    if (key=== destprojcode ) {
+                        proj4.defs(
+                            destprojcode,
+                            val
+                        );
+                    }
+                }); 
+            }
             var extentarray = mapextent.split(',');
             var extent = [Number(extentarray[0]), Number(extentarray[1]), Number(extentarray[2]), Number(extentarray[3])];
             var projection = ol.proj.get(projcode);
-            //if (projcode !== "EPSG:4326") {
-               projection.setExtent(extent);
-           // }
-           
-
             var vectorSourceSel = new ol.source.Vector();
             var vectorSel = new ol.layer.Vector({
                 source: vectorSourceSel,
@@ -235,6 +247,7 @@
                         groups[grp] = [];
                     }
                 }
+                // OSM Tiles
                 if (val.type === "OSM" && typeof useGMap === "undefined") {
                     let url = "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
                     if (typeof val.url !== "undefined" && val.url.trim() !== "") {
@@ -244,7 +257,7 @@
                         new ol.layer.Tile({
                             source: new ol.source.OSM({
                                 crossOrigin: 'anonymous',
-                                url:url
+                                url: url
                             })
                         });
                     osm.set('name', val.name);
@@ -253,7 +266,7 @@
                     osm.set('group', val.group); // this maybe undefined
                     osm.setVisible(val.display_on_startup);
                     oslayers.push(osm);
-                    //createAndPlaceButton(val.name, val.position, val.label);
+                    // Bing Maps
                 } else if (val.type === "Bing" && typeof useGMap === "undefined") {
                     var bing =
                         new ol.layer.Tile({
@@ -273,30 +286,41 @@
                     bing.set('group', val.group); // this maybe undefined
                     bing.setVisible(val.display_on_startup);
                     oslayers.push(bing);
-                    //createAndPlaceButton(val.name, val.position, val.label);
+                    // WMS Layers
                 } else if (val.type === "WMS") {
                     var wmsUrl = '';
                     let mapSettings = mapPortal.readConfig("map");
-
+                    var tmplyr;
                     mapserver = mapSettings.mapserver;
                     if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
                         wmsUrl = window.location.protocol + '//' + mapservUrl + '/' + val.mapfile.split('\\')[val.mapfile.split('\\').length - 1].split('.')[0];
                     } else {
                         wmsUrl = window.location.protocol + '//' + mapservUrl + '?map=' + val.mapfile;
                     }
-                    //console.log(wmsUrl);
+                    //Get layer SOURCE projection from config. If undefined use map projection;
+                    var lyrProj;
+                    if (typeof val.projection === "undefined")
+                        lyrProj = projcode;
+                    else {
+                        if (typeof projDef[val.projection] === "undefined" && val.projection != "EPSG:4326" && val.projection != "EPSG:3857") {
+                            alert("Projection " + val.projection + " is not defined in the Projection Definition file (projdef.json)");
+                            return;
+                        } else {
+                            lyrProj = val.projection;
+                        }
+                    }
                     if (typeof val.tiled === "undefined" || val.tiled === false) {
-                       
-                       
-                        var tmplyr =
+                        tmplyr =
                             new ol.layer.Image({
                                 source: new ol.source.ImageWMS({
                                     url: wmsUrl,
                                     params: {
-                                        'LAYERS': val.name, 'CRS': projcode
+                                        'LAYERS': val.name,
+                                        'CRS': projcode
                                     },
                                     serverType: 'mapserver',
-                                    crossOrigin: 'anonymous'
+                                    crossOrigin: 'anonymous',
+                                    projection: lyrProj
                                 })
                             });
                     } else {
@@ -305,10 +329,13 @@
                                 source: new ol.source.TileWMS({
                                     url: wmsUrl,
                                     params: {
-                                        'LAYERS': val.name, 'TILED': true, 'CRS': projcode
+                                        'LAYERS': val.name,
+                                        'TILED': true,
+                                        'CRS': projcode
                                     },
                                     serverType: 'mapserver',
-                                    crossOrigin: 'anonymous'
+                                    crossOrigin: 'anonymous',
+                                    projection: lyrProj
                                 })
                             });
                     }
@@ -350,8 +377,8 @@
                     // Check if layer is editable
                     if (typeof val.editable !== "undefined") {
                         tmplyr.set('editable', val.editable);
-                        if (val.editable === true && typeof val.edit_pk !== "undefined" && typeof val.edit_fields !== "undefined"
-                            && typeof val.edit_service_url !== "undefined" && typeof val.edit_geomcol !== "undefined" && typeof val.edit_geomtype !== "undefined") {
+                        if (val.editable === true && typeof val.edit_pk !== "undefined" && typeof val.edit_fields !== "undefined" &&
+                            typeof val.edit_service_url !== "undefined" && typeof val.edit_geomcol !== "undefined" && typeof val.edit_geomtype !== "undefined") {
                             tmplyr.set('table_name', val.table_name);
                             tmplyr.set('edit_pk', val.edit_pk);
                             tmplyr.set('edit_geomcol', val.edit_geomcol);
@@ -433,8 +460,8 @@
                     // Check if layer is editable
                     if (typeof val.editable !== "undefined") {
                         tmpvector.set('editable', val.editable);
-                        if (val.editable === true && typeof val.edit_pk !== "undefined" && typeof val.edit_fields !== "undefined"
-                            && typeof val.edit_service_url !== "undefined" && typeof val.edit_geomcol !== "undefined" && typeof val.edit_geomtype !== "undefined") {
+                        if (val.editable === true && typeof val.edit_pk !== "undefined" && typeof val.edit_fields !== "undefined" &&
+                            typeof val.edit_service_url !== "undefined" && typeof val.edit_geomcol !== "undefined" && typeof val.edit_geomtype !== "undefined") {
                             tmpvector.set('edit_pk', val.edit_pk);
                             tmpvector.set('edit_geomcol', val.edit_geomcol);
                             tmpvector.set('edit_geomtype', val.edit_geomtype);
@@ -508,7 +535,7 @@
             var mousePositionControl = new ol.control.MousePosition({
                 coordinateFormat: function (coordinate) {
                     return ol.coordinate.format(coordinate, 'X: {x}, Y: {y}', 3);
-                },//ol.coordinate.createStringXY(3),
+                }, //ol.coordinate.createStringXY(3),
                 projection: destprojcode,
                 // comment the following two lines to have the mouse position
                 // be placed within the map.
@@ -537,7 +564,7 @@
                 ],
                 interactions: ol.interaction.defaults({
                     shiftDragZoom: false,
-                    DragZoom: false,    //Remove the default drag zoom interaction as we will add it manually
+                    DragZoom: false, //Remove the default drag zoom interaction as we will add it manually
                     doubleClickZoom: false,
                     onFocusOnly: true
                 }),
@@ -556,7 +583,9 @@
             mymap.getView().setZoom(initzoomlevel);
             if (typeof useGMap !== "undefined") {
                 // Activate the library
-                var olGM = new olgm.OLGoogleMaps({ map: mymap });
+                var olGM = new olgm.OLGoogleMaps({
+                    map: mymap
+                });
                 olGM.activate();
             }
 
@@ -605,18 +634,21 @@
             return mymap;
         },
         createVectorJsonLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped) {
-            let vectorStyle= new ol.style.Style();
+            let vectorStyle = new ol.style.Style();
             let fill;
-            if ((typeof hasfill !== "undefined" || hasfill===true) && typeof fillcolor !== "undefined") {
+            if ((typeof hasfill !== "undefined" || hasfill === true) && typeof fillcolor !== "undefined") {
                 fill = new ol.style.Fill({
                     color: fillcolor
                 });
             } else {
-                fill=false;
+                fill = false;
             }
             var geoJsonLayer = new ol.layer.Vector({
                 source: new ol.source.Vector({
-                    format: new ol.format.GeoJSON({ defaultDataProjection: projcode, featureProjection: projcode }),
+                    format: new ol.format.GeoJSON({
+                        defaultDataProjection: projcode,
+                        featureProjection: projcode
+                    }),
                     url: function (extent) {
                         let mappath = '';
                         if (iswrapped !== "undefined" && iswrapped === true) {
@@ -625,11 +657,11 @@
                             mappath = '?map=' + mapfile;
                         }
                         if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                            return window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&'
-                                + 'bbox=' + extent.join(',');
+                            return window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                'bbox=' + extent.join(',');
                         } else {
-                            return proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&'
-                                + 'bbox=' + extent.join(',');
+                            return proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                'bbox=' + extent.join(',');
                         }
                     },
                     strategy: ol.loadingstrategy.bbox,
@@ -926,7 +958,9 @@
                 infoElement.innerHTML = '<img src="css/images/icons8-info-26.png" style="width: 20px;filter: invert(100%);" />';
                 infoElement.className = 'btn btn-primary infoButton bottomtb';
                 infoElement.setAttribute('id', 'info1');
-                infoElement.onclick = function () { mapUtils.toggleInfoControl(this); };
+                infoElement.onclick = function () {
+                    mapUtils.toggleInfoControl(this);
+                };
                 //var idtt=
                 infoElement.setAttribute('title', $.i18n._('_IDENTIFYTT'));
                 ol.control.Control.call(this, {
@@ -935,7 +969,9 @@
                 });
             };
             ol.inherits(appInfo.infoButtonControl, ol.control.Control);
-            $mymapFI.getControls().push(new appInfo.infoButtonControl({ 'target': 'bottomToolbar' }));
+            $mymapFI.getControls().push(new appInfo.infoButtonControl({
+                'target': 'bottomToolbar'
+            }));
 
             $mymapFI.on('singleclick', mapUtils.mapClickEvent);
             //Set select interaction for identify
@@ -954,8 +990,7 @@
         setSelByRectIntr: function () {
             var $map = $('#mapid').data('map');
             mapUtils.resetMapInteractions($map);
-            dbi = new ol.interaction.DragBox({
-            });
+            dbi = new ol.interaction.DragBox({});
             $map.addInteraction(dbi);
             // Remove and add Select interaction. Applies to vector layers only. Will be used for the select by rectangle tool
             $map.getInteractions().forEach(function (interaction) {
@@ -969,7 +1004,9 @@
                 filter: function (feat, layer) {
                     if ($("#btnSelByRect").hasClass("active")) {
                         return true;
-                    } else { return false; }
+                    } else {
+                        return false;
+                    }
                 }
             });
             $map.addInteraction(selectIntr);
@@ -1028,8 +1065,9 @@
                                 layer.getLayers().forEach(function (sublayer, j) {
                                     if (sublayer.getVisible()) {
                                         var url = sublayer.getSource().getGetFeatureInfoUrl(
-                                            evt.coordinate, $map.getView().getResolution(), projcode,
-                                            { 'INFO_FORMAT': layer.get("feature_info_format") });
+                                            evt.coordinate, $map.getView().getResolution(), projcode, {
+                                                'INFO_FORMAT': layer.get("feature_info_format")
+                                            });
                                         if (url) {
                                             //console.log(url);
                                             $.ajax({
@@ -1046,7 +1084,8 @@
                                                     }
                                                     //Always show the first tab as active
                                                     $('#searchResultsUl a').first().tab('show');
-                                                }, error: function (jqXHR, textStatus, errorThrown) {
+                                                },
+                                                error: function (jqXHR, textStatus, errorThrown) {
                                                     //console.log("request failed " + textStatus);
                                                 }
                                             });
@@ -1085,7 +1124,7 @@
                                     if (window.location.host === $('#hidMS').val().split('/')[0]) {
                                         intersectsUrl = layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0& &REQUEST=GetFeature&TYPENAME=" +
                                             layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
-                                   
+
                                     } else {
                                         intersectsUrl = window.location.protocol + "//" + window.location.host + "/proxy/" + layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0& &REQUEST=GetFeature&TYPENAME=" +
                                             layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
@@ -1173,7 +1212,9 @@
                 filter: function (feat, layer) {
                     if ($("#info1").hasClass("active")) {
                         return true;
-                    } else { return false; }
+                    } else {
+                        return false;
+                    }
                 }
             });
             $mymap.addInteraction(selectIntrAct);
@@ -1282,8 +1323,9 @@
                             layer.getLayers().forEach(function (sublayer, j) {
                                 if (sublayer.getVisible() && sublayer.get("queryable")) {
                                     var url = sublayer.getSource().getGetFeatureInfoUrl(
-                                        evt.coordinate, $map.getView().getResolution(), projcode,
-                                        { 'INFO_FORMAT': 'geojson' });
+                                        evt.coordinate, $map.getView().getResolution(), projcode, {
+                                            'INFO_FORMAT': 'geojson'
+                                        });
                                     if (url) {
                                         //console.log(url);
                                         $.ajax({
@@ -1303,7 +1345,8 @@
                                                 searchUtilities.renderQueryResultsAsTable(data, sublayer.get('label'), sublayer.get('name'), arrSearch_fields, arrIdentify_fields);
                                                 //Always show the first tab as active
                                                 $('#searchResultsUl a').first().tab('show');
-                                            }, error: function (jqXHR, textStatus, errorThrown) {
+                                            },
+                                            error: function (jqXHR, textStatus, errorThrown) {
                                                 //console.log("request failed " + textStatus);
                                             }
                                         });
@@ -1313,8 +1356,7 @@
                         } else if (layer instanceof ol.layer.Tile || layer instanceof ol.layer.Image && layer.getVisible() && layer.get("queryable")) {
                             if ((layer.getSource() instanceof ol.source.ImageWMS) || (layer.getSource() instanceof ol.source.TileWMS)) {
                                 var url = layer.getSource().getGetFeatureInfoUrl(
-                                    evt.coordinate, $map.getView().getResolution(), projcode,
-                                    {
+                                    evt.coordinate, $map.getView().getResolution(), projcode, {
                                         'INFO_FORMAT': layer.get('feature_info_format'),
                                         'FEATURE_COUNT': '100'
                                     });

@@ -9,14 +9,11 @@
 
 <body>
     <div id="mainparent" class="container-fluid">
-        <div id="divStatus" class="alert-warning"
-            style="display: none; z-index: 99999999999">
+        <div id="divStatus" class="alert-warning" style="display: none; z-index: 99999999999">
             <div style="padding: 0px;">
-                <div id="divStatusMsg"  class="alert-warning"
-                    style="width: 100%; height: 100%">
+                <div id="divStatusMsg" class="alert-warning" style="width: 100%; height: 100%">
                     <strong>
-                        <span id="spMsg"
-                            style="font-size: 1.5em; width: 100%; height: 100%; margin: 0.5em"
+                        <span id="spMsg" style="font-size: 1.5em; width: 100%; height: 100%; margin: 0.5em"
                             class="glyphicon glyphicon-warning-sign">
                         </span>
                     </strong>
@@ -115,6 +112,17 @@
             <div class="btn-group-vertical" data-toggle="buttons" id="zoomTools">
             </div>
         </div>
+
+        <button class="btn btn-primary" id="legendButton" title="Ενωση γραμμών (merge)">
+            <i class="fas fa-layer-group"></i>
+        </button>
+
+        <div class="panel panel-info" id="graphicLegend" style="display:none">
+            <div class="panel-heading"><label id="lblGLegend" data-i18n="_LEGEND"></label></div>
+                <ul class="list-group" id="legendImgList"></ul>
+            </div>
+        </div>
+
         <div class="input-group scalebar col-lg-2" role="toolbar">
             <span class="input-group-addon" id="lblScaleBar" style="background-color: #7e8893">Κλίμακα 1:</span>
             <input list="scales" id="curScale" type="text" min="0" max="1000000" class="form-control"

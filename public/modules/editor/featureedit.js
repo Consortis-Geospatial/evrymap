@@ -362,6 +362,12 @@ var featureEdit = (function () {
             });
 
             $mymap.addInteraction(this.drawIntrAct);
+            // Undo last point by pressing <esc>
+            var di=this.drawIntrAct;
+            document.addEventListener('keydown', function(e) {
+                if (e.which == 27)
+                    di.removeLastPoint();
+            });
             this.drawIntrAct.on('drawend', featureEditForms.prepareNewEditForm);
             if (typeof editLayer.get("edit_snapping_layers") !== "undefined") {
                 $.each(editLayer.get("edit_snapping_layers"), function (i, snap_layer) {
@@ -764,6 +770,12 @@ var featureEdit = (function () {
             });
             $('#divStartEditForm').dialog('open');
         },
+        /**
+         * Converts an Image/Tile layer to vector for editing
+         * @param {Layer object} lyr The layer to convert 
+         * @param {Boolean} isSnappingLayer Whether its a snapping layer
+         * TODO: Change the mapfile variable to detect if we hide the mapfile path
+         */
         convertTileToVector: function (lyr, isSnappingLayer) {
             if (!isSnappingLayer) {
                 originalEditLayer = lyr;
@@ -771,9 +783,11 @@ var featureEdit = (function () {
             var mapfile = lyr.get("tag")[1].split('?')[1].split('=')[1];
             var vLayer;
             if (isSnappingLayer) {
+                // If we convert to vector just for use in snapping, just set the name property
                 vLayer = mapUtils.createVectorJsonLayer(mapfile, lyr.get("name"), "#ccff33", "2");
-                vLayer.set('name', lyr.get("name") + "SNAPPING_EDIT");
+                vLayer.set('name', lyr.get("name") + "_SNAPPING_EDIT");
             } else {
+                // If it's the actual layer we want to edit copy the properties from the original Tile/Image (WMS) layer
                 vLayer = mapUtils.createVectorJsonLayer(mapfile, lyr.get("name"), "#5168b8", "3");
                 vLayer.set('name', lyr.get("name") + "_EDIT");
                 vLayer.set('label', lyr.get("label"));
@@ -805,15 +819,16 @@ var featureEdit = (function () {
                 if (typeof lyr.get("edit_merge_url") !== "undefined") {
                     vLayer.set('edit_merge_url', lyr.get("edit_merge_url"));
                 }
+                // Get the snapping layers
                 var newSnapLayers = [];
                 lyr.get("edit_snapping_layers").forEach(function (snaplayer) {
                     if (snaplayer === lyr.get("name")) {
                         newSnapLayers.push(vLayer.get("name"));
                         vLayer.set("edit_snapping_layers", newSnapLayers);
                     } else {
-                        snapLayerObj = legendUtilities.getLayerByName("snaplayer");
-                        if (snapLayerObj instanceof ol.layer.Tile) {
-                            newSnapLayers.push(snaplayer + "SNAPPING_EDIT");
+                        snapLayerObj = legendUtilities.getLayerByName(snaplayer);
+                        if (snapLayerObj instanceof ol.layer.Tile || snapLayerObj instanceof ol.layer.Image) {
+                            newSnapLayers.push(snaplayer + "_SNAPPING_EDIT");
                             vLayer.set("edit_snapping_layers", newSnapLayers);
                             featureEdit.convertTileToVector(snapLayerObj, true);
                         }
@@ -822,16 +837,21 @@ var featureEdit = (function () {
                 editLayer = vLayer;
             }
             $mymap = $('#mapid').data('map');
+            // Hide the original Tile/Image (WMS) layer
             lyr.setVisible(false);
+            // Add new vector layer to the map
             $mymap.addLayer(vLayer);
+            // Return the layer instance to the calling function
             return vLayer;
         },
         startEditing: function (editLayerName) {
             $("#hidEditLayer").val(editLayerName);
             editLayer = legendUtilities.getLayerByName(editLayerName);
+            // Convert to vector layer if required
             if (editLayer instanceof ol.layer.Tile || editLayer instanceof ol.layer.Image) {
                 editLayer = featureEdit.convertTileToVector(editLayer, false);
             }
+            // Display Edit tools
             featureEdit.setEditTools();
             //Set Edit tool as default
             $('#btnEdit').removeClass("active").addClass("active");

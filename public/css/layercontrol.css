@@ -68,3 +68,22 @@
 #modLyrDialog {
     backdrop: false;
 }
+
+#legendButton {
+    position: fixed;
+    top: 105px;
+    right:5px;
+    font-size:24px;
+}
+#graphicLegend{
+    position: fixed;
+    top: 110px;
+    right:60px;
+    min-width:200px;
+    max-height:300px;
+    border-width:1px;
+    padding:5px;
+    border-radius: 5px;
+    z-index: 9999;
+    overflow-y: auto;
+}

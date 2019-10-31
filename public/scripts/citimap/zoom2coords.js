@@ -5,12 +5,18 @@
             var $mymap = $('#mapid').data('map');
             var xydiv = document.createElement('div');
             xydiv.setAttribute('id', 'dlgXY');
+            var prjName;
+            if (mapPortal.readConfig("map")["projectionName"] !== "undefined") {
+                prjName=mymap.getView().getProjection().getCode();
+            } else {
+                prjName=mapPortal.readConfig("map")["projectionName"];
+            }
             var divhtml = '<div class="container-fluid">' +
                 '<div class="row">' +
                 '    <div class="col-lg-12">' +
                 '        <label for="sel1">' + $.i18n._("_CS") + '</label>' +
                 '        <select class="form-control" id="sel1" onchange="zoom2XY.otfCoorTransform();">' +
-                '            <option value="' + mymap.getView().getProjection().getCode().split(':')[1] + '">' + $.i18n._("_LOCALCSNAME") + '</option>' +
+                '            <option value="' + mymap.getView().getProjection().getCode().split(':')[1] + '">' + prjName + '</option>' +
                 '            <option value="4326">GPS</option>' +
                 '            <option value="3857">Google</option>' +
                 '        </select>' +
