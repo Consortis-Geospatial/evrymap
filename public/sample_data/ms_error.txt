@@ -23109,4 +23109,56 @@ v request processing time (msLoadMap not incl.): 1.513s
 [Tue Nov  5 13:49:11 2019].169000 msDrawMap(): Drawing Label Cache, 0.000s
 [Tue Nov  5 13:49:11 2019].169000 msDrawMap() total time: 0.808s
 [Tue Nov  5 13:49:11 2019].238000 msSaveImage(stdout) total time: 0.069s
-[Tue Nov  5 
+[Tue Nov  5 [Tue Nov  5 14:59:44 2019].421000 CGI Request 1 on process 4500
+[Tue Nov  5 14:59:44 2019].435000 msDrawMap(): rendering using outputformat named png24 (AGG/PNG).
+[Tue Nov  5 14:59:44 2019].435000 msDrawMap(): WMS/WFS set-up and query, 0.000s
+[Tue Nov  5 14:59:45 2019].480000 msDrawMap(): Layer 0 (kallikratis), 1.045s
+[Tue Nov  5 14:59:45 2019].480000 msDrawMap(): Drawing Label Cache, 0.000s
+[Tue Nov  5 14:59:45 2019].480000 msDrawMap() total time: 1.051s
+[Tue Nov  5 14:59:45 2019].542000 msSaveImage(stdout) total time: 0.062s
+[Tue Nov  5 14:59:45 2019].543000 mapserv request processing time (msLoadMap not incl.): 1.122s
+[Tue Nov  5 14:59:45 2019].543000 msFreeMap(): freeing map at 0000028EB7667310.
+[Tue Nov  5 14:59:49 2019].748000 CGI Request 2 on process 4500
+[Tue Nov  5 14:59:49 2019].748000 msSaveImage(stdout) total time: 0.000s
+[Tue Nov  5 14:59:49 2019].748000 mapserv request processing time (msLoadMap not incl.): 0.000s
+[Tue Nov  5 14:59:49 2019].748000 msFreeMap(): freeing map at 0000028EB7E89740.
+[Tue Nov  5 14:59:49 2019].804000 CGI Request 3 on process 4500
+[Tue Nov  5 14:59:49 2019].809000 msDrawMap(): rendering using outputformat named png24 (AGG/PNG).
+[Tue Nov  5 14:59:49 2019].809000 msDrawMap(): WMS/WFS set-up and query, 0.000s
+[Tue Nov  5 14:59:50 2019].827000 msDrawMap(): Layer 0 (kallikratis), 1.018s
+[Tue Nov  5 14:59:50 2019].827000 msDrawMap(): Drawing Label Cache, 0.000s
+[Tue Nov  5 14:59:50 2019].827000 msDrawMap() total time: 1.023s
+[Tue Nov  5 14:59:50 2019].884000 msSaveImage(stdout) total time: 0.057s
+[Tue Nov  5 14:59:50 2019].885000 mapserv request processing time (msLoadMap not incl.): 1.081s
+[Tue Nov  5 14:59:50 2019].885000 msFreeMap(): freeing map at 0000028EB7ECF010.
+[Tue Nov  5 15:00:29 2019].374000 CGI Request 4 on process 4500
+[Tue Nov  5 15:00:29 2019].374000 msSaveImage(stdout) total time: 0.000s
+[Tue Nov  5 15:00:29 2019].374000 mapserv request processing time (msLoadMap not incl.): 0.000s
+[Tue Nov  5 15:00:29 2019].374000 msFreeMap(): freeing map at 0000028EB7E3BE60.
+[Tue Nov  5 15:00:29 2019].491000 CGI Request 5 on process 4500
+[Tue Nov  5 15:00:29 2019].496000 msDrawMap(): rendering using outputformat named png24 (AGG/PNG).
+[Tue Nov  5 15:00:29 2019].496000 msDrawMap(): WMS/WFS set-up and query, 0.000s
+[Tue Nov  5 15:00:30 2019].583000 msDrawMap(): Layer 0 (kallikratis), 1.087s
+[Tue Nov  5 15:00:30 2019].583000 msDrawMap(): Drawing Label Cache, 0.000s
+[Tue Nov  5 15:00:30 2019].583000 msDrawMap() total time: 1.092s
+[Tue Nov  5 15:00:30 2019].642000 msSaveImage(stdout) total time: 0.059s
+[Tue Nov  5 15:00:30 2019].643000 mapserv request processing time (msLoadMap not incl.): 1.152s
+[Tue Nov  5 15:00:30 2019].643000 msFreeMap(): freeing map at 0000028EB7E82010.
+[Tue Nov  5 15:01:59 2019].278000 CGI Request 6 on process 4500
+[Tue Nov  5 15:01:59 2019].278000 msSaveImage(stdout) total time: 0.000s
+[Tue Nov  5 15:01:59 2019].279000 mapserv request processing time (msLoadMap not incl.): 0.001s
+[Tue Nov  5 15:01:59 2019].279000 msFreeMap(): freeing map at 0000028EB7DBAF90.
+[Tue Nov  5 15:01:59 2019].389000 CGI Request 7 on process 4500
+[Tue Nov  5 15:01:59 2019].393000 msDrawMap(): rendering using outputformat named png24 (AGG/PNG).
+[Tue Nov  5 15:01:59 2019].393000 msDrawMap(): WMS/WFS set-up and query, 0.000s
+[Tue Nov  5 15:02:00 2019].408000 msDrawMap(): Layer 0 (kallikratis), 1.014s
+[Tue Nov  5 15:02:00 2019].408000 msDrawMap(): Drawing Label Cache, 0.000s
+[Tue Nov  5 15:02:00 2019].408000 msDrawMap() total time: 1.019s
+[Tue Nov  5 15:02:00 2019].466000 msSaveImage(stdout) total time: 0.058s
+[Tue Nov  5 15:02:00 2019].467000 mapserv request processing time (msLoadMap not incl.): 1.078s
+[Tue Nov  5 15:02:00 2019].467000 msFreeMap(): freeing map at 0000028EB7DBAF90.
+[Tue Nov  5 15:02:06 2019].669000 CGI Request 8 on process 4500
+[Tue Nov  5 15:02:06 2019].669000 msSaveImage(stdout) total time: 0.000s
+[Tue Nov  5 15:02:06 2019].669000 mapserv request processing time (msLoadMap not incl.): 0.000s
+[Tue Nov  5 15:02:06 2019].669000 msFreeMap(): freeing map at 0000028EB7E26400.
+[Tue Nov
