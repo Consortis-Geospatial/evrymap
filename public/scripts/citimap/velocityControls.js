@@ -1,4 +1,19 @@
-var velocitySelect = (function() {
+var velocityColorScaleArray = [
+    "#0268DC",
+    "#079CF3",
+    "#0AB8E4",
+    "#0BFA9D",
+    "#B0F941",
+    "#DAE818",
+    "#FBDD12",
+    "#F98F06",
+    "#EF6126",
+    "#C90202",
+    "#AF04C1",
+    "#DF05DB"
+];
+
+var velocityControls = (function() {
     var velocityLyr = {};
     $(document).ready(function () {
         layers = mapPortal.readConfig("layers");
@@ -18,8 +33,42 @@ var velocitySelect = (function() {
             selectElement.addEventListener("change", function() {
                 mapUtils.removeWind();
                 mapUtils.addWind($("#velocitySelId select").val());
-            })
+            });
             $("#velocityMapId").append(selectElement);
+
+            var velocityColorScale = document.createElement('div');
+            var colorTable = document.createElement('table');
+            colorTable.setAttribute("style", "width:100%");
+            var colorTds;
+            velocityColorScale.setAttribute("id", "velocityColorScaleId");
+            for (let index = 0; index < velocityColorScaleArray.length; index++) {
+                if (index === 0) {
+                    colorTds = "<td style='background-color:" + velocityColorScaleArray[index] + ";width:" + (100 / velocityColorScaleArray.length) + "%;height:20px;'></td>";
+                } else {
+                    colorTds += "<td style='background-color:" + velocityColorScaleArray[index] + ";width:" + (100 / velocityColorScaleArray.length) + "%;height:20px;'></td>";   
+                }
+            }
+            
+            colorTable.innerHTML = colorTds;
+            var scaleRow = colorTable.insertRow(1);
+
+            for (let index = 0; index < velocityColorScaleArray.length; index++) {
+                var cel = scaleRow.insertCell(index);
+                if (index === 0) {
+                    cel.innerHTML = "<td style='width:" + (100 / velocityColorScaleArray.length) + "%;height:20px;'>" + (index + 1) + "</td>";
+                } else {
+                    cel.innerHTML += "<td style='width:" + (100 / velocityColorScaleArray.length) + "%;height:20px;'>" + (index + 1) + "</td>";   
+                }
+            }
+
+            scaleRow = colorTable.insertRow(2);
+            var cels = scaleRow.insertCell(0);
+            cels.innerHTML = "Beaufort";
+            cels.setAttribute("colspan", "12");
+
+            velocityColorScale.innerHTML = colorTable.outerHTML;
+
+            $("#velocityMapId").append(velocityColorScale);
         },
         renderSelectOptions(refDate) {
             timeSettings = velocityLyr.timeSettings;

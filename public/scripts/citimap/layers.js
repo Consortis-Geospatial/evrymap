@@ -20,9 +20,10 @@
 
             mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields);
             // if velocity layer exists
-            if (velocitySelect.getVelocitySettings().mapId && velocitySelect.velocityLayerIsLoaded()) {
+            if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
                 // create velocity map
                 velocityMap = this.createVelocityMap();
+
             }
             //mymap.addControl(mousePositionControl);
             $('#mapid').data('map', mymap);
@@ -1513,61 +1514,53 @@
                   angleConvention: 'bearingCW',
                   displayPosition: 'bottomleft',
                   displayEmptyString: 'No velocity data',
-                  speedUnit: 'm/s'
+                  speedUnit: 'bft'
                 },
                 data: [], // velocityData, // see demo/*.json, or wind-js-server for example data service
               
                 // OPTIONAL
-                // minVelocity: 0,          // used to align color scale
-                // maxVelocity: 10,         // used to align color scale
-                velocityScale: 0.01,    // modifier for particle animations, arbitrarily defaults to 0.005
+                minVelocity: 5,          // used to align color scale
+                maxVelocity: 20,         // used to align color scale
+                velocityScale: 0.005,    // modifier for particle animations, arbitrarily defaults to 0.005
                 particleMultiplier: 1/100,
                 particleAge: 64,
-                lineWidth: 1
+                lineWidth: 1,
+                colorScale: velocityColorScaleArray
             });
             // initiate velocity map html attributes
-            $("#mapid2 div").attr('id', velocitySelect.getVelocitySettings().mapId);
+            $("#mapid2 div").attr('id', velocityControls.getVelocitySettings().mapId);
             $("#mapid2 div").css('height', '100%');
 
-            var velocityCenter = mymap.getView().N.center;
-            console.log('mymap.getView().getProjection', mymap.getView().getProjection());
-            var projectionCode = mymap.getView().getProjection().wb;
-            // velocityCenter = ol.proj.transform(velocityCenter, projectionCode, 'EPSG:3857');
-            console.log('mymap extent', mymap.getView().getProjection().getExtent());
-            console.log('mymap get view', mymap.getView());
-            console.log('mymap zoom', mymap.getView().getZoom());
-        
-            var velocityMap = new Map({
+            var velocityCenter = mymap.getView().getCenter();
+            velocityMap = new Map({
                 layers: [
-                    // new TileLayer({
-                    //     source: new Stamen({layer: 'toner'})
-                    // }),
                     new TileLayer({
-                        title: 'Open Street Map',
-                        source: new OSM(),
-                        // type: 'base'
+                        source: new Stamen({layer: 'toner'})
                     }),
+                    // new TileLayer({
+                    //     title: 'Open Street Map',
+                    //     source: new OSM(),
+                    //     // type: 'base'
+                    // }),
                 ],
-                target: velocitySelect.getVelocitySettings().mapId,
+                target: velocityControls.getVelocitySettings().mapId,
                 view: new View({
                     center: velocityCenter,
                     // projection: projectionCode,
-                    // extent: mymap.getView().getProjection().getExtent(),
+                    extent: mymap.getView().getProjection().getExtent(),
                     zoom: mymap.getView().getZoom()//,
                     // maxZoom: 29
                 })
             });
-            console.log('velocityMap', velocityMap.getView().getResolutionForZoom());
-            console.log('vel zoom', velocityMap.getView().getZoom());
-            // velocityMap.getView().setResolution(mymap.getView().N.resolution);
-            velocitySelect.renderTool();
+            velocityControls.renderTool();
             $("#velocitySelId select").hide();
+            $("#velocityColorScaleId").hide();
 
             return velocityMap;
         },
         addWind(timeIso) {
             // var timeIso = new Date().toISOString();
-            var searchLimit = velocitySelect.getVelocitySettings().timeSettings.days;
+            var searchLimit = velocityControls.getVelocitySettings().timeSettings.days;
             $.ajax({
                 url: 'http://localhost:7000/nearest?timeIso=' + timeIso + '&searchLimit=' + searchLimit,
                 async: true,
@@ -1578,7 +1571,8 @@
                 success: function (windData) {
                     var refTime = windData[0].header.refTime;
                     $("#velocitySelId select").show();
-                    velocitySelect.renderSelectOptions(refTime);
+                    $("#velocityColorScaleId").show();
+                    velocityControls.renderSelectOptions(refTime);
                     velocityLayer.options.data = windData;
                     velocityLayer.addToMap(velocityMap);
                     // TODO: Figure out how to keep animation going without updating layer

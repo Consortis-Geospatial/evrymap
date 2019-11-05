@@ -375,3 +375,14 @@ tr.shown td.details-control {
     width: 30%;
     text-align: right;
 }
+
+#velocityColorScaleId {
+    position: fixed;
+    z-index: 999;
+    top: 4em;
+    width: 40%;
+    text-align: center;
+    right: 50%;
+    background-color: white;
+    padding: 5px;
+}

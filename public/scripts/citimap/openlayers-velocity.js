@@ -46997,6 +46997,7 @@ var AnimationBucket = /** @class */ (function () {
         });
     };
     AnimationBucket.prototype.add = function (p, v) {
+        // console.log('aaaa', p, v);
         var index = this.colorScale.getColorIndex(p.intensity);
         if (index < 0 || index >= this.buckets.length) {
             console.log(index);
@@ -47004,11 +47005,14 @@ var AnimationBucket = /** @class */ (function () {
         }
         p.xt = p.x + v.u;
         p.yt = p.y + v.v;
+        // console.log('aaaa', p, v);
         this.buckets[index].push(p);
     };
     AnimationBucket.prototype.draw = function (context2D) {
         var _this = this;
+        // console.log('this.buckets', this.buckets);
         this.buckets.forEach(function (bucket, i) {
+          // console.log('aaaaaaa', bucket, i);
             if (bucket.length > 0) {
                 context2D.beginPath();
                 context2D.strokeStyle = _this.colorScale.colorAt(i);
@@ -47109,6 +47113,7 @@ var ColorScale = /** @class */ (function () {
             "rgb(180,0,35)"
         ];
         this.setMinMax(minValue, maxValue);
+
         if ((scale instanceof Array) && scale.length) {
             this.scale = scale;
         }
@@ -47125,6 +47130,9 @@ var ColorScale = /** @class */ (function () {
         configurable: true
     });
     ColorScale.prototype.getColorIndex = function (value) {
+      // console.log('value', value);
+      // console.log('this.minValue', this.minValue);
+      // console.log('this.maxValue', this.maxValue);
         if (value <= this.minValue) {
             return 0;
         }
@@ -47138,6 +47146,7 @@ var ColorScale = /** @class */ (function () {
         if (index > this.scale.length - 1) {
             return this.scale.length - 1;
         }
+        // console.log('Math.floor(index)', Math.floor(index));
         return Math.floor(index);
     };
     ColorScale.prototype.colorAt = function (index) {
