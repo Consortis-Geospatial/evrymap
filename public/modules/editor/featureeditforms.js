@@ -15,7 +15,7 @@ var featureEditForms = (function () {
                     if (fldConfig.required) {
                         //bootstrapValidate('#' + ctrl_id, 'required:' + $.i18n._('_REQUIREDFIELD'));
                     }
-                    if (fldConfig.control === "dropdown" || "typeahead") {
+                    if (fldConfig.control === "dropdown") {
                         if (typeof fldConfig.service_url !== "undefined") {
                             if (typeof fldConfig.parent_field === "undefined") {
                                 featureEditForms.popAttrList(ctrl_id, fldConfig.service_url, fldConfig.control);
@@ -33,7 +33,12 @@ var featureEditForms = (function () {
                                         if (typeof fldConfig.parent_field === "undefined") {
                                             featureEditForms.popChildAttrList(childField, childUrl, $('#' + ctrl_id).val());
                                         } else {
-                                            let grandparentvalue = $('#' + fldConfig.parent_field).val();
+                                            var grandparentvalue;
+                                            if (featureEditForms.isFieldTypeAhead(editLayer, fldConfig.parent_field)) {
+                                                grandparentvalue = $('#hidVal_' + fldConfig.parent_field).val();
+                                            } else {
+                                                grandparentvalue = $('#' + fldConfig.parent_field).val();
+                                            }
                                             featureEditForms.popGrandChildAttrList(childField, childUrl, $('#' + ctrl_id).val(), grandparentvalue);
                                         }
                                         featureEditForms.validateEditForm();
@@ -56,6 +61,29 @@ var featureEditForms = (function () {
                         } else {
                             $('#' + ctrl_id).on('change', function () {
                                 featureEditForms.validateEditForm();
+                            });
+                        }
+                    } else if (fldConfig.control === "typeahead") {
+                        if (typeof fldConfig.child_fields !== "undefined") {
+                            $.each(fldConfig.child_fields, function (key, val) {
+                                var childField = val.split(':')[0];
+                                var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                $('#' + childField).prop("disabled", true);
+                                $('#hidVal_' + ctrl_id).on('change', function () {
+                                    $('#' + childField).prop("disabled", false);
+                                    if (typeof fldConfig.parent_field === "undefined") {
+                                        featureEditForms.popChildAttrList(childField, childUrl, $('#hidVal_' + ctrl_id).val());
+                                    } else {
+                                        var grandparentvalue;
+                                        if (featureEditForms.isFieldTypeAhead(editLayer, fldConfig.parent_field)) {
+                                            grandparentvalue = $('#hidVal_' + fldConfig.parent_field).val();
+                                        } else {
+                                            grandparentvalue = $('#' + fldConfig.parent_field).val();
+                                        }
+                                        featureEditForms.popGrandChildAttrList(childField, childUrl, $('#hidVal_' + ctrl_id).val(), grandparentvalue);
+                                    }
+                                    featureEditForms.validateEditForm();
+                                });
                             });
                         }
                     }
@@ -87,6 +115,9 @@ var featureEditForms = (function () {
                         }
                     }
                 });
+            } else {
+                mapUtils.showMessage('danger', $.i18n._('_CANNOTEDIT'), $.i18n._('_ERROROCCUREDTITLE'));
+                return false;
             }
             var format = new ol.format.WKT();
             var wktGeom = format.writeGeometry(e.feature.getGeometry());
@@ -97,19 +128,6 @@ var featureEditForms = (function () {
                 features: new ol.Collection([e.feature]),
                 style: new ol.style.Style({
                     image:
-                        //Start of the Icon style
-                        /*
-                        //Start of the circle style
-                        /*new ol.style.Circle({
-                            fill: new ol.style.Fill({
-                                color: 'green'
-                            }),
-                            stroke: new ol.style.Stroke({
-                                width: 3,
-                                color: 'red'
-                            }),
-                            radius: 8
-                        })*/
                         //Start of the star style
                         new ol.style.RegularShape({
                             fill: new ol.style.Fill({
@@ -135,12 +153,30 @@ var featureEditForms = (function () {
             // If its a polygon layer enable the Add Hole button
             if (typeof editLayer.get("edit_geomtype") !== "undefined" && editLayer.get("edit_geomtype") === "Polygon") {
                 $('#btnAddHole').prop('disabled', false);
-                $('#btnAddHole').unbind('click').bind('click', function () { featureEdit.initAddHole(); });
+                $('#btnAddHole').unbind('click').bind('click', function () {
+                    featureEdit.initAddHole();
+                });
             }
             if (typeof editLayer.get("edit_geomtype") !== "undefined" && editLayer.get("edit_geomtype") === "MultiPolygon") {
                 $('#btnAddPart').prop('disabled', false);
-                $('#btnAddPart').unbind('click').bind('click', function () { featureEdit.initAddPart(e.feature); });
+                $('#btnAddPart').unbind('click').bind('click', function () {
+                    featureEdit.initAddPart(e.feature);
+                });
             }
+        },
+        isFieldTypeAhead: function(lyr, fieldName) {
+            var isTypeAhead=false;
+            var editFlds = lyr.get('edit_fields');
+                $.each(editFlds, function (i, fldConfig) {
+                    var fldName = fldConfig.name.split(':')[0];
+                    if (fldName === fieldName) {
+                        if (fldConfig.control === "typeahead") {
+                            isTypeAhead=true;
+                        }
+                        return false;
+                    }
+                });
+            return isTypeAhead;
         },
         prepareEditForm: function (e) {
             if (e.selected.length === 0) {
@@ -174,7 +210,7 @@ var featureEditForms = (function () {
                         //bootstrapValidate('#' + ctrl_id, 'required:' + $.i18n._('_REQUIREDFIELD'));
                     }
                     if (fldConfig.control === "dropdown" || fldConfig.control === "text" || fldConfig.control === "typeahead") {
-                        if (fldConfig.control === "dropdown" || fldConfig.control === "typeahead") {
+                        if (fldConfig.control === "dropdown") {
                             if (typeof fldConfig.service_url !== "undefined") {
                                 if (typeof fldConfig.parent_field === "undefined") {
                                     featureEditForms.popAttrList(ctrl_id, fldConfig.service_url, fldConfig.control);
@@ -185,13 +221,14 @@ var featureEditForms = (function () {
                                         var childField = val.split(':')[0];
                                         var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
                                         $('#' + childField).prop("disabled", true);
-                                            if (typeof fldConfig.parent_field === "undefined") {
-                                                featureEditForms.popChildAttrList(childField, childUrl, $('#' + ctrl_id).val());
-                                                $('#' + childField + ' option[value="' + f.get(childField) + '"]').prop('selected', 'selected');
-                                            } else {
-                                                let grandparentvalue = $('#' + fldConfig.parent_field).val();
-                                                featureEditForms.popGrandChildAttrList(childField, childUrl, $('#' + ctrl_id).val(), grandparentvalue);
-                                            }
+                                        if (typeof fldConfig.parent_field === "undefined") {
+                                            featureEditForms.popChildAttrList(childField, childUrl, f.get(ctrl_id));
+                                            $('#' + childField + ' option[value="' + f.get(childField) + '"]').prop('selected', 'selected');
+                                        } else {
+                                            //let grandparentvalue = $('#' + fldConfig.parent_field).val();
+                                            let grandparentvalue = f.get(fldConfig.parent_field);
+                                            featureEditForms.popGrandChildAttrList(childField, childUrl, f.get(ctrl_id), grandparentvalue);
+                                        }
                                         $('#' + ctrl_id).on('change', function () {
                                             $('#' + childField).prop("disabled", false);
                                             if (typeof fldConfig.parent_field === "undefined") {
@@ -219,18 +256,47 @@ var featureEditForms = (function () {
                                     featureEditForms.validateEditForm();
                                 });
                             }
+                        } else if (fldConfig.control === "typeahead") {
+                            if (typeof fldConfig.child_fields !== "undefined") {
+                                $.each(fldConfig.child_fields, function (key, val) {
+                                    var childField = val.split(':')[0];
+                                    var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                    $('#' + childField).prop("disabled", true);
+                                    // Populate child field
+                                    featureEditForms.popChildAttrList(childField, childUrl, f.get(ctrl_id));
+                                    // Bind the onchange() event
+                                    $('#hidVal_' + ctrl_id).on('change', function () {
+                                        $('#' + childField).prop("disabled", false);
+                                        if (typeof fldConfig.parent_field === "undefined") {
+                                            featureEditForms.popChildAttrList(childField, childUrl, $('#hidVal_' + ctrl_id).val());
+                                        } else {
+                                            var grandparentvalue;
+                                            if (featureEditForms.isFieldTypeAhead(editLayer, fldConfig.parent_field)) {
+                                                grandparentvalue = $('#hidVal_' + fldConfig.parent_field).val();
+                                            } else {
+                                                grandparentvalue = $('#' + fldConfig.parent_field).val();
+                                            }
+                                            featureEditForms.popGrandChildAttrList(childField, childUrl, $('#hidVal_' + ctrl_id).val(), grandparentvalue);
+                                        }
+                                        featureEditForms.validateEditForm();
+                                    });
+                                });
+                            }
                         }
                         if (typeof fldConfig.readonlyonedit !== "undefined" && fldConfig.readonlyonedit === true) {
                             if (fldConfig.control === "dropdown") {
                                 $('#' + ctrl_id).prop("disabled", true);
-                            } else if (fldConfig.control === "text") {
+                            } else if (fldConfig.control === "text" || fldConfig.control === "typeahead") {
                                 $('#' + ctrl_id).prop("readonly", "readonly");
                             }
                         }
+                        // Set values in controls
                         if (fldConfig.control === "dropdown") {
                             $('#' + ctrl_id + ' option[value="' + f.get(ctrl_id) + '"]').prop('selected', 'selected');
-                        } else if (fldConfig.control === "text") {
+                        } else if (fldConfig.control === "text" || fldConfig.control === "typeahead") {
                             $('#' + ctrl_id).val(f.get(ctrl_id));
+                            // If its typeahead add the value in the hidden field. We will get the label to display in the box when the dialog is opened
+                            $('#hidVal_' + ctrl_id).val(f.get(ctrl_id));
                             if (fldConfig.type.split(':')[0] === "integer") {
                                 //bootstrapValidate('#' + ctrl_id, 'integer:' + $.i18n._('_INTEGERONLY'));
                             }
@@ -266,14 +332,17 @@ var featureEditForms = (function () {
                 if (typeof editLayer.get("edit_geomtype") !== "undefined" && (editLayer.get("edit_geomtype") === "Polygon" || editLayer.get("edit_geomtype") === "MultiPolygon")) {
                     $('#btnAddHole').show();
                     $("#btnAddHole").prop('disabled', false);
-                    $('#btnAddHole').unbind('click').bind('click', function () { featureEdit.initAddHole(); });
+                    $('#btnAddHole').unbind('click').bind('click', function () {
+                        featureEdit.initAddHole();
+                    });
                     if (editLayer.get("edit_geomtype") === "MultiPolygon") {
                         $('#btnAddPart').show();
                         $("#btnAddPart").prop('disabled', false);
-                        $('#btnAddPart').unbind('click').bind('click', function () { featureEdit.initAddPart(f); });
+                        $('#btnAddPart').unbind('click').bind('click', function () {
+                            featureEdit.initAddPart(f);
+                        });
                     }
                 }
-                //$('#editForm').bootstrapValidator();
             }
         },
         generateEditForm: function (lyr) {
@@ -316,7 +385,7 @@ var featureEditForms = (function () {
                     if (parseInt(fldlength) > 150 && fldctrl === "text") {
                         html = html + '<div class="form-group col-md-12" id="fg_' + fldName + '">';
                     } else {
-                        html = html + '<div class="form-group col-md-6"id="fg_' + fldName + '">';
+                        html = html + '<div class="form-group col-md-6" id="fg_' + fldName + '">';
                     }
                     //Set control label based on whether it is required or not
                     //var reqLabel = '<b style="color:red">*</b>';
@@ -330,6 +399,10 @@ var featureEditForms = (function () {
                     } else {
                         if (fldctrl === "dropdown") {
                             html = html + '<select class="form-control" id="' + fldName + '" data-live-search="true"></select></div>';
+                        } else if (fldctrl === "typeahead") {
+                            html = html + '<input type="text" class="form-control input typeahead" maxlength=' + fldlength + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)">';
+                            html = html + '<span id="fdb_' + fldName + '"></span>';
+                            html = html + '<input type="hidden" id="hidVal_' + fldName + '"></div>';
                         } else if (fldctrl === "text") {
                             if (parseInt(fldlength) > 150) {
                                 html = html + '<textarea class="form-control input" maxlength=' + fldlength + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)"></textarea>';
@@ -359,8 +432,44 @@ var featureEditForms = (function () {
                 });
                 html = html + '</form>';
                 $('#attrContent').html(html);
-                //$('#attrContent select').selectpicker();
+               
             }
+        },
+        setAutocompleteControls: function(lyr, mode) {
+            var editFlds = lyr.get('edit_fields');
+             // Now loop through the edit fields once more to find and set autocompletes
+             $.each(editFlds, function (i, fldConfig) {
+                var fldName = fldConfig.name.split(':')[0];
+                var fldctrl = fldConfig.control;
+                if (fldctrl === "typeahead") {
+                    var acData = featureEditForms.popTypeAheadList(fldConfig.service_url);
+                    $('#' + fldName).autocomplete({
+                        source:acData,
+                        // Autocomplete will by default, display the value and not the label when selecting
+                        // a value. We don't want this, so bind select, focus and change event to store the value in the hidden field
+                        // of the autocomplete input control
+                        select: function( event, ui ) {
+                            
+                            $('#' + fldName).val(ui.item.label);
+                            $('#hidVal_' + fldName).val(ui.item.value).trigger('change');
+                        },
+                        focus:  function( event, ui ) {
+                          $('#' + fldName).val(ui.item.label);
+                        },
+                        change: function( event, ui ) {
+                           $('#' + fldName).val(ui.item.label);
+                           $('#hidVal_' + fldName).val(ui.item.value).trigger('change');
+
+                        }
+                    });
+                    if (mode==="UPDATE"){
+                        // Get the label for the hidden value field
+                        let lbl = acData.find(x => x.value === $('#hidVal_' + fldName).val()).label;
+                        $('#' + fldName).val(lbl);
+                    }
+                }
+                
+            });
         },
         openEditForm: function (mode, lyrname, lyrlabel) {
             $('#divAttrsForm').dialog({
@@ -369,8 +478,10 @@ var featureEditForms = (function () {
                 height: 500,
                 maxHeight: 700,
                 maxWidth: 641,
-                buttons: [
-                    {
+                open: function() {
+                   featureEditForms.setAutocompleteControls( legendUtilities.getLayerByName(lyrname), mode);
+                },
+                buttons: [{
                         id: "btnEditFormSave",
                         text: function () {
                             if (mode === "NEW") {
@@ -445,13 +556,57 @@ var featureEditForms = (function () {
             // Initialize validator
             //$('#editForm').validator('update');
         },
+        popTypeAheadList: function (url) {
+            var enc = $('#hidEnc').val();
+            var acArray = [];
+            if (enc.trim() === '') {
+                mapUtils.showMessage('danger', $.i18n._('_NOCONNECTIONTITLE'), $.i18n._('_NOCONNECTIONDESCR'));
+                return false;
+            }
+            var params = {
+                "enc": enc
+            };
+            params = JSON.stringify(params);
+            $.ajax({
+                url: url,
+                data: params,
+                dataType: "json",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data !== null && data !== "") {
+                        var vals = data.d.replace('{', '').replace('}', '').split(',');
+                        $.each(vals, function (i, valueObj) {
+                            item={};
+                            let kv = valueObj.split(':');
+                            let k = (typeof kv[0] === "undefined") ? "undefined" : kv[0].replace(/\"/g, "");
+                            let v = (typeof kv[1] === "undefined") ? "undefined" : kv[1].replace(/\"/g, "");
+                            if (typeof kv[0] === "undefined" || typeof kv[1] === "undefined") {
+                                console.log(valueObj);
+                            }
+                            item.label=v;
+                            item.value=k;
+                            acArray.push(item);
+                        });                      
+                    }
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                },
+                async: false
+            });
+            //featureEditForms.validateEditForm();
+            return acArray;
+        },
         popAttrList: function (ctrl, url, type) {
             var enc = $('#hidEnc').val();
             if (enc.trim() === '') {
                 mapUtils.showMessage('danger', $.i18n._('_NOCONNECTIONTITLE'), $.i18n._('_NOCONNECTIONDESCR'));
                 return false;
             }
-            var params = { "enc": enc };
+            var params = {
+                "enc": enc
+            };
             params = JSON.stringify(params);
             $.ajax({
                 url: url,
@@ -464,7 +619,7 @@ var featureEditForms = (function () {
                 },
                 success: function (data) {
                     //var vals = JSON.parse(data.d);
-                   
+
                     if (vals !== null && vals !== "") {
                         var vals = data.d.replace('{', '').replace('}', '').split(',');
                         if (type === "dropdown") {
@@ -508,7 +663,10 @@ var featureEditForms = (function () {
                 mapUtils.showMessage('danger', $.i18n._('_NOCONNECTIONDESCR'), $.i18n._('_NOCONNECTIONTITLE'));
                 return false;
             }
-            var params = { "enc": enc, "parentval": parentval };
+            var params = {
+                "enc": enc,
+                "parentval": parentval
+            };
             params = JSON.stringify(params);
             $.ajax({
                 url: url,
@@ -549,7 +707,11 @@ var featureEditForms = (function () {
                 mapUtils.showMessage('danger', $.i18n._('_NOCONNECTIONDESCR'), $.i18n._('_NOCONNECTIONTITLE'));
                 return false;
             }
-            var params = { "enc": enc, "parentval": parentval, "grandparentval": grandparentval };
+            var params = {
+                "enc": enc,
+                "parentval": parentval,
+                "grandparentval": grandparentval
+            };
             params = JSON.stringify(params);
             $.ajax({
                 url: url,
@@ -600,7 +762,6 @@ var featureEditForms = (function () {
             if (editLayer instanceof ol.layer.Vector && (editLayer.get('edit_pk') !== undefined && editLayer.get('edit_fields') !== undefined)) {
                 params["table_name"] = editLayer.get('table_name');
                 params["pk_fieldval"] = editLayer.get('edit_pk') + ":" + $("#hidPk").val();
-                // params1 = params1 + editLayer.get('edit_pk') +":" + $("#hidPk").val() +",";
                 var editFlds = editLayer.get('edit_fields');
                 var isvalid = true;
                 $.each(editFlds, function (i, fldConfig) {
@@ -610,8 +771,10 @@ var featureEditForms = (function () {
                     }
                     if (fldConfig.control === "dropdown" || fldConfig.control === "text") {
                         var fldval = $("#" + fldConfig.name.split(':')[0]).val().replace(",", ".");
-
                         params1 = params1 + fldConfig.name.split(':')[0] + ":" + fldval + ":" + fldConfig.type + "|";
+                    } else if (fldConfig.control === "typeahead") { // Get the value from the hidden field
+                        var fldHidval = $("#hidVal_" + fldConfig.name.split(':')[0]).val().replace(",", ".");
+                        params1 = params1 + fldConfig.name.split(':')[0] + ":" + fldHidval + ":" + fldConfig.type + "|";
                     } else {
                         if (fldConfig.type === "boolean") {
                             params1 = params1 + fldConfig.name.split(':')[0] + ":" + $("#" + fldConfig.name.split(':')[0]).prop('checked') + ":" + fldConfig.type + "|";
@@ -691,13 +854,17 @@ var featureEditForms = (function () {
             if (typeof e.features !== "undefined") {
                 geom = e.features.getArray()[0].getGeometry();
                 wktGeom = format.writeGeometry(geom);
-                $('#btnAddPart').unbind('click').bind('click', function () { featureEdit.initAddPart(e.features.getArray()[0]); });
+                $('#btnAddPart').unbind('click').bind('click', function () {
+                    featureEdit.initAddPart(e.features.getArray()[0]);
+                });
             } else {
                 geom = e.feature.getGeometry();
                 wktGeom = format.writeGeometry(geom);
-                $('#btnAddPart').unbind('click').bind('click', function () { featureEdit.initAddPart(e.feature); });
+                $('#btnAddPart').unbind('click').bind('click', function () {
+                    featureEdit.initAddPart(e.feature);
+                });
             }
-             
+
             $('#hidGeom').val(wktGeom);
             if (area_control !== '') {
                 $('#' + area_control).val((measureUtilities.formatAreaInM(geom)).toString().replace('.', $.i18n._('_DECIMALSEPARATOR')));
@@ -705,7 +872,7 @@ var featureEditForms = (function () {
             if (length_control !== '') {
                 $('#' + length_control).val((measureUtilities.formatLengthInM(geom)).toString().replace('.', $.i18n._('_DECIMALSEPARATOR')));
             }
-            
+
         },
         validateFldOnBlur: function (fldname) {
             var isFormValid = featureEditForms.validateEditForm();
@@ -740,7 +907,7 @@ var featureEditForms = (function () {
         validateField: function (fldConfig) {
             var isValid = true;
             var fldval = $("#" + fldConfig.name.split(':')[0]).val();
-            if (fldConfig.control === "dropdown" || fldConfig.control === "text") {
+            if (fldConfig.control === "dropdown" || fldConfig.control === "text" || fldConfig.control === "typeahead") {
                 if (fldConfig.required === true) {
                     if (fldval === "#" || fldval === null || fldval.trim() === "") {
                         isValid = false;
@@ -838,5 +1005,5 @@ var featureEditForms = (function () {
     };
 })();
 $(document).ready(function () {
-    
+
 });
