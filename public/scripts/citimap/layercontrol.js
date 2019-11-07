@@ -849,34 +849,36 @@ $(document).ready(function () {
         $map.getControls().push(new app.VelocityViewControl({ 'target': 'bottomToolbar' }));
     }
 
-    // add event listener to velocity view to change resolution and center to evrymap
-    velocityMap.getView().on('propertychange', function(e) {
-        var isVelocityMap = $("#btnVelocity").attr("data-clicked");
-        if (isVelocityMap === "true") {
-            switch (e.key) {
-                case 'resolution':
-                    mymap.getView().setZoom(this.getZoom());
-                    break;
-                case 'center':
-                    mymap.getView().setCenter(this.getCenter());
-                    break;
+    if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
+        // add event listener to velocity view to change resolution and center to evrymap
+        velocityMap.getView().on('propertychange', function(e) {
+            var isVelocityMap = $("#btnVelocity").attr("data-clicked");
+            if (isVelocityMap === "true") {
+                switch (e.key) {
+                    case 'resolution':
+                        mymap.getView().setZoom(this.getZoom());
+                        break;
+                    case 'center':
+                        mymap.getView().setCenter(this.getCenter());
+                        break;
+                }
             }
-        }
-    });
+        });
 
-    // add event listener to everymap view to change resolution and center to velocity map
-    mymap.getView().on('propertychange', function (e) {
-        var isVelocityMap = $("#btnVelocity").attr("data-clicked");
-        if (isVelocityMap === "false") {
-            switch (e.key) {
-                case 'resolution':
-                    velocityMap.getView().setZoom(this.getZoom());
-                    break;
-                case 'center':
-                    velocityMap.getView().setCenter(this.getCenter());
-                    break;
+        // add event listener to everymap view to change resolution and center to velocity map
+        mymap.getView().on('propertychange', function (e) {
+            var isVelocityMap = $("#btnVelocity").attr("data-clicked");
+            if (isVelocityMap === "false") {
+                switch (e.key) {
+                    case 'resolution':
+                        velocityMap.getView().setZoom(this.getZoom());
+                        break;
+                    case 'center':
+                        velocityMap.getView().setCenter(this.getCenter());
+                        break;
+                }
             }
-        }
-    });
+        });
+    }
 
 });
