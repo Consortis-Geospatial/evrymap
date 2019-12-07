@@ -220,6 +220,14 @@
             var extentarray = mapextent.split(',');
             var extent = [Number(extentarray[0]), Number(extentarray[1]), Number(extentarray[2]), Number(extentarray[3])];
             var projection = ol.proj.get(projcode);
+            // TODO: Setting the extent will mess up the map when layers are in different projections,
+            // TODO: BUT without this line, the BING layer won't display - getting a proj4js error
+            // TODO: possible because there is no set extent? NEEDS REVISITING. The ASP.NET version
+            // TODO: includes this line
+            //projection.setExtent(extent);
+
+            // Setting the 'invisible' selection layer. This is used to highlight features
+            // when using the identify or select by rectangle buttons
             var vectorSourceSel = new ol.source.Vector();
             var vectorSel = new ol.layer.Vector({
                 source: vectorSourceSel,
@@ -233,6 +241,9 @@
                 var googleLayer = new olgm.layer.Google();
                 oslayers.push(googleLayer);
             }
+            // --------------------------------------
+            // Create layers loop
+            // --------------------------------------
             $.each(layers, function (key, val) {
                 //console.log(searchFields);
                 var grp = val.group;
@@ -241,6 +252,7 @@
                         groups[grp] = [];
                     }
                 }
+               
                 // OSM Tiles
                 if (val.type === "OSM" && typeof useGMap === "undefined") {
                     let url = "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -286,10 +298,17 @@
                     let mapSettings = mapPortal.readConfig("map");
                     var tmplyr;
                     mapserver = mapSettings.mapserver;
-                    if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
-                        wmsUrl = window.location.protocol + '//' + mapservUrl + '/' + val.mapfile.split('\\')[val.mapfile.split('\\').length - 1].split('.')[0];
+                    if (typeof val.mapfile !== "undefined") {
+                        if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
+                            wmsUrl = window.location.protocol + '//' + mapservUrl + '/' + val.mapfile.split('\\')[val.mapfile.split('\\').length - 1].split('.')[0];
+                        } else {
+                            wmsUrl = window.location.protocol + '//' + mapservUrl + '?map=' + val.mapfile;
+                        }
+                    } else if (typeof val.url !== "undefined") {
+                        wmsUrl = val.url;
                     } else {
-                        wmsUrl = window.location.protocol + '//' + mapservUrl + '?map=' + val.mapfile;
+                        console.log("WMS Url not found - ignoring layer");
+                        return false;
                     }
                     //Get layer SOURCE projection from config. If undefined use map projection;
                     var lyrProj;
@@ -511,9 +530,11 @@
                         identifyFields[val.name] = "";
                     }
                 }
-            });
+            }); // End Create layers loop
+            
+            // Add the selection layer now so its at the topp
             oslayers.push(vectorSel);
-            // Add test ESRI layer from e-poleodomia
+            // Experiment with google layers
             //var gmaplayer = new ol.layer.Tile({
             //    source: new ol.source.OSM({
             //        url: 'http://mt{0-3}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
@@ -525,6 +546,7 @@
             //});
             //oslayers.push(gmaplayer);
 
+            // Create tool to display the mouse coordinates
             var mousePositionControl = new ol.control.MousePosition({
                 coordinateFormat: function (coordinate) {
                     return ol.coordinate.format(coordinate, 'X: {x}, Y: {y}', 3);
@@ -565,12 +587,9 @@
                 target: 'mapid',
                 view: new ol.View({
                     center: centerpoint,
-                    //center: [454490, 4501596],
                     zoom: initzoomlevel,
-                    //minZoom: 2,
-                    //maxZoom: 15,
-                    projection: projection,
-                    extent: extent
+                    projection: projection //,
+                    //extent: extent
                 })
             });
             mymap.getView().setZoom(initzoomlevel);
@@ -582,7 +601,7 @@
                 olGM.activate();
             }
 
-            // Create the zoom in buttom and add to toolbar
+            // Create the navigation toolbar on the left
             var navBtnsHtml = '<button id="btnZoomIn" type="button" class="btn btn-primary mapnav" onclick="mapUtils.fixedZoom(1);" autocomplete= "off">' +
                 '    <i class="glyphicon glyphicon-plus"></i>' +
                 '</button>' +
@@ -623,9 +642,7 @@
 
             //Make pan the default button
             $("#btnPan").addClass("active");
-
-
-            return mymap;
+             return mymap;
         },
         createVectorJsonLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped) {
             let vectorStyle = new ol.style.Style();
@@ -641,9 +658,10 @@
                 source: new ol.source.Vector({
                     format: new ol.format.GeoJSON({
                         defaultDataProjection: projcode,
-                        featureProjection: projcode
+                        featureProjection: destprojcode
                     }),
-                    url: function (extent) {
+                    url: function (x) {
+                        let wfsurl='';
                         let mappath = '';
                         if (iswrapped !== "undefined" && iswrapped === true) {
                             mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
@@ -651,15 +669,25 @@
                             mappath = '?map=' + mapfile;
                         }
                         if (window.location.host === $('#hidMS').val().split('/')[0]) {
+                            wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                'bbox=' + x.join(',');
+                        } else {
+                            wfsurl = proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                'bbox=' + x.join(',');
+                        }
+                        /* if (window.location.host === $('#hidMS').val().split('/')[0]) {
                             return window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + extent.join(',');
+                                'bbox=' + mapextent;
                         } else {
                             return proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + extent.join(',');
-                        }
+                                'bbox=' + mapextent;
+                        }*/
+                        return wfsurl;
                     },
                     strategy: ol.loadingstrategy.bbox,
-                    crossOrigin: 'anonymous'
+                    crossOrigin: 'anonymous',
+                    minResolution: 0,
+                    maxResolution: 500 // 500 resolution will display vector layers at a scale of 1: 2,500,000
                 }),
                 style: new ol.style.Style({
                     fill,
@@ -674,8 +702,6 @@
                         })
                     })
                 }),
-                //defaultDataProjection: projection
-                maxResolution: 50
             });
             return geoJsonLayer;
         },
