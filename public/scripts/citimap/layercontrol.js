@@ -15,12 +15,6 @@
             });
             //Create and Add Saved views dialog
             legendUtilities.createSaveViewsDlg();
-            // Graphic Legend
-            $('#lblGLegend').html($.i18n._('_LEGEND'));
-            $('#legendButton').prop('title', $.i18n._('_LEGEND'));
-            $('#legendButton').on('click', function() {
-                $('#graphicLegend').toggle();
-            });
         },
         createLegendDialogUI: function (map) {
             $.i18n.load(uiStrings);
@@ -69,8 +63,8 @@
                     if ($('#btnLegendActions').length === 0) {
                         var actionshtml = '<div id="btnLegendActions" class="btn-group dropup" role="group" aria-label="...">' +
                             '<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-                            $.i18n._('_ACTIONS') + '&nbsp;' +
-                            '<span class="caret"</span>' +
+                            $.i18n._('_ACTIONS') +
+                            '<span class="caret"></span>' +
                             '</button>' +
                             '<ul class="dropdown-menu">' +
                             '    <li><a href="#" onclick="$(\'#modLyrDialog\').dialog(\'close\');$(\'#dlgAddWMS\').dialog(\'open\');">' + $.i18n._('_WXSADD') + '...</a></li>' +
@@ -218,7 +212,7 @@
                 classIdent = 'padding-left:30px;';
             }
             if (typeof tag !== "undefined") {
-                htmlLegendContent = htmlLegendContent + '<div id="legendLayer_' + name + '" href="#" class="list-group-item list-item-legend" data-toggle="collapse" style="' + classIdent + '">';
+                htmlLegendContent = htmlLegendContent + '<div id="legendLayer_' + name + '" href="#" class="list-group-item list-item-legend" data-toggle="collapse" style="' + classIdent + '"><h5>';
                 // Allow reordering only in top level layers
                 if (typeof layer.get("group") === "undefined" && layer.get("group") !== "") {
                     htmlLegendContent = htmlLegendContent + '<span title="' + $.i18n._("_REORDERLAYER") + '"><img class="reorder" src="css/images/icons8-drag-reorder-filled-50.png" style="width:20px;height:20px;cursor:move;padding-right:5px"></span>';
@@ -265,7 +259,6 @@
                 if (tag[0] !== "" && tag[0] === "WMS") {
                     var lyrUrl = tag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + name + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                     htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img src="' + lyrUrl + '" /></span></p>';
-                    $('#legendImgList').append('<li class="list-group-item"><h5>' + label +'</h5><img src="' + lyrUrl + '" /></li>');
                 } else if (tag[0] !== "" && tag[0] === "GeoJSON") {
                     if (typeof layer.get('legend_image') !== "undefined" && layer.get('legend_image').trim() !== "") {
                         var legimgstring = layer.get('legend_image');
@@ -277,12 +270,10 @@
                         }
                         $.each(legimgstring.split(','), function (index, item) {
                             htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" />' + item.split(':')[1] + '<span></p>';
-                            $('#legendImgList').append('<li class="list-group-item"><h5>' + label +'</h5><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" /></li>');
                         });
                     }
                 } else if (tag[0] !== "" && tag[0] === "ESRIRESTTILE") {
                     esriUtils.drawEsriRestLegend(tag[1], name);
-                    //TODO: Draw legend on the standalone legend window
                 }
             }
             // Create metadata link
@@ -299,14 +290,13 @@
                     var subname = sublayer.get('name');
                     var subtag = sublayer.get('tag');
                     var sublabel = sublayer.get('label');
-                    htmlLegendContent = htmlLegendContent + '<a href="#" class="list-group-item list-item-legend" data-toggle="collapse">';
+                    htmlLegendContent = htmlLegendContent + '<a href="#" class="list-group-item list-item-legend" data-toggle="collapse"><h5>';
                     htmlLegendContent = htmlLegendContent + '<span id="lbl' + sublabel + '">' + sublabel + '</span></h5>';
                     // Make sure we have a 'tag' property on the layer
                     if (typeof subtag !== "undefined") {
                         if (subtag[0] !== "" && subtag[0] === "WMS") {
                             var lyrUrl = subtag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + subname + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                             htmlLegendContent = htmlLegendContent + '<p><img src="' + lyrUrl + '" /></p>';
-                            $('#legendImgList').append('<li class="list-group-item"><h5>' + sublabel +'</h5><img src="' + lyrUrl + '" /></li>');
                         }
                     }
                     htmlLegendContent = htmlLegendContent + '</a>';
@@ -373,13 +363,13 @@
         },
         createLegendGroup: function (grpName, type) {
             var grphtml = '';
-            grphtml = grphtml + '<div id="legendGroup_' + grpName + '" class="list-group-item list-item-legend" data-toggle="collapse"><strong>' +
+            grphtml = grphtml + '<div id="legendGroup_' + grpName + '" class="list-group-item list-item-legend" data-toggle="collapse"><h5><strong>' +
                 '<span title="' + $.i18n._("_REORDERLAYER") + '"><img class="reorder" src="css/images/icons8-drag-reorder-filled-50.png" style="width:20px;height:20px;cursor:move;padding-right:5px"></span>' +
                 '<a href="#lgCollapse_' + grpName + '" data-toggle="collapse" onclick="legendUtilities.toggleChevron(this);"><i class="glyphicon glyphicon-chevron-right"></i></a>' +
                 '<i id="icon' + grpName + '" class="glyphicon glyphicon-eye-open text-success" aria-hidden="true" style="cursor:pointer" title="' + $.i18n._("_TOGGLEVISIBLE") + '" onclick="legendUtilities.toggleGroupLayerVisibility(this.id)"></i>' +
                 '<span id="spanGroupSelect' + grpName + '" style="color:orange;padding-right:2px" title="' + $.i18n._("_TOGGLESELECTABLE") + '"><i id="chkSelect' + grpName + '" class="glyphicon glyphicon-flash" style="cursor: pointer" onclick="legendUtilities.toggleGroupLayerSelect(this.id)";></i></span>' +
                 '</strong > ' +
-                '<span id="lbl' + grpName + '">' + grpName + '</span></strong>' +
+                '<span id="lbl' + grpName + '">' + grpName + '</span></strong></h5>' +
                 '<div class="list-group collapse" id="lgCollapse_' + grpName + '"></div></div>';
             $('#layerList').append(grphtml);
             // Make the legend list sortable
@@ -789,6 +779,23 @@
                 return;
             }
             legendUtilities.listSavedViews(svList);
+        },
+        velocityDisableBtns: function(disable) {
+            if (disable) {
+                $("#bottomToolbar button").each(function() {
+                    if ($(this).attr("id") !== "btnVelocity") {
+                        $(this).prop("disabled", true);
+                    } else {
+                        $(this).prop("disabled", false);
+                    }
+                });
+                $(".searchpanel").css("display", "none");
+            } else {
+                $("#bottomToolbar button").each(function() {
+                    $(this).prop("disabled", false);
+                });
+                $(".searchpanel").css("display", "initial");
+            }
         }
     };
 })();
@@ -825,8 +832,42 @@ app.SaveViewControl = function (opt_options) {
     });
 };
 
+app.VelocityViewControl = function (opt_options) {
+    var clickStatus = false;
+    var options = opt_options || {};
+    var element = document.createElement('button');
+    element.innerHTML = '<img src="css/images/windsock-white.png" style="width: 20px;" />';
+    element.className = 'btn btn-primary bottomtb';
+    // element.setAttribute('title', $.i18n._('_LAYERS'));
+    element.setAttribute('title', $.i18n._('_VELOCITY'));
+    element.setAttribute('id', 'btnVelocity');
+    element.setAttribute('data-clicked', false);
+    element.addEventListener('click', function () {
+        if (!clickStatus) {
+            mapUtils.addWind(new Date().toISOString());
+            $('#mapid').css('position', 'absolute');
+            clickStatus = true;
+            $("#btnVelocity").attr("data-clicked", true);
+        } else {
+            $("#velocitySelId select").hide();
+            $("#velocityColorScaleId").hide();
+            mapUtils.removeWind();
+            $('#mapid').css('position', 'relative');
+            clickStatus = false;
+            $("#btnVelocity").attr("data-clicked", false);
+        }
+
+        legendUtilities.velocityDisableBtns(clickStatus);
+    }, false);
+    ol.control.Control.call(this, {
+        element: element,
+        target: options.target
+    });
+}
+
 ol.inherits(app.LayerControl, ol.control.Control);
 ol.inherits(app.SaveViewControl, ol.control.Control);
+ol.inherits(app.VelocityViewControl, ol.control.Control);
 
 $(document).ready(function () {
     //Get the map reference
@@ -838,4 +879,40 @@ $(document).ready(function () {
     //Add legend control button
     $map.getControls().push(new app.LayerControl({ 'target': 'bottomToolbar' }));
     $map.getControls().push(new app.SaveViewControl({ 'target': 'bottomToolbar' }));
+    if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
+        $map.getControls().push(new app.VelocityViewControl({ 'target': 'bottomToolbar' }));
+    }
+
+    if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
+        // add event listener to velocity view to change resolution and center to evrymap
+        velocityMap.getView().on('propertychange', function(e) {
+            var isVelocityMap = $("#btnVelocity").attr("data-clicked");
+            if (isVelocityMap === "true") {
+                switch (e.key) {
+                    case 'resolution':
+                        mymap.getView().setZoom(this.getZoom());
+                        break;
+                    case 'center':
+                        mymap.getView().setCenter(this.getCenter());
+                        break;
+                }
+            }
+        });
+
+        // add event listener to everymap view to change resolution and center to velocity map
+        mymap.getView().on('propertychange', function (e) {
+            var isVelocityMap = $("#btnVelocity").attr("data-clicked");
+            if (isVelocityMap === "false") {
+                switch (e.key) {
+                    case 'resolution':
+                        velocityMap.getView().setZoom(this.getZoom());
+                        break;
+                    case 'center':
+                        velocityMap.getView().setCenter(this.getCenter());
+                        break;
+                }
+            }
+        });
+    }
+
 });

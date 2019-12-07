@@ -36,6 +36,7 @@
     "jquery-file-upload-middleware": "^0.1.8",
     "morgan": "~1.9.1",
     "mssql": "^5.1.0",
+    "nodemon": "^1.19.4",
     "pg": "^7.12.1"
   }
 }

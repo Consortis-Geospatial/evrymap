@@ -24,6 +24,11 @@ EVRYMAP allows you to create interactive map portals. It's based on [NodeJS](htt
 
 - Now cd to the proxy folder and run: `npm install` Note: this is a copy of the [node.js ArcGIS proxy server](https://github.com/jf990/resource-proxy-node) with minor modifications
 
+- Before you can run the project you need to rename or save the /config/config_sample.json to config.json
+
+## Run the sample project
+
+- Navigate to the installation folder and run: `npm start` (assumes you already renamed the /config/config_sample.json to config.json)
   
 ## Application Configuration
 

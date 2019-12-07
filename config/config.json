@@ -1,0 +1,32 @@
+{
+    "proxyUrl": "http://localhost:3000/proxy/",
+    "proxyRedirect": "http://localhost:3692",
+    "configJson":"layerconfig-diavrosi.json",
+    "searchaddressmod" :"address_nominatim.js",
+    "loadurbanmod":true,
+    "loadeditmod": true,
+    "sitetitle":"| Sample Site",
+    "logotitle" :"EVRYMAP logo",
+    "sitelogo":"css/images/EVRIMAP_Color_Negative.png",
+    "lang" :"en-US",
+    "cityPortalConnection":"DeyaConnection",
+    "editConnectionType" :"MSSQL",
+    "editConnection":"LRMConnection",
+    "authType": "NodeJS",
+    "authDllPath" :"Consortis.Crypto.dll",
+    "authDllTypeName" :"Consortis.CryptoAsync.EncryptDecrypt", 
+    "authDllMethod" : "EncDec",
+    "authKey":"Sum2QNV646uJ5iDmN5GSN9YETKH32iPH",
+    "useVelocityMap": true,
+    "custommods":[
+        
+    ],
+    "connections": [
+        {
+            "name": "LRMConnection",
+            "server": "MORPHEAS\\SQLExpress",
+            "db": "mc_kassandra_sb",
+            "options":"MultipleActiveResultSets=True"
+        }
+    ]
+}

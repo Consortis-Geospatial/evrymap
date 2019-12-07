@@ -160,5 +160,6 @@
     "_OROPERATOR": "Any value (OR)",
     "_PAN": "Click and drag on the map to pan",
     "_LEGEND" :"Map Legend",
+    "_VELOCITY" : "Wind Velocity",
     "_CANNOTEDIT" : "Cannot edit this layer. Please check its configuration"
 };

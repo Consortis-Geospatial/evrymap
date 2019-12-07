@@ -3,6 +3,7 @@
     var infoTitle = [];
     var searchFields = {};
     var identifyFields = {};
+    var velocityLayer;
     return {
         /**
          * initlayers: Reads the config file and sets up map and layers
@@ -18,6 +19,12 @@
             layers = mapPortal.readConfig("layers");
 
             mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields);
+            // if velocity layer exists
+            if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
+                // create velocity map
+                velocityMap = this.createVelocityMap();
+
+            }
             //mymap.addControl(mousePositionControl);
             $('#mapid').data('map', mymap);
 
@@ -352,6 +359,7 @@
                                 })
                             });
                     }
+                    
                     tmplyr.set('name', val.name);
                     tmplyr.set('label', val.label);
                     tmplyr.set('tiled', val.tiled);
@@ -642,7 +650,8 @@
 
             //Make pan the default button
             $("#btnPan").addClass("active");
-             return mymap;
+
+            return mymap;
         },
         createVectorJsonLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped) {
             let vectorStyle = new ol.style.Style();
@@ -1520,6 +1529,103 @@
             $('#pnlMsg').html(msg);
             $('#divMsg').show();
             $('#divMsg').delay(2500).fadeOut(2000);
-        }
+        },
+        createVelocityMap() {
+            // create velocity layer
+            velocityLayer = new VelocityLayer({
+        
+                displayValues: true,
+                displayOptions: {
+                  velocityType: 'GBR Wind',
+                  position: 'bottomleft',
+                  emptyString: 'No velocity data',
+                  angleConvention: 'bearingCW',
+                  displayPosition: 'bottomleft',
+                  displayEmptyString: 'No velocity data',
+                  speedUnit: 'bft'
+                },
+                data: [], // velocityData, // see demo/*.json, or wind-js-server for example data service
+              
+                // OPTIONAL
+                minVelocity: 5,          // used to align color scale
+                maxVelocity: 20,         // used to align color scale
+                velocityScale: 0.005,    // modifier for particle animations, arbitrarily defaults to 0.005
+                particleMultiplier: 1/100,
+                particleAge: 64,
+                lineWidth: 1,
+                colorScale: velocityColorScaleArray
+            });
+            // initiate velocity map html attributes
+            $("#mapid2 div").attr('id', velocityControls.getVelocitySettings().mapId);
+            $("#mapid2 div").css('height', '100%');
+
+            var velocityCenter = mymap.getView().getCenter();
+            velocityMap = new Map({
+                layers: [
+                    new TileLayer({
+                        source: new Stamen({layer: 'toner'})
+                    }),
+                    // new TileLayer({
+                    //     title: 'Open Street Map',
+                    //     source: new OSM(),
+                    //     // type: 'base'
+                    // }),
+                ],
+                target: velocityControls.getVelocitySettings().mapId,
+                view: new View({
+                    center: velocityCenter,
+                    // projection: projectionCode,
+                    extent: mymap.getView().getProjection().getExtent(),
+                    zoom: mymap.getView().getZoom()//,
+                    // maxZoom: 29
+                })
+            });
+            velocityControls.renderTool();
+            $("#velocitySelId select").hide();
+            $("#velocityColorScaleId").hide();
+
+            return velocityMap;
+        },
+        addWind(timeIso) {
+            // var timeIso = new Date().toISOString();
+            var searchLimit = velocityControls.getVelocitySettings().timeSettings.days;
+            $.ajax({
+                url: 'http://localhost:7000/nearest?timeIso=' + timeIso + '&searchLimit=' + searchLimit,
+                async: true,
+                dataType: 'json',
+                beforeSend: function () {
+                    $(".wait").show();
+                },
+                success: function (windData) {
+                    var refTime = windData[0].header.refTime;
+                    $("#velocitySelId select").show();
+                    $("#velocityColorScaleId").show();
+                    velocityControls.renderSelectOptions(refTime);
+                    velocityLayer.options.data = windData;
+                    velocityLayer.addToMap(velocityMap);
+                    // TODO: Figure out how to keep animation going without updating layer
+                    setInterval(function() {
+                        velocityLayer._canvasLayer.changed();
+                    }, 50);
+                },
+                complete: function (response) {
+                    $(".wait").hide();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $(".wait").hide(400, function() {
+                        console.log("Velocity data could not be loaded... Maybe the wind server is down");
+                        alert("Velocity data could not loaded... Maybe the wind server is down");
+                    });
+                },
+                failure: function (jqXHR, _textStatus, errorThrown) {
+                    $(".wait").hide(400, function() {
+                        console.log("Get velocity data error");
+                    });
+                }
+            }); 
+        },
+        removeWind() {
+            velocityLayer.removeFromMap();
+          }
     };
 })();
