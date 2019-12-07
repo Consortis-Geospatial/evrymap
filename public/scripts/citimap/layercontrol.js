@@ -1,4 +1,9 @@
 ﻿var legendUtilities = (function () {
+    $.extend($.expr[":"], {
+        "containsIN": function (elem, i, match, array) {
+            return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+        }
+    });
     return {
         initLegend: function (map) {
             legendUtilities.createLegendDialogUI(map);
@@ -23,9 +28,13 @@
             modLyrDialog.setAttribute('id', 'modLyrDialog');
             var divhtml = '<div class="container-fluid">' +
                 '<div class="row">' +
-                '    <div class="col-lg-12">' +
-                '        <label for="txbSearchLegend">' + $.i18n._("_SEARCH") + '</label>' +
-                '        <input type="text" class="form-control" id="txbSearchLegend" onkeypress="legendUtilities.searchLayerControlList();" placeholder="' + $.i18n._("_SEARCH") + '..." value="">' +
+                '    <div class="form-horizontal">' +
+                '       <div class="form-group">' +
+                '           <label for="txbSearchLegend" class="col-sm-3 control-label">' + $.i18n._("_SEARCH") + '</label>' +
+                '           <div class="col-sm-9">' +
+                '               <input type="text" class="form-control" id="txbSearchLegend" onkeyup="legendUtilities.searchLayerControlList();" placeholder="' + $.i18n._("_SEARCH") + '..." value="">' +
+                '           </div>' +
+                '       </div>' +
                 '   </div>' +
                 '</div>' +
                 '<div class="row">' +
@@ -81,7 +90,7 @@
             if (s === '') {
                 $("#layerList").children(".list-item-legend").show();
             } else {
-                $("#layerList").children(".list-item-legend").not(":contains(" + s + ")").hide();
+                $("#layerList").children(".list-item-legend").not(":containsIN(" + s + ")").hide();
             }
         },
         createSaveViewsDlg: function (map) {
@@ -251,7 +260,7 @@
             if (typeof tag !== "undefined") {
                 htmlLegendContent = htmlLegendContent + '<p style="padding-left:2.00em;" class="text-muted">';
                 htmlLegendContent = htmlLegendContent + '<span style="padding-right:15px;"><small>' + $.i18n._('_TRANSPARENCY') + '</small></br></span>';
-                htmlLegendContent = htmlLegendContent + '<input id="slider' + name + '" type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-ticks="[0, 1]"></p>';
+                htmlLegendContent = htmlLegendContent + '<input id="slider' + name + '" type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-ticks="[0, 1]"><span style="font-size:9px"><label id="' + name +'-opacity">&nbsp;0%</label></span></p>';
                 //console.log("tag: " + tag);
                 if (tag[0] !== "" && tag[0] === "WMS") {
                     var lyrUrl = tag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + name + "&FORMAT=image/png&SLD_VERSION=1.1.0";
@@ -675,7 +684,7 @@
                     },
                     value: curOpacity,
                     reversed: true,
-                    tooltip: 'show',
+                    tooltip: 'hide',
                     tooltip_position: 'bottom',
                     ticks: [0, 1],
                     ticks_positions: [0, 100],
@@ -687,6 +696,17 @@
                     mymap.getLayers().forEach(function (layer, i) {
                         if (layer.get('name') === obj.id.substr(6, obj.id.length - 1)) {
                             layer.setProperties({ opacity: Number(slideEvt.value) });
+                            $("#" + layer.get('name') +"-opacity").html("&nbsp;" + (100 - (Number(slideEvt.value)*100)) + "%");
+                        }
+                    });
+                });
+                //Attach the click event
+                $("#" + obj.id).on("change", function (slideEvt) {
+                    var selLyr;
+                    mymap.getLayers().forEach(function (layer, i) {
+                        if (layer.get('name') === obj.id.substr(6, obj.id.length - 1)) {
+                            layer.setProperties({ opacity: Number(slideEvt.value.newValue) });
+                            $("#" + layer.get('name') +"-opacity").html("&nbsp;" + (100 - (Number(slideEvt.value.newValue)*100)) + "%");
                         }
                     });
                 });
