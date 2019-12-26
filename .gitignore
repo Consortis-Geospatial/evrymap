@@ -8,3 +8,16 @@ node_modules/
 /proxy/package-lock.json
 /proxy/proxy.sqlite
 /proxy/arcgis-proxy-node.log
+/.vscode/launch.json
+public/config/layerconfig-delta.json
+public/config/layerconfig-delta.json
+public/config/layerconfig-diavrosi-master.json
+public/config/layerconfig-diavrosi-small.json
+public/config/layerconfig-test-wfs.json
+public/config/layerconfig-tmede_new.json
+public/config/layerconfig-tmede-local.json
+public/config/layerconfig-tmede.json
+public/config/layerconfig-water-morpheas_w_e-pol.json
+proxy/arcgis-proxy-node.log
+proxy/citimap-proxy-node.log
+proxy/citimap-proxy-node.log
