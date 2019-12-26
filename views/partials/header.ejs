@@ -1,12 +1,6 @@
 <!-- views/partials/header.ejs -->
 <style>
-    /*  @import url('https://fonts.googleapis.com/css?family=Lato:300,400');
-
-html, body {
-  font-family: 'Lato', serif;  
-} */
-
-
+   
     #cnavbar {
         display: block;
         top: 0px;
@@ -22,86 +16,6 @@ html, body {
         color: white;
     }
 
-    /*
-.navbar-default {
-  font-size: 1.15em;
-  font-weight: 400;
-  background-color: #006b96;
-  padding: 10px;
-  border: 0px;
-  border-radius: 0px;
-  opacity:0.5;
-  margin-bottom:0px;
-}
-
-.navbar-default .navbar-nav>li>a {
-  color: white;
-}
-
-.navbar-default .navbar-nav>li>a:hover {
-  color: #cbf0ff;
-}
-
-.navbar-default .navbar-brand {
-  color: #002433;
-}
-
-.navbar-default .navbar-brand:hover {
-  color: #ffffff;
-  text-shadow: 1px -1px 8px #b3e9ff;
-}
-
-.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:hover, .navbar-default .navbar-nav>.open>a:focus {
-  background-color: #004059;
-  color: white;
-}
-
-.navbar-default .navbar-toggle {
-  border: none;
-}
-
-.navbar-default .navbar-collapse, .navbar-default .navbar-form {
-  border: none;
-}
-
-.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
-  background-color: #002433;
-}
-
-.navbar-default .navbar-toggle .icon-bar {
-  background-color: #ffffff;
-}
-
-.dropdown-menu {
-  background-color: #004059;
-  color: white;
-  border: 0px;
-  border-radius: 2px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-.dropdown-menu>li>a {
-  background-color: #004059;
-  color: white;
-}
-
-.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
-  background-color: #004059;
-  color:white;
-}
-
-.dropdown-menu .divider {
-    height: 1px;
-    margin: 9px 0;
-    overflow: hidden;
-    background-color: #003246;
-}
-
-.navbar-default .navbar-nav .open .dropdown-menu>li>a {
-    color: #ffffff;
-}
-*/
     .navbar-text {
         text-align: center;
         font-size: 19px;
@@ -114,24 +28,7 @@ html, body {
         .dropdown-menu>li>a {
             background-color: rgb(255, 255, 255, 0.5);
             color: #ffffff;
-        }
-         /*
-        .dropdown-menu>li>a:hover {
-            color: #ffffff;
-        }
-
-        .navbar-default .navbar-nav .open .dropdown-menu>li>a:focus,
-        .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
-            color: #ffffff;
-            background-color: transparent;
-        }
-
-        .dropdown-menu .divider {
-            height: 1px;
-            margin: 9px 0;
-            overflow: hidden;
-            background-color: rgb(255, 255, 255, 0.5);
-        } */
+        
     }
 
     /* END Media Query */
@@ -162,84 +59,14 @@ html, body {
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <!-- <ul class="nav navbar-nav">
-                 <li><a href="#"><span class="glyphicon glyphicon-th" aria-hidden="true"></span> Dashboard</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">Tasks <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-                                Overview</a></li>
-                        <li><a href="#"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> New
-                                Task</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="#">Categories</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">Contacts <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Übersicht</a></li>
-                        <li><a href="#">New Contact</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="#">Categories</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">Notes <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Overview</a></li>
-                        <li><a href="#">New Notiz</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="#">Notebooks</a></li>
-                    </ul>
-                </li>
-                <li><a href="#">Accounts</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">Learnings <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Overview</a></li>
-                        <li><a href="#">New Learning</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="#">Categories</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">Log <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Overview</a></li>
-                        <li><a href="#">New Entry</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="#">Topics</a></li>
-                    </ul>
-                </li>
-            </ul> -->
-            <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle topmenu-link" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false"><span class="glyphicon glyphicon-link" aria-hidden="true"></span>
-                        Links<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="http://www.google.ch" target="_blank">My Webmail</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="http://www.google.ch" target="_blank">Timelogger</a></li>
-                        <li><a href="http://www.cubetech.ch" target="_blank">cubetech.ch</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
+            <ul class="nav navbar-nav navbar-right" style="z-index:9999">
+               <li class="dropdown">
                     <a href="#" class="dropdown-toggle topmenu-link" data-toggle="dropdown"><i class="fas fa-user fa-lg"></i><span
                             class="caret"></span></a>
                     <ul id="login-dp" class="dropdown-menu">
-                        <li><a href="#" class="dropdown-toggle" id="lnkLogin" runat="server"
-                                clientidmode="Static"><b>Login</b> </a></li>
-                        <li><a href="http://www.fgruber.ch/" target="_blank"><span class="glyphicon glyphicon-cog"
+                        <li><a href="#" class="dropdown-toggle" id="lnkLogin"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>&nbsp;Login</a></li>
+                        <li><a href="#" id="lnkOptions"><span class="glyphicon glyphicon-cog"
                                     aria-hidden="true"></span> User Settings</a></li>
-                        <li><a href="/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-                                Logout</a></li>
                     </ul>
                 </li>
             </ul>
