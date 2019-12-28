@@ -95,7 +95,7 @@
                             var wxsType = $("#cboWXSType").val();
                             var srid = $('#lsSrid').val();
                             if (wxsType === "WMS") {
-                                WxSUtils.addWMSLayer(lyrname, lyrtitle, lyrurl, srid, lyrinfo_format, lyrqueryable);
+                                WxSUtils.addWMSLayer(lyrname, lyrtitle, lyrurl, srid, lyrinfo_format, lyrqueryable, true);
                             } else if (wxsType === "WFS") {
                                 WxSUtils.addWFSLayer(lyrname, lyrtitle, lyrurl, srid, lyrinfo_format, lyrqueryable);
                             }
@@ -263,7 +263,7 @@
             $('#btnAddWxS').prop("disabled", false);
             $('#lsSrid').prop("disabled", false);
         },
-        addWMSLayer: function (lyrname, lyrtitle, lyrurl, srid, info_format, isqueryable) {
+        addWMSLayer: function (lyrname, lyrtitle, lyrurl, srid, info_format, isqueryable, candelete) {
             //console.log(lyrname);
             //console.log(lyrtitle);
             //console.log(lyrurl);
@@ -297,7 +297,7 @@
             tmplyr.set('editable', false);
             tmplyr.set('srid', srid);
             tmplyr.set('feature_info_format', info_format);
-            tmplyr.set('candelete', true);
+            tmplyr.set('candelete', candelete);
             mymap.addLayer(tmplyr);
             legendUtilities.addLayerToLegend(mymap, tmplyr, true);
             mapUtils.showMessage('success', $.i18n._('_LAYERADDED'), $.i18n._('_LAYERADDTITLE'));
