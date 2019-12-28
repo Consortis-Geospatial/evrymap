@@ -3,8 +3,8 @@ var layer2split;
 var originalEditLayer = null;
 var featureEdit = (function () {
     $(document).ready(function () {
-        $('#lnkLogin').html("<b>" + $.i18n._('_LOGINBUTTON') + "</b>");
-        $('#lnkOptions').html("<b>" + $.i18n._('_PREFERENCES') + "</b>");
+        $('#lnkLogin').html("<span class='glyphicon glyphicon-log-in' aria-hidden='true'></span>&nbsp;&nbsp;" + $.i18n._('_LOGINBUTTON'));
+        $('#lnkOptions').html("<span class='glyphicon glyphicon-cog' aria-hidden='true'></span>&nbsp;&nbsp;" + $.i18n._('_PREFERENCES'));
         $('#btnLogin').val($.i18n._('_LOGINBUTTON'));
         $('#btnCloseLogin').html($.i18n._('_CLOSE'));
         $("#lblLoginTitle").html($.i18n._('_LOGINTITLE'));
@@ -50,7 +50,7 @@ var featureEdit = (function () {
         showConnected: function (uname, enc) {
             $('#hidEnc').val(enc);
             mapUtils.showMessage('success', $.i18n._('_LOGINSUCCESS'), $.i18n._('_LOGINSUCCESS'));
-            $('#lnkLogin').html("<b>" + $.i18n._('_LOGOUT') + "</b>");
+            $('#lnkLogin').html("<span class='glyphicon glyphicon-log-out' aria-hidden='true'></span>&nbsp;" + $.i18n._('_LOGOUT'));
             $('#editTools').show();
             $('#usermenu').prepend('<li id="userinfo"><p style="position:relative;top:15px;color:white">' + $.i18n._('_USERNAME') + ": " + uname + '</p></li>');
             $('#lnkLogin').off('click').on('click', function () {
@@ -60,7 +60,7 @@ var featureEdit = (function () {
                 $('#editTools').hide();
                 $('#hidEnc').val('');
                 $('#userinfo').remove();
-                $('#lnkLogin').html("<b>" + $.i18n._('_LOGINBUTTON') + "</b>");
+                $('#lnkLogin').html("<span class='glyphicon glyphicon-log-in' aria-hidden='true'></span>&nbsp;" + $.i18n._('_LOGINBUTTON'));
                 $('#lnkLogin').off('click').on('click', function () {
                     $('#modLogin').modal({
                         keyboard: false
