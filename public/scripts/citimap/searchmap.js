@@ -27,6 +27,7 @@
                 mapUtils.showMessage('warning', $.i18n._('_NOSEARCHSTRING'), $.i18n._('_ERRORWARNING'));
                 return;
             }
+            //searchVal=escape(searchVal);
             $map = $('#mapid').data('map');
             var selLyr = searchUtilities.getSelectionLayer($map);
             var found = false;
@@ -151,7 +152,7 @@
                                     if (data.features.length > 0) {
                                         let geom = JSON.stringify(data.features[0].geometry.coordinates);
                                         let geomtype = data.features[0].geometry.type;
-                                        searchUtilities.zoomToFeature(geomtype, geom);
+                                        searchUtilities.zoomToFeature(geomtype, geom, searchLyrName);
                                     }
                                 }
                             }
@@ -232,7 +233,7 @@
                     render: function (data, type, row, meta) {
                         var str = '';
                         if (data !== null) {
-                            str = "<a href='#' title='" + $.i18n._('_ZOOMTO') + "' onclick=\"searchUtilities.zoomToFeature('" + data.type + "','" + JSON.stringify(data.coordinates) + "')\"><i class=\"glyphicon glyphicon-globe text-success\"></i></a>";
+                            str = "<a href='#' title='" + $.i18n._('_ZOOMTO') + "' onclick=\"searchUtilities.zoomToFeature('" + data.type + "','" + JSON.stringify(data.coordinates) + "','" + lyrname + "')\"><i class=\"glyphicon glyphicon-globe text-success\"></i></a>";
                             if (typeof searchLayer.get("custom_record_action") !== "undefined") {
                                 var tt = searchLayer.get("custom_record_action").tooltip;
                                 var action = searchLayer.get("custom_record_action").action;
@@ -485,10 +486,9 @@
             console.log(jsonstring);
             shpwrite.download(JSON.parse(jsonstring));
         },
-        zoomToFeature: function (geomtype, coordstring) {
-            $map = $('#mapid').data('map');
+        zoomToFeature: function (geomtype, coordstring, lyrName) {
             var featurething;
-            var selLyr = searchUtilities.getSelectionLayer($map);
+            var selLyr = searchUtilities.getSelectionLayer(mymap);
             if (geomtype === "Polygon" || geomtype === "Point" || geomtype === "LineString") {
                 var points = JSON.parse(coordstring);
                 if (geomtype === "Point") {
@@ -510,22 +510,57 @@
 
                 var geojson = new ol.format.GeoJSON();
 
+                // Set the default layer projection to the map projection
+                var lyrProj = mymap.getView().getProjection().getCode();
+                if (typeof lyrName !== "undefined") {
+                    // Get the layer object of the layer we are searching on
+                    var searchLyr = legendUtilities.getLayerByName(lyrName);
+                    // Check if a projection code is defined in the config file.
+                    if (typeof searchLyr.get("projection") !== "undefined") {
+                        lyrProj = searchLyr.get("projection");
+                    }
+                }
                 as_geojson = geojson.writeFeatures([featurething], {
-                    featureProjection: $map.getView().getProjection().getCode(),
-                    dataProjection: $map.getView().getProjection().getCode()
+                    featureProjection: mymap.getView().getProjection().getCode(),
+                    dataProjection: lyrProj
                 });
-
                 selLyr.getSource().clear();
                 selLyr.getSource().addFeatures([featurething]);
                 if (geomtype === "Polygon" || geomtype === "LineString") {
-                    $map.getView().fit(selLyr.getSource().getExtent(), $map.getSize());
+                    mymap.getView().fit(selLyr.getSource().getExtent(), mymap.getSize());
                 } else { //Its a point. Zoom to a fixed extent
-                    $map.getView().setCenter(featurething.getGeometry().getCoordinates());
+                    mymap.getView().setCenter(featurething.getGeometry().getCoordinates());
                     if (typeof xyzoomlevel === "undefined" || isNaN(Number(xyzoomlevel))) {
                         mymap.getView().setZoom(13);
                     } else {
                         mymap.getView().setZoom(xyzoomlevel);
                     }
+                }
+            }
+        },
+        // 
+        // Zooms to the input WKT feature
+        // Required for the OTS integration
+        //
+        zoomToWKTFeature: function (wktval) {       
+            var format = new ol.format.WKT();
+            //Create the feature
+            var feature = format.readFeature(wktval.trim(), {
+                dataProjection: 'EPSG:4326', // ALWAYS assume that the WKT is in WGS84
+                featureProjection: mymap.getView().getProjection().getCode()
+            });
+            // Initialise the selection layer
+            var selLyr = searchUtilities.getSelectionLayer(mymap);
+
+            selLyr.getSource().addFeature(feature);
+            if (wktval.trim().toUpperCase().startsWith("POLYGON") || wktval.trim().toUpperCase().startsWith("LINESTRING")) {
+                mymap.getView().fit(selLyr.getSource().getExtent(), mymap.getSize());
+            } else { //Its a point. Zoom to a fixed extent
+                mymap.getView().setCenter(feature.getGeometry().getCoordinates());
+                if (typeof xyzoomlevel === "undefined" || isNaN(Number(xyzoomlevel))) {
+                    mymap.getView().setZoom(13);
+                } else {
+                    mymap.getView().setZoom(xyzoomlevel);
                 }
             }
         },
