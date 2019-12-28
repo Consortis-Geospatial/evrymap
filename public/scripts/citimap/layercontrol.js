@@ -15,6 +15,12 @@
             });
             //Create and Add Saved views dialog
             legendUtilities.createSaveViewsDlg();
+            // Graphic Legend
+            $('#lblGLegend').html($.i18n._('_LEGEND'));
+            $('#legendButton').prop('title', $.i18n._('_LEGEND'));
+            $('#legendButton').on('click', function () {
+                $('#graphicLegend').toggle();
+            });
         },
         createLegendDialogUI: function (map) {
             $.i18n.load(uiStrings);
@@ -23,7 +29,7 @@
             var divhtml = '<div class="container-fluid">' +
                 '<div class="row">' +
                 '    <div class="form-horizontal">' +
-                '       <div class="form-group">' +
+                '       <div class="form-group pull-left">' +
                 '           <label for="txbSearchLegend" class="col-sm-3 control-label">' + $.i18n._("_SEARCH") + '</label>' +
                 '           <div class="col-sm-9">' +
                 '               <input type="text" class="form-control" id="txbSearchLegend" onkeyup="legendUtilities.searchLayerControlList();" placeholder="' + $.i18n._("_SEARCH") + '..." value="">' +
@@ -212,7 +218,7 @@
                 classIdent = 'padding-left:30px;';
             }
             if (typeof tag !== "undefined") {
-                htmlLegendContent = htmlLegendContent + '<div id="legendLayer_' + name + '" href="#" class="list-group-item list-item-legend" data-toggle="collapse" style="' + classIdent + '"><h5>';
+                htmlLegendContent = htmlLegendContent + '<div id="legendLayer_' + name + '" href="#" class="list-group-item list-item-legend" data-toggle="collapse" style="' + classIdent + '">';
                 // Allow reordering only in top level layers
                 if (typeof layer.get("group") === "undefined" && layer.get("group") !== "") {
                     htmlLegendContent = htmlLegendContent + '<span title="' + $.i18n._("_REORDERLAYER") + '"><img class="reorder" src="css/images/icons8-drag-reorder-filled-50.png" style="width:20px;height:20px;cursor:move;padding-right:5px"></span>';
@@ -229,26 +235,23 @@
                 }
                 if (tag[0] === "GeoJson" || tag[0] === "GeoJSON" || tag[0] === "KML" || tag[0] === "XML") {
                     htmlLegendContent = htmlLegendContent + classStringSel + '<span id="lbl' + name + '">' + label + '</span> <input type="hidden" id="hid' + name + '" value="' + name + '" />';
-                    //htmlLegendContent = htmlLegendContent + '<input type="checkbox" data-toggle="toggle" id="chkSelect' + name +'" value="" onClick="legendUtilities.setSelected(this);"><span id="lbl' + name + '">' + label + '</span><input type="hidden" id="hid' + name + '" value="' + name + '" />';
                     if (typeof exportable !== "undefined" && exportable === true) {
                         htmlLegendContent = htmlLegendContent + legendUtilities.generateExportButton(name);
                     }
                 } else if (tag[0] === "WMS") {
                     htmlLegendContent = htmlLegendContent + classStringSel + '<span id="lbl' + name + '">' + label + '</span> <input type="hidden" id="hid' + name + '" value="' + name + '" />';
-                    //htmlLegendContent = htmlLegendContent + '<input type="checkbox" data-toggle="toggle" id="chkSelect' + name + '" value="" onClick="legendUtilities.setSelected(this);"><span id="lbl' + name + '">' + label + '</span><input type="hidden" id="hid' + label + '" value="' + name + '" />';
                     if (typeof exportable !== "undefined" && exportable === true) {
                         htmlLegendContent = htmlLegendContent + legendUtilities.generateExportButton(name);
                     }
                 } else if (tag[0] === "ESRIRESTTILE") {
                     htmlLegendContent = htmlLegendContent + classStringSel + '<span id="lbl' + name + '">' + label + '</span> <input type="hidden" id="hid' + name + '" value="' + name + '" />';
-                    //htmlLegendContent = htmlLegendContent + '<input type="checkbox" data-toggle="toggle" id="chkSelect' + name + '" value="" onClick="legendUtilities.setSelected(this);"><span id="lbl' + name + '">' + label + '</span><input type="hidden" id="hid' + label + '" value="' + name + '" />';
                     if (typeof exportable !== "undefined" && exportable === true) {
                         htmlLegendContent = htmlLegendContent + legendUtilities.generateExportButton(name);
                     }
                 } else {
                     htmlLegendContent = htmlLegendContent + '<span style="padding-right:2px"><i class="glyphicon glyphicon-none"></i></span><span id="lbl' + name + '">' + label + '</span> <input type="hidden" id="hid' + name + '" value="' + name + '" />';
                 }
-                htmlLegendContent = htmlLegendContent + '</h5>';
+                htmlLegendContent = htmlLegendContent + '';
             }
             // Create legend
             if (typeof tag !== "undefined") {
@@ -256,10 +259,13 @@
                 htmlLegendContent = htmlLegendContent + '<span style="padding-right:15px;"><small>' + $.i18n._('_TRANSPARENCY') + '</small></br></span>';
                 htmlLegendContent = htmlLegendContent + '<input id="slider' + name + '" type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-ticks="[0, 1]"><span style="font-size:9px"><label id="' + name +'-opacity">&nbsp;0%</label></span></p>';
                 //console.log("tag: " + tag);
-                if (tag[0] !== "" && tag[0] === "WMS") {
+                // Create the legend icon for WMS layers from the GetLegendGraphic request UNLESS we have set a group icon
+                if (tag[0] !== "" && tag[0] === "WMS" && (typeof layer.get('groupLegendImg') === "undefined" || layer.get('groupLegendImg').trim() === "")) {
                     var lyrUrl = tag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + name + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                     htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img src="' + lyrUrl + '" /></span></p>';
+                    $('#legendImgList').append('<li class="list-group-item"><h5>' + label + '</h5><img src="' + lyrUrl + '" /></li>');
                 } else if (tag[0] !== "" && tag[0] === "GeoJSON") {
+                    // Create a legend image for vector layes if one is set in configuration
                     if (typeof layer.get('legend_image') !== "undefined" && layer.get('legend_image').trim() !== "") {
                         var legimgstring = layer.get('legend_image');
                         var imgW = "20px";
@@ -270,6 +276,7 @@
                         }
                         $.each(legimgstring.split(','), function (index, item) {
                             htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" />' + item.split(':')[1] + '<span></p>';
+                            $('#legendImgList').append('<li class="list-group-item"><h5>' + label + '</h5><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" /></li>');
                         });
                     }
                 } else if (tag[0] !== "" && tag[0] === "ESRIRESTTILE") {
@@ -290,13 +297,14 @@
                     var subname = sublayer.get('name');
                     var subtag = sublayer.get('tag');
                     var sublabel = sublayer.get('label');
-                    htmlLegendContent = htmlLegendContent + '<a href="#" class="list-group-item list-item-legend" data-toggle="collapse"><h5>';
-                    htmlLegendContent = htmlLegendContent + '<span id="lbl' + sublabel + '">' + sublabel + '</span></h5>';
+                    htmlLegendContent = htmlLegendContent + '<a href="#" class="list-group-item list-item-legend" data-toggle="collapse">';
+                    htmlLegendContent = htmlLegendContent + '<span id="lbl' + sublabel + '">' + sublabel + '</span>';
                     // Make sure we have a 'tag' property on the layer
                     if (typeof subtag !== "undefined") {
                         if (subtag[0] !== "" && subtag[0] === "WMS") {
                             var lyrUrl = subtag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + subname + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                             htmlLegendContent = htmlLegendContent + '<p><img src="' + lyrUrl + '" /></p>';
+                            $('#legendImgList').append('<li class="list-group-item">' + sublabel + '<img src="' + lyrUrl + '" /></li>');
                         }
                     }
                     htmlLegendContent = htmlLegendContent + '</a>';
@@ -307,7 +315,7 @@
             if (typeof layer.get("group") !== "undefined" && layer.get("group") !== "") {
                 var grpName = layer.get("group").replace(' ', '_'); //Replace spaces with underscores so to create a valid id for jquery
                 if (!legendUtilities.legendGroupExists(grpName)) {
-                    legendUtilities.createLegendGroup(grpName, tag[0]);
+                    legendUtilities.createLegendGroup(grpName, layer.get("groupLegendImg"));
                 }
                 $('#lgCollapse_' + grpName).append(htmlLegendContent);
                 if (tag[0] === "OSM" || tag[0] === "Bing" || tag[0] === "Google") {
@@ -361,16 +369,30 @@
                 }
             }
         },
-        createLegendGroup: function (grpName, type) {
+        createLegendGroupImage: function(grpName, img) {
+            return '</br><img id="imgGroup_' + grpName +'" src="css/images/' + img +'" style="padding-left:35px">';
+        },
+        legendGroupImageExists: function(group_name){
+            var grpImageExists=false;
+            if ($('#imgGroup_' + group_name).length===1) {
+                grpImageExists=true;
+                console.log('group image exists');
+            }
+            return grpImageExists;
+        },
+        createLegendGroup: function (grpName, grpImg) {
             var grphtml = '';
-            grphtml = grphtml + '<div id="legendGroup_' + grpName + '" class="list-group-item list-item-legend" data-toggle="collapse"><h5><strong>' +
+            grphtml = grphtml + '<div id="legendGroup_' + grpName + '" class="list-group-item list-item-legend" data-toggle="collapse"><strong>' +
                 '<span title="' + $.i18n._("_REORDERLAYER") + '"><img class="reorder" src="css/images/icons8-drag-reorder-filled-50.png" style="width:20px;height:20px;cursor:move;padding-right:5px"></span>' +
                 '<a href="#lgCollapse_' + grpName + '" data-toggle="collapse" onclick="legendUtilities.toggleChevron(this);"><i class="glyphicon glyphicon-chevron-right"></i></a>' +
                 '<i id="icon' + grpName + '" class="glyphicon glyphicon-eye-open text-success" aria-hidden="true" style="cursor:pointer" title="' + $.i18n._("_TOGGLEVISIBLE") + '" onclick="legendUtilities.toggleGroupLayerVisibility(this.id)"></i>' +
                 '<span id="spanGroupSelect' + grpName + '" style="color:orange;padding-right:2px" title="' + $.i18n._("_TOGGLESELECTABLE") + '"><i id="chkSelect' + grpName + '" class="glyphicon glyphicon-flash" style="cursor: pointer" onclick="legendUtilities.toggleGroupLayerSelect(this.id)";></i></span>' +
                 '</strong > ' +
-                '<span id="lbl' + grpName + '">' + grpName + '</span></strong></h5>' +
-                '<div class="list-group collapse" id="lgCollapse_' + grpName + '"></div></div>';
+                '<span id="lbl' + grpName + '">' + grpName + '</span></strong>';
+            if (typeof grpImg !== "undefined" && grpImg.trim() !== "" && !legendUtilities.legendGroupImageExists(grpName)){
+                grphtml= grphtml + legendUtilities.createLegendGroupImage(grpName, grpImg);
+            }
+            grphtml= grphtml +  '<div class="list-group collapse" id="lgCollapse_' + grpName + '"></div></div>';
             $('#layerList').append(grphtml);
             // Make the legend list sortable
             $('#lgCollapse_' + grpName).sortable({
