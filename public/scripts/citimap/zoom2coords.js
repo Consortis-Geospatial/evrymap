@@ -7,9 +7,9 @@
             xydiv.setAttribute('id', 'dlgXY');
             var prjName;
             if (typeof mapPortal.readConfig("map")["projectionName"] === "undefined") {
-                prjName=mymap.getView().getProjection().getCode();
+                prjName = mymap.getView().getProjection().getCode();
             } else {
-                prjName=mapPortal.readConfig("map")["projectionName"];
+                prjName = mapPortal.readConfig("map")["projectionName"];
             }
             var divhtml = '<div class="container-fluid">' +
                 '<div class="row">' +
@@ -52,10 +52,19 @@
             var centerLayer;
             var checkLayerVal = true;
 
-            xinput = $('#xinput').val();
-            yinput = $('#yinput').val();
-            coortype = $('#sel1').val();
-            var pinName = $('#pinName').val().trim();
+            // If params undefined, this is called from the ZoomToXY dialof
+            if (typeof x === "undefined" || typeof y === "undefined" || typeof epsgcode === "undefined") {
+                xinput = $('#xinput').val();
+                yinput = $('#yinput').val();
+                coortype = $('#sel1').val();
+                pinName = $('#pinName').val().trim();
+            } else { // From external call
+                zoom2XY.deleteAllPinPoints();
+                xinput = x;
+                yinput = y;
+                coortype = epsgcode;
+                pinName = lbl;
+            }
 
             //If empty coordinates, return
             if (xinput.trim() === "" || yinput.trim() === "") {
@@ -98,7 +107,7 @@
                 iconFeature.set('name', name);
             }
             var iconStyle = new ol.style.Style({
-                image: new ol.style.Icon(/** @type {olx.style.IconOptions} */{
+                image: new ol.style.Icon( /** @type {olx.style.IconOptions} */ {
                     anchor: [0.5, 23],
                     anchorXUnits: 'fraction',
                     anchorYUnits: 'pixels',
@@ -173,9 +182,11 @@
                 autoOpen: false,
                 height: 323,
                 width: 434,
-                position: { my: "right-70 top+50", at: "right top" },
-                buttons: [
-                    {
+                position: {
+                    my: "right-70 top+50",
+                    at: "right top"
+                },
+                buttons: [{
                         id: "btnZoomToXY",
                         text: $.i18n._("_ZOOMIN"),
                         class: "btn btn-primary",
