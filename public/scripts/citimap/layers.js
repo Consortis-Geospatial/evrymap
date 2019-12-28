@@ -231,7 +231,11 @@
             // TODO: BUT without this line, the BING layer won't display - getting a proj4js error
             // TODO: possible because there is no set extent? NEEDS REVISITING. The ASP.NET version
             // TODO: includes this line
-            //projection.setExtent(extent);
+            // TODO: FIXED(?) 8-Dec 2019. Set the extent but be VERY careful of the the values. For 3857 the extent in the
+            // TODO: config-*.json needs to be "-20037508.342789244,-20037508.342789244,20037508.342789244,20037508.342789244"
+            // TODO: which is not the same as what epsg.io reports.
+            // TODO: In general, when setting the extent it must be the 'full' projection extent
+            projection.setExtent(extent);
 
             // Setting the 'invisible' selection layer. This is used to highlight features
             // when using the identify or select by rectangle buttons
@@ -324,7 +328,7 @@
                     else {
                         if (typeof projDef[val.projection] === "undefined" && val.projection != "EPSG:4326" && val.projection != "EPSG:3857") {
                             alert("Projection " + val.projection + " is not defined in the Projection Definition file (projdef.json)");
-                            return;
+                            return false;
                         } else {
                             lyrProj = val.projection;
                         }
@@ -371,7 +375,8 @@
                     }
                     tmplyr.set('feature_info_format', "GEOJSON");
                     tmplyr.set('identify_fields', val.identify_fields);
-                    tmplyr.set('group', val.group); // this maybe undefined
+                    tmplyr.set('group', val.group); // this may be undefined
+                    tmplyr.set('groupLegendImg', val.groupLegendImg); // this may be undefined
                     if (typeof val.queryable !== "undefined") {
                         tmplyr.set('queryable', val.queryable);
                     } else {
@@ -679,19 +684,12 @@
                         }
                         if (window.location.host === $('#hidMS').val().split('/')[0]) {
                             wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + x.join(',');
+                                'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
                         } else {
                             wfsurl = proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + x.join(',');
+                                'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
                         }
-                        /* if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                            return window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + mapextent;
-                        } else {
-                            return proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + mapextent;
-                        }*/
-                        return wfsurl;
+                      return wfsurl;
                     },
                     strategy: ol.loadingstrategy.bbox,
                     crossOrigin: 'anonymous',
@@ -1152,11 +1150,11 @@
                                     var intersectsUrl;
                                     if (window.location.host === $('#hidMS').val().split('/')[0]) {
                                         intersectsUrl = layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0& &REQUEST=GetFeature&TYPENAME=" +
-                                            layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
+                                            layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "," + mymap.getView().getProjection().getCode() + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
 
                                     } else {
                                         intersectsUrl = window.location.protocol + "//" + window.location.host + "/proxy/" + layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0& &REQUEST=GetFeature&TYPENAME=" +
-                                            layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
+                                            layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "," + mymap.getView().getProjection().getCode() + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
                                     }
                                     //"<Intersects><PropertyName>Geometry</PropertyName>" +
                                     //"<gml:Polygon><gml: outerBoundaryIs><gml:LinearRing>" +
@@ -1248,6 +1246,11 @@
             });
             $mymap.addInteraction(selectIntrAct);
         },
+        
+        // The main map click event
+        // If a pin is found, then it will display a window with the pin coordinates
+        // Otherwise, it will do a WMS request to get the FeatureInfo for each visible and
+        // selectable layer in the map
         mapClickEvent: function (evt) {
             var $map = $('#mapid').data('map');
             var coordinate;
@@ -1301,7 +1304,7 @@
                             html: true,
                             template: popTemplate,
                             content: '<div class="row"><div class="col-lg-12">' +
-                                '<label id="popuplabel">Χ: ' + pinItem[0].get('xcoor') + '&nbsp;Υ: ' + pinItem[0].get('ycoor') + '</label>' +
+                                '<label id="popuplabel">Χ: ' + Number(pinItem[0].get('xcoor')).toFixed(3) + '&nbsp;Υ: ' + Number(pinItem[0].get('ycoor')).toFixed(3) + '</label>' +
                                 '<input type="hidden" id="popupx" value="' + pinItem[0].get('xcoor') + '"/>' +
                                 '<input type="hidden" id="popupy" value="' + pinItem[0].get('ycoor') + '"/>' +
                                 '</div></div>' +
