@@ -270,7 +270,7 @@
                     if (lyrobj.type === "WMS") {
                         var lyrurl = lyrobj.tag[1];
                         //console.log(lyrurl);
-                        var newlyr = WxSUtils.addWMSLayer(lyrname, lyrobj.label, lyrurl, lyrobj.srid, lyrobj.feature_info_format, lyrobj.queryable);
+                        var newlyr = WxSUtils.addWMSLayer(lyrname, lyrobj.label, lyrurl, lyrobj.srid, lyrobj.feature_info_format, lyrobj.queryable, true);
                         if (typeof newlyr !== "undefined") {
                             newlyr.setVisible(lyrobj.visible);
                             newlyr.setOpacity(parseFloat(lyrobj.opacity));

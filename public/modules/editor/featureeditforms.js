@@ -824,8 +824,8 @@ var featureEditForms = (function () {
                     },
                     error: function (response) {
                         $('#divAttrsForm').dialog("close");
-                        console.log(response.responseText + ":\n");
-                        var msg = response.statusText;
+                        console.log(response.responseJSON + ":\n");
+                        var msg = response.responseJSON.Message;
                         mapUtils.showMessage('danger', msg, $.i18n._('_SAVEERROR') + editLayer.get("name"));
                     },
                     failure: function (response) {

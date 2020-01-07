@@ -122,10 +122,10 @@ var mapPortal = (function (configfile) {
                     projDef = data;
                 },
                 error: function (response) {
-                    alert(response.responseText);
+                    projDef = void 0;
                 },
                 failure: function (response) {
-                    alert(response.responseText);
+                    projDef = void 0;
                 }
             });
         }

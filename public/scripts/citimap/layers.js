@@ -226,6 +226,18 @@
             var extentarray = mapextent.split(',');
             var extent = [Number(extentarray[0]), Number(extentarray[1]), Number(extentarray[2]), Number(extentarray[3])];
             var projection = ol.proj.get(projcode);
+            // TODO: Setting the extent will mess up the map when layers are in different projections,
+            // TODO: BUT without this line, the BING layer won't display - getting a proj4js error
+            // TODO: possible because there is no set extent? NEEDS REVISITING. The ASP.NET version
+            // TODO: includes this line
+            // TODO: FIXED(?) 8-Dec 2019. Set the extent but be VERY careful of the the values. For 3857 the extent in the
+            // TODO: config-*.json needs to be "-20037508.342789244,-20037508.342789244,20037508.342789244,20037508.342789244"
+            // TODO: which is not the same as what epsg.io reports.
+            // TODO: In general, when setting the extent it must be the 'full' projection extent
+            projection.setExtent(extent);
+
+            // Setting the 'invisible' selection layer. This is used to highlight features
+            // when using the identify or select by rectangle buttons
             var vectorSourceSel = new ol.source.Vector();
             var vectorSel = new ol.layer.Vector({
                 source: vectorSourceSel,
@@ -239,6 +251,9 @@
                 var googleLayer = new olgm.layer.Google();
                 oslayers.push(googleLayer);
             }
+            // --------------------------------------
+            // Create layers loop
+            // --------------------------------------
             $.each(layers, function (key, val) {
                 //console.log(searchFields);
                 var grp = val.group;
@@ -247,6 +262,7 @@
                         groups[grp] = [];
                     }
                 }
+               
                 // OSM Tiles
                 if (val.type === "OSM" && typeof useGMap === "undefined") {
                     let url = "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -292,10 +308,17 @@
                     let mapSettings = mapPortal.readConfig("map");
                     var tmplyr;
                     mapserver = mapSettings.mapserver;
-                    if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
-                        wmsUrl = window.location.protocol + '//' + mapservUrl + '/' + val.mapfile.split('\\')[val.mapfile.split('\\').length - 1].split('.')[0];
+                    if (typeof val.mapfile !== "undefined") {
+                        if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
+                            wmsUrl = window.location.protocol + '//' + mapservUrl + '/' + val.mapfile.split('\\')[val.mapfile.split('\\').length - 1].split('.')[0];
+                        } else {
+                            wmsUrl = window.location.protocol + '//' + mapservUrl + '?map=' + val.mapfile;
+                        }
+                    } else if (typeof val.url !== "undefined") {
+                        wmsUrl = val.url;
                     } else {
-                        wmsUrl = window.location.protocol + '//' + mapservUrl + '?map=' + val.mapfile;
+                        console.log("WMS Url not found - ignoring layer");
+                        return false;
                     }
                     //Get layer SOURCE projection from config. If undefined use map projection;
                     var lyrProj;
@@ -304,7 +327,7 @@
                     else {
                         if (typeof projDef[val.projection] === "undefined" && val.projection != "EPSG:4326" && val.projection != "EPSG:3857") {
                             alert("Projection " + val.projection + " is not defined in the Projection Definition file (projdef.json)");
-                            return;
+                            return false;
                         } else {
                             lyrProj = val.projection;
                         }
@@ -351,7 +374,8 @@
                     }
                     tmplyr.set('feature_info_format', "GEOJSON");
                     tmplyr.set('identify_fields', val.identify_fields);
-                    tmplyr.set('group', val.group); // this maybe undefined
+                    tmplyr.set('group', val.group); // this may be undefined
+                    tmplyr.set('groupLegendImg', val.groupLegendImg); // this may be undefined
                     if (typeof val.queryable !== "undefined") {
                         tmplyr.set('queryable', val.queryable);
                     } else {
@@ -553,9 +577,11 @@
                         identifyFields[val.name] = "";
                     }
                 }
-            });
+            }); // End Create layers loop
+            
+            // Add the selection layer now so its at the topp
             oslayers.push(vectorSel);
-            // Add test ESRI layer from e-poleodomia
+            // Experiment with google layers
             //var gmaplayer = new ol.layer.Tile({
             //    source: new ol.source.OSM({
             //        url: 'http://mt{0-3}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
@@ -567,6 +593,7 @@
             //});
             //oslayers.push(gmaplayer);
 
+            // Create tool to display the mouse coordinates
             var mousePositionControl = new ol.control.MousePosition({
                 coordinateFormat: function (coordinate) {
                     return ol.coordinate.format(coordinate, 'X: {x}, Y: {y}', 3);
@@ -607,12 +634,9 @@
                 target: 'mapid',
                 view: new ol.View({
                     center: centerpoint,
-                    //center: [454490, 4501596],
                     zoom: initzoomlevel,
-                    //minZoom: 2,
-                    //maxZoom: 15,
-                    projection: projection,
-                    extent: extent
+                    projection: projection //,
+                    //extent: extent
                 })
             });
             mymap.getView().setZoom(initzoomlevel);
@@ -624,7 +648,7 @@
                 olGM.activate();
             }
 
-            // Create the zoom in buttom and add to toolbar
+            // Create the navigation toolbar on the left
             var navBtnsHtml = '<button id="btnZoomIn" type="button" class="btn btn-primary mapnav" onclick="mapUtils.fixedZoom(1);" autocomplete= "off">' +
                 '    <i class="glyphicon glyphicon-plus"></i>' +
                 '</button>' +
@@ -682,9 +706,10 @@
                 source: new ol.source.Vector({
                     format: new ol.format.GeoJSON({
                         defaultDataProjection: projcode,
-                        featureProjection: projcode
+                        featureProjection: destprojcode
                     }),
-                    url: function (extent) {
+                    url: function (x) {
+                        let wfsurl='';
                         let mappath = '';
                         if (iswrapped !== "undefined" && iswrapped === true) {
                             mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
@@ -692,15 +717,18 @@
                             mappath = '?map=' + mapfile;
                         }
                         if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                            return window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + extent.join(',');
+                            wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
                         } else {
-                            return proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + extent.join(',');
+                            wfsurl = proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
                         }
+                      return wfsurl;
                     },
                     strategy: ol.loadingstrategy.bbox,
-                    crossOrigin: 'anonymous'
+                    crossOrigin: 'anonymous',
+                    minResolution: 0,
+                    maxResolution: 500 // 500 resolution will display vector layers at a scale of 1: 2,500,000
                 }),
                 style: new ol.style.Style({
                     fill,
@@ -715,8 +743,6 @@
                         })
                     })
                 }),
-                //defaultDataProjection: projection
-                maxResolution: 50
             });
             return geoJsonLayer;
         },
@@ -1161,11 +1187,11 @@
                                     var intersectsUrl;
                                     if (window.location.host === $('#hidMS').val().split('/')[0]) {
                                         intersectsUrl = layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0& &REQUEST=GetFeature&TYPENAME=" +
-                                            layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
+                                            layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "," + mymap.getView().getProjection().getCode() + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
 
                                     } else {
                                         intersectsUrl = window.location.protocol + "//" + window.location.host + "/proxy/" + layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0& &REQUEST=GetFeature&TYPENAME=" +
-                                            layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
+                                            layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "," + mymap.getView().getProjection().getCode() + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
                                     }
                                     //"<Intersects><PropertyName>Geometry</PropertyName>" +
                                     //"<gml:Polygon><gml: outerBoundaryIs><gml:LinearRing>" +
@@ -1257,6 +1283,11 @@
             });
             $mymap.addInteraction(selectIntrAct);
         },
+        
+        // The main map click event
+        // If a pin is found, then it will display a window with the pin coordinates
+        // Otherwise, it will do a WMS request to get the FeatureInfo for each visible and
+        // selectable layer in the map
         mapClickEvent: function (evt) {
             var $map = $('#mapid').data('map');
             var coordinate;
@@ -1308,7 +1339,7 @@
                             html: true,
                             template: popTemplate,
                             content: '<div class="row"><div class="col-lg-12">' +
-                                '<label id="popuplabel">Χ: ' + pinItem[0].get('xcoor') + '&nbsp;Υ: ' + pinItem[0].get('ycoor') + '</label>' +
+                                '<label id="popuplabel">Χ: ' + Number(pinItem[0].get('xcoor')).toFixed(3) + '&nbsp;Υ: ' + Number(pinItem[0].get('ycoor')).toFixed(3) + '</label>' +
                                 '<input type="hidden" id="popupx" value="' + pinItem[0].get('xcoor') + '"/>' +
                                 '<input type="hidden" id="popupy" value="' + pinItem[0].get('ycoor') + '"/>' +
                                 '</div></div>' +

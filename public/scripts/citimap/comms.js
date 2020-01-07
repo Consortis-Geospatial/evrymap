@@ -1,6 +1,6 @@
 ﻿/**
- * Handles the communication between citiMap 
- * and its parent container IF citiMap is running in an iframe
+ * Handles the communication between evrymap 
+ * and its parent container IF evrymap is running in an iframe
  *  * See:
  *  *  https://developer.mozilla.org/en-US/docs/Web/API/window.postMessage
  *  *  http://ejohn.org/blog/cross-window-messaging/
@@ -21,11 +21,14 @@ function ReceiveMessage(evt) {
         //alert(message);
         //console.log("Receive message from parent: " + evt.data);
         try {
-            let zoomparams = JSON.parse(evt.data);
-            // TEST ONLY - zoom to a feature
-            // In a production environment we would need to find 
-            // what the message is from evt.data and call the relevant function
-            searchUtilities.performSearchById(zoomparams.value, zoomparams.layer, zoomparams.field, true);
+            let inMsg = JSON.parse(evt.data.replace(/[\r\n]+/gm, ""));
+            if (inMsg.cmd === "zoomto") {
+                searchUtilities.performSearchById(inMsg.value, inMsg.layer, inMsg.field, true);
+            } else if (inMsg.cmd === "drawpin") {
+                zoom2XY.zoomToXY(inMsg.x, inMsg.y, inMsg.epsgcode, inMsg.label);
+            } else if (inMsg.cmd === "drawfeature") {
+                searchUtilities.zoomToWKTFeature(inMsg.wkt);
+            }
         } catch (e) {
             return;
         }

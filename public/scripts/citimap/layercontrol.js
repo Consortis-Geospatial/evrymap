@@ -1,4 +1,9 @@
 ﻿var legendUtilities = (function () {
+    $.extend($.expr[":"], {
+        "containsIN": function (elem, i, match, array) {
+            return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+        }
+    });
     return {
         initLegend: function (map) {
             legendUtilities.createLegendDialogUI(map);
@@ -10,12 +15,28 @@
             });
             //Create and Add Saved views dialog
             legendUtilities.createSaveViewsDlg();
+            // Graphic Legend
+            $('#lblGLegend').html($.i18n._('_LEGEND'));
+            $('#legendButton').prop('title', $.i18n._('_LEGEND'));
+            $('#legendButton').on('click', function () {
+                $('#graphicLegend').toggle();
+            });
         },
         createLegendDialogUI: function (map) {
             $.i18n.load(uiStrings);
             var modLyrDialog = document.createElement('div');
             modLyrDialog.setAttribute('id', 'modLyrDialog');
             var divhtml = '<div class="container-fluid">' +
+                '<div class="row">' +
+                '    <div class="form-horizontal">' +
+                '       <div class="form-group pull-left">' +
+                '           <label for="txbSearchLegend" class="col-sm-3 control-label">' + $.i18n._("_SEARCH") + '</label>' +
+                '           <div class="col-sm-9">' +
+                '               <input type="text" class="form-control" id="txbSearchLegend" onkeyup="legendUtilities.searchLayerControlList();" placeholder="' + $.i18n._("_SEARCH") + '..." value="">' +
+                '           </div>' +
+                '       </div>' +
+                '   </div>' +
+                '</div>' +
                 '<div class="row">' +
                 '    <div class="col-lg-12">' +
                 '        <div class="list-group" id="layerList"></div>' +
@@ -63,6 +84,14 @@
                     }
                 }
             });
+        },
+        searchLayerControlList: function () {
+            var s= $("#txbSearchLegend").val();
+            if (s === '') {
+                $("#layerList").children(".list-item-legend").show();
+            } else {
+                $("#layerList").children(".list-item-legend").not(":containsIN(" + s + ")").hide();
+            }
         },
         createSaveViewsDlg: function (map) {
             if ($('#modSavedViews').length === 0) {
@@ -189,7 +218,7 @@
                 classIdent = 'padding-left:30px;';
             }
             if (typeof tag !== "undefined") {
-                htmlLegendContent = htmlLegendContent + '<div id="legendLayer_' + name + '" href="#" class="list-group-item list-item-legend" data-toggle="collapse" style="' + classIdent + '"><h5>';
+                htmlLegendContent = htmlLegendContent + '<div id="legendLayer_' + name + '" href="#" class="list-group-item list-item-legend" data-toggle="collapse" style="' + classIdent + '">';
                 // Allow reordering only in top level layers
                 if (typeof layer.get("group") === "undefined" && layer.get("group") !== "") {
                     htmlLegendContent = htmlLegendContent + '<span title="' + $.i18n._("_REORDERLAYER") + '"><img class="reorder" src="css/images/icons8-drag-reorder-filled-50.png" style="width:20px;height:20px;cursor:move;padding-right:5px"></span>';
@@ -206,37 +235,38 @@
                 }
                 if (tag[0] === "GeoJson" || tag[0] === "GeoJSON" || tag[0] === "KML" || tag[0] === "XML") {
                     htmlLegendContent = htmlLegendContent + classStringSel + '<span id="lbl' + name + '">' + label + '</span> <input type="hidden" id="hid' + name + '" value="' + name + '" />';
-                    //htmlLegendContent = htmlLegendContent + '<input type="checkbox" data-toggle="toggle" id="chkSelect' + name +'" value="" onClick="legendUtilities.setSelected(this);"><span id="lbl' + name + '">' + label + '</span><input type="hidden" id="hid' + name + '" value="' + name + '" />';
                     if (typeof exportable !== "undefined" && exportable === true) {
                         htmlLegendContent = htmlLegendContent + legendUtilities.generateExportButton(name);
                     }
                 } else if (tag[0] === "WMS") {
                     htmlLegendContent = htmlLegendContent + classStringSel + '<span id="lbl' + name + '">' + label + '</span> <input type="hidden" id="hid' + name + '" value="' + name + '" />';
-                    //htmlLegendContent = htmlLegendContent + '<input type="checkbox" data-toggle="toggle" id="chkSelect' + name + '" value="" onClick="legendUtilities.setSelected(this);"><span id="lbl' + name + '">' + label + '</span><input type="hidden" id="hid' + label + '" value="' + name + '" />';
                     if (typeof exportable !== "undefined" && exportable === true) {
                         htmlLegendContent = htmlLegendContent + legendUtilities.generateExportButton(name);
                     }
                 } else if (tag[0] === "ESRIRESTTILE") {
                     htmlLegendContent = htmlLegendContent + classStringSel + '<span id="lbl' + name + '">' + label + '</span> <input type="hidden" id="hid' + name + '" value="' + name + '" />';
-                    //htmlLegendContent = htmlLegendContent + '<input type="checkbox" data-toggle="toggle" id="chkSelect' + name + '" value="" onClick="legendUtilities.setSelected(this);"><span id="lbl' + name + '">' + label + '</span><input type="hidden" id="hid' + label + '" value="' + name + '" />';
                     if (typeof exportable !== "undefined" && exportable === true) {
                         htmlLegendContent = htmlLegendContent + legendUtilities.generateExportButton(name);
                     }
                 } else {
                     htmlLegendContent = htmlLegendContent + '<span style="padding-right:2px"><i class="glyphicon glyphicon-none"></i></span><span id="lbl' + name + '">' + label + '</span> <input type="hidden" id="hid' + name + '" value="' + name + '" />';
                 }
-                htmlLegendContent = htmlLegendContent + '</h5>';
+                htmlLegendContent = htmlLegendContent + '';
             }
             // Create legend
             if (typeof tag !== "undefined") {
                 htmlLegendContent = htmlLegendContent + '<p style="padding-left:2.00em;" class="text-muted">';
                 htmlLegendContent = htmlLegendContent + '<span style="padding-right:15px;"><small>' + $.i18n._('_TRANSPARENCY') + '</small></br></span>';
-                htmlLegendContent = htmlLegendContent + '<input id="slider' + name + '" type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-ticks="[0, 1]"></p>';
+                htmlLegendContent = htmlLegendContent + '<input id="slider' + name + '" type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-ticks="[0, 1]"><span style="font-size:9px"><label id="' + name +'-opacity">&nbsp;0%</label></span></p>';
                 //console.log("tag: " + tag);
-                if (tag[0] !== "" && tag[0] === "WMS") {
+                // Create the legend icon for WMS layers from the GetLegendGraphic request UNLESS we have set a group icon
+                if (tag[0] !== "" && tag[0] === "WMS" && (typeof layer.get('groupLegendImg') === "undefined" || layer.get('groupLegendImg').trim() === "")) {
                     var lyrUrl = tag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + name + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                     htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img src="' + lyrUrl + '" /></span></p>';
+                    layer.set("legend_image", lyrUrl);
+                    $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img src="' + lyrUrl + '" /></li>');
                 } else if (tag[0] !== "" && tag[0] === "GeoJSON") {
+                    // Create a legend image for vector layes if one is set in configuration
                     if (typeof layer.get('legend_image') !== "undefined" && layer.get('legend_image').trim() !== "") {
                         var legimgstring = layer.get('legend_image');
                         var imgW = "20px";
@@ -247,6 +277,7 @@
                         }
                         $.each(legimgstring.split(','), function (index, item) {
                             htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" />' + item.split(':')[1] + '<span></p>';
+                            $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" /></li>');
                         });
                     }
                 } else if (tag[0] !== "" && tag[0] === "ESRIRESTTILE") {
@@ -267,13 +298,14 @@
                     var subname = sublayer.get('name');
                     var subtag = sublayer.get('tag');
                     var sublabel = sublayer.get('label');
-                    htmlLegendContent = htmlLegendContent + '<a href="#" class="list-group-item list-item-legend" data-toggle="collapse"><h5>';
-                    htmlLegendContent = htmlLegendContent + '<span id="lbl' + sublabel + '">' + sublabel + '</span></h5>';
+                    htmlLegendContent = htmlLegendContent + '<a href="#" class="list-group-item list-item-legend" data-toggle="collapse">';
+                    htmlLegendContent = htmlLegendContent + '<span id="lbl' + sublabel + '">' + sublabel + '</span>';
                     // Make sure we have a 'tag' property on the layer
                     if (typeof subtag !== "undefined") {
                         if (subtag[0] !== "" && subtag[0] === "WMS") {
                             var lyrUrl = subtag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + subname + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                             htmlLegendContent = htmlLegendContent + '<p><img src="' + lyrUrl + '" /></p>';
+                            $('#legendImgList').append('<li id="img_' + sublayer.get('name') + '"class="list-group-item">' + sublabel + '<img src="' + lyrUrl + '" /></li>');
                         }
                     }
                     htmlLegendContent = htmlLegendContent + '</a>';
@@ -284,7 +316,7 @@
             if (typeof layer.get("group") !== "undefined" && layer.get("group") !== "") {
                 var grpName = layer.get("group").replace(' ', '_'); //Replace spaces with underscores so to create a valid id for jquery
                 if (!legendUtilities.legendGroupExists(grpName)) {
-                    legendUtilities.createLegendGroup(grpName, tag[0]);
+                    legendUtilities.createLegendGroup(grpName, layer.get("groupLegendImg"));
                 }
                 $('#lgCollapse_' + grpName).append(htmlLegendContent);
                 if (tag[0] === "OSM" || tag[0] === "Bing" || tag[0] === "Google") {
@@ -338,16 +370,30 @@
                 }
             }
         },
-        createLegendGroup: function (grpName, type) {
+        createLegendGroupImage: function(grpName, img) {
+            return '</br><img id="imgGroup_' + grpName +'" src="css/images/' + img +'" style="padding-left:35px">';
+        },
+        legendGroupImageExists: function(group_name){
+            var grpImageExists=false;
+            if ($('#imgGroup_' + group_name).length===1) {
+                grpImageExists=true;
+                console.log('group image exists');
+            }
+            return grpImageExists;
+        },
+        createLegendGroup: function (grpName, grpImg) {
             var grphtml = '';
-            grphtml = grphtml + '<div id="legendGroup_' + grpName + '" class="list-group-item list-item-legend" data-toggle="collapse"><h5><strong>' +
+            grphtml = grphtml + '<div id="legendGroup_' + grpName + '" class="list-group-item list-item-legend" data-toggle="collapse"><strong>' +
                 '<span title="' + $.i18n._("_REORDERLAYER") + '"><img class="reorder" src="css/images/icons8-drag-reorder-filled-50.png" style="width:20px;height:20px;cursor:move;padding-right:5px"></span>' +
                 '<a href="#lgCollapse_' + grpName + '" data-toggle="collapse" onclick="legendUtilities.toggleChevron(this);"><i class="glyphicon glyphicon-chevron-right"></i></a>' +
                 '<i id="icon' + grpName + '" class="glyphicon glyphicon-eye-open text-success" aria-hidden="true" style="cursor:pointer" title="' + $.i18n._("_TOGGLEVISIBLE") + '" onclick="legendUtilities.toggleGroupLayerVisibility(this.id)"></i>' +
                 '<span id="spanGroupSelect' + grpName + '" style="color:orange;padding-right:2px" title="' + $.i18n._("_TOGGLESELECTABLE") + '"><i id="chkSelect' + grpName + '" class="glyphicon glyphicon-flash" style="cursor: pointer" onclick="legendUtilities.toggleGroupLayerSelect(this.id)";></i></span>' +
                 '</strong > ' +
-                '<span id="lbl' + grpName + '">' + grpName + '</span></strong></h5>' +
-                '<div class="list-group collapse" id="lgCollapse_' + grpName + '"></div></div>';
+                '<span id="lbl' + grpName + '">' + grpName + '</span></strong>';
+            if (typeof grpImg !== "undefined" && grpImg.trim() !== "" && !legendUtilities.legendGroupImageExists(grpName)){
+                grphtml= grphtml + legendUtilities.createLegendGroupImage(grpName, grpImg);
+            }
+            grphtml= grphtml +  '<div class="list-group collapse" id="lgCollapse_' + grpName + '"></div></div>';
             $('#layerList').append(grphtml);
             // Make the legend list sortable
             $('#lgCollapse_' + grpName).sortable({
@@ -395,6 +441,9 @@
             });
             return o;
         },
+        removeItemFromLegend: function(layer_name) {
+            $('#legendImgList').find('#img_'+ layer_name).remove();
+        },
         toggleLayerVisibility: function (iId, lyrName) {
             map = $('#mapid').data('map');
             map.getLayers().forEach(function (layer, i) {
@@ -402,18 +451,38 @@
                     if (layer.getVisible()) {
                         layer.setVisible(false);
                         $('#' + iId).removeClass("glyphicon glyphicon-eye-open text-success").addClass("glyphicon glyphicon-eye-close text-danger");
+                        legendUtilities.removeItemFromLegend(lyrName);
                     } else {
                         layer.setVisible(true);
                         $('#' + iId).removeClass("glyphicon glyphicon-eye-close text-danger").addClass("glyphicon glyphicon-eye-open text-success");
+                        legendUtilities.removeItemFromLegend(lyrName);
+                        if (typeof layer.get('legend_image') !== "undefined") {
+                            if (typeof layer.get('tag') !== "undefined") {
+                                if (layer.get('tag')[0] === "WMS") {
+                                    $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img src="' + layer.get('legend_image') + '" /></li>');
+                                } else if (layer.get('tag')[0] === "GeoJSON" || layer.get('tag')[0] === "KML" || layer.get('tag')[0] === "XML") {
+                                    $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img style="width:20px; height:20px; margin-right:3px" src="' + layer.get('legend_image') + '" /></li>');
+                                }
+                            }
+                        }
                     }
                     if (layer instanceof ol.layer.Group) {
                         layer.getLayers().forEach(function (sublayer, j) {
                             if (sublayer.getVisible()) {
                                 sublayer.setVisible(false);
                                 $('#' + iId).removeClass("glyphicon glyphicon-eye-open").addClass("glyphicon glyphicon-eye-close");
+                                legendUtilities.removeItemFromLegend(sublayer.get("name"));
                             } else {
                                 sublayer.setVisible(true);
                                 $('#' + iId).removeClass("glyphicon glyphicon-eye-close").addClass("glyphicon glyphicon-eye-open");
+                                legendUtilities.removeItemFromLegend(sublayer.get("name"));
+                                if (typeof sublayer.get('tag') !== "undefined") {
+                                    if (sublayer.get('tag')[0] === "WMS") {
+                                        $('#legendImgList').append('<li id="img_' + sublayer.get('name') + '"class="list-group-item">' + sublayer.get('label') + '<img src="' + sublayer.get('legend_image') + '" /></li>');
+                                    } else if (sublayer.get('tag')[0] === "GeoJSON" || sublayer.get('tag')[0] === "KML" || sublayer.get('tag')[0] === "XML") {
+                                        $('#legendImgList').append('<li id="img_' + sublayer.get('name') + '" class="list-group-item"><h5>' + sublayer.get('label') + '</h5><img style="width:20px; height:20px; margin-right:3px" src="' + sublayer.get('legend_image') + '" /></li>');
+                                    }
+                                }
                             }
                         });
                     }
@@ -651,7 +720,7 @@
                     },
                     value: curOpacity,
                     reversed: true,
-                    tooltip: 'show',
+                    tooltip: 'hide',
                     tooltip_position: 'bottom',
                     ticks: [0, 1],
                     ticks_positions: [0, 100],
@@ -663,6 +732,17 @@
                     mymap.getLayers().forEach(function (layer, i) {
                         if (layer.get('name') === obj.id.substr(6, obj.id.length - 1)) {
                             layer.setProperties({ opacity: Number(slideEvt.value) });
+                            $("#" + layer.get('name') +"-opacity").html("&nbsp;" + (100 - (Number(slideEvt.value)*100)) + "%");
+                        }
+                    });
+                });
+                //Attach the click event
+                $("#" + obj.id).on("change", function (slideEvt) {
+                    var selLyr;
+                    mymap.getLayers().forEach(function (layer, i) {
+                        if (layer.get('name') === obj.id.substr(6, obj.id.length - 1)) {
+                            layer.setProperties({ opacity: Number(slideEvt.value.newValue) });
+                            $("#" + layer.get('name') +"-opacity").html("&nbsp;" + (100 - (Number(slideEvt.value.newValue)*100)) + "%");
                         }
                     });
                 });
