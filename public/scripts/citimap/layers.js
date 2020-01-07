@@ -23,7 +23,6 @@
             if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
                 // create velocity map
                 velocityMap = this.createVelocityMap();
-
             }
             //mymap.addControl(mousePositionControl);
             $('#mapid').data('map', mymap);
@@ -501,6 +500,41 @@
                     var arcgislayer = esriUtils.createEsriRestTile(esriname, esriurl, lbl, srid, group);
                     arcgislayer.setVisible(val.display_on_startup);
                     oslayers.push(arcgislayer);
+                } else if (val.type === "GEOIMAGES") {
+
+                  // layerconfig-diavrosi.json
+                  // {
+                  //   "name": "Photos",
+                  //   "label": "Geophotos",
+                  //   "type": "GEOIMAGES",
+                  //   "url_folder": "C:\\Users\\tagopoulos\\Desktop\\Georeferenced Images",
+                  //   "display_on_startup": true,
+                  //   "search_fields": "NAME:Image Name",
+                  //   "identify_fields": "NAME:Image Name",
+                  //   "projcode": "EPSG:3857"
+                  // },
+                  
+                    var marker = new ol.Feature({
+                        geometry: new ol.geom.Point(
+                            [2560701,4955425]
+                        )
+                    });
+                    var style = mapUtils.setDefaultFeatureStyle;
+                    marker.setStyle(style);
+
+                    var vectorSource = new ol.source.Vector({
+                        features: [marker]
+                    });
+
+                    var markerVectorLayer = new ol.layer.Vector({
+                        source: vectorSource
+                    });
+
+                    markerVectorLayer.set('label', val.label);
+                    markerVectorLayer.set('name', val.name);
+                    markerVectorLayer.set('url_folder', val.url_folder);
+
+                    oslayers.push(markerVectorLayer);
                 }
 
                 if (typeof val.queryable !== "undefined" && val.queryable === true) {
@@ -949,7 +983,7 @@
             map.un('singleclick', mapUtils.mapClickEvent);
         },
         createAndAddInteractions: function (infoOptions, infoTitle, map, searchFieldsList, identifyFields) {
-            var $mymapFI = $('#mapid').data('map');
+            var $mymapFI = map;
 
             window.appInfo = {};
             var appInfo = window.appInfo;
@@ -973,6 +1007,9 @@
             $mymapFI.getControls().push(new appInfo.infoButtonControl({
                 'target': 'bottomToolbar'
             }));
+
+            // interaction for Georeferenced Photos layer
+            $mymapFI.on('pointermove', mapUtils.mapMouseHoverEvent);
 
             $mymapFI.on('singleclick', mapUtils.mapClickEvent);
             //Set select interaction for identify
@@ -1225,9 +1262,6 @@
             var coordinate;
             var element;
             var cpElement;
-            var layerName;
-            var featList = [];
-            var wmsFeatList = [];
             var featItem;
             var popup = new ol.Overlay({
                 element: document.getElementById('popup'),
@@ -1258,6 +1292,7 @@
             //Loop once through layers without the need for the active identify tool
             var pinItem = null;
             $map.getLayers().forEach(function (layer) {
+                
                 if (layer.get('name') === 'pinLayer' && layer.getSource().getFeatures().length > 0) {
                     pinItem = mapUtils.getClickResults($map, layer, evt);
                 }
@@ -1407,6 +1442,52 @@
                 }
             });
         },
+        mapMouseHoverEvent: function(evt) {
+            var style = mapUtils.setDefaultFeatureStyle;
+            var container = document.getElementById('popup1');
+            var content = document.getElementById('popup-content');
+            var closer = document.getElementById('popup-closer');
+            
+            mymap.getLayers().forEach(function(e) {
+                // Default feature style only for georeferenced photos
+                if (e.get('name') === 'Photos') {
+                    e.getSource().forEachFeature(function(r) {
+                        r.setStyle(style);
+                    });
+                }
+            });
+
+            
+            mymap.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
+                if (layer.get("name") === "Photos") {
+                    var popupOverlay = new ol.Overlay({
+                        element: container,
+                        autoPan: true,
+                        autoPanAnimation: {
+                          duration: 250
+                        }
+                    });
+                    /**
+                     * Add a click handler to hide the popup.
+                     * @return {boolean} Don't follow the href.
+                     */
+                    closer.onclick = function() {
+                        popupOverlay.setPosition(undefined);
+                        closer.blur();
+                        return false;
+                    };
+                    var coordinate = feature.getGeometry().getCoordinates();
+
+                    mymap.addOverlay(popupOverlay);
+
+                    content.innerHTML = `<p>You clicked here:</p>
+                                        <img id="popupImage" alt="Image not found" width="42" height="42">`;
+                    popupOverlay.setPosition(coordinate);
+                    style = mapUtils.setSelectedStyle;
+                    feature.setStyle(style);
+                }
+            });
+        },
         setSelectedStyle: function (feature, resolution) {
             var style = new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -1420,6 +1501,19 @@
                     radius: 7,
                     fill: new ol.style.Fill({
                         color: '#2EFEF7'
+                    })
+                })
+            });
+            return style;
+        },
+        setDefaultFeatureStyle: function (feature, resolution) {
+            var style = new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: 7,
+                    snapToPixel: false,
+                    fill: new ol.style.Fill({color: 'black'}),
+                    stroke: new ol.style.Stroke({
+                      color: 'white', width: 2
                     })
                 })
             });
