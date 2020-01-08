@@ -3,6 +3,7 @@ var bodyParser = require("body-parser");
 
 var router = express.Router();
 const config = require('../config/config.json');
+// const config = require('../config/config_sample.json');
 const crypto = require('../crypto');
 
 // Check if we are using a C# class library for encryption

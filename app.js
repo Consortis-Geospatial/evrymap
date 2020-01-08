@@ -39,6 +39,7 @@ app.set('port', process.env.PORT || 8080);
 //Read config
 // config variables
 const config = require('./config/config.json');
+// const config = require('./config/config_sample.json');
 
 // Static files
 //const public = require('./public');

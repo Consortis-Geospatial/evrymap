@@ -1,4 +1,5 @@
 const config = require('./config/config.json');
+// const config = require('./config/config_sample.json');
 // Nodejs encryption with CTR
 var crypto = require('crypto'),
     algorithm = 'aes-256-ctr',

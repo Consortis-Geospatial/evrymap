@@ -179,7 +179,7 @@ module.exports.parseURLRequest = function(url, listenUriList) {
         i,
         isMatch = false;
 
-    url = decodeURI(url);
+    // url = decodeURI(url); // throw errors when filter has any greek letter
     if (url != null && url.length > 0) {
         // brute force take anything after http or https
         // TODO: regex pattern is '[\/|\?|&]http[s]?[:]?\/' we should consider that vs. the brute force method here.
@@ -632,7 +632,7 @@ module.exports.combineParameters = function(request, urlParts, serverURLInfo, re
         requestParameters = request.query;
     }
     if (requestParameters != null) {
-        requestParameters = ProjectUtilities.queryStringToObject(requestParameters);
+        // requestParameters = ProjectUtilities.queryStringToObject(requestParameters); // throw errors when filter has any greek letter
         for (key in requestParameters) {
             if (requestParameters.hasOwnProperty(key)) {
                 configuredParameters[key] = requestParameters[key];
