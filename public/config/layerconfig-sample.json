@@ -12,12 +12,14 @@
   },
   "layers": [
     {
-      "display_on_startup": false,
-      "exportable": false,
-      "label": "Wind Velocity",
-      "name": "Wind Velocity",
       "type": "Velocity",
       "mapId": "velocityMapId",
+      "label": "Wind Velocity",
+      "name": "Wind Velocity",
+      "serverLocation": "http://192.168.0.83",
+      "serverPort": "7000",
+      "display_on_startup": false,
+      "exportable": false,
       "timeSettings": {
         "dateSeparator": "/",
         "format": "DD/MM/YYYY",

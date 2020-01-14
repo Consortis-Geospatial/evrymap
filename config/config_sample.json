@@ -16,6 +16,7 @@
     "authDllTypeName" :"<DLL namespace e.g. Consortis.CryptoAsync.EncryptDecrypt>", 
     "authDllMethod" : "Encyrption/Decryption method e.g.EncDec",
     "authKey":"MD5 key",
+    "useVelocityMap": false,
     "custommods":[
         
     ],

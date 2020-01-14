@@ -1686,8 +1686,10 @@
         addWind(timeIso) {
             // var timeIso = new Date().toISOString();
             var searchLimit = velocityControls.getVelocitySettings().timeSettings.days;
+            var velocityUrl = `${velocityControls.getVelocitySettings().serverLocation}:${velocityControls.getVelocitySettings().serverPort}`;
+            
             $.ajax({
-                url: 'http://localhost:7000/nearest?timeIso=' + timeIso + '&searchLimit=' + searchLimit,
+                url: `${velocityUrl}/nearest?timeIso=${timeIso}&searchLimit=${searchLimit}`,
                 async: true,
                 dataType: 'json',
                 beforeSend: function () {
