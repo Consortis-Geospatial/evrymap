@@ -6,10 +6,14 @@
             dlgSearchAdv.setAttribute('id', 'dlgSearchAdv');
             var divhtml = '<div class="container-fluid">' +
                 '<div class="row">' +
-                '    <div class="col-lg-12">' +
-                '        <label for="selSearchLayer">' + $.i18n._("_SELECTLAYER") + '</label>' +
+                '    <div class="col-lg-9">' +
+                '        <label for="selSearchLayer">' + $.i18n._("_SELECTLAYERADV") + '</label>' +
                 '        <select class="form-control" id="selSearchLayer">' +
                 '        </select>' +
+                '    </div>' +
+                '    <div class="col-lg-3">'+
+                '        <label for="chkSS">' + $.i18n._("_SPATIALSELECT") + '</label>' +
+                '        <input type="checkbox" data-toggle="toggle" id="chkSS" value="">' +
                 '    </div>' +
                 '</div>' +
                 '<div class="row" id="divSearchFields">' +
@@ -17,6 +21,7 @@
                 '</div>';
             $(dlgSearchAdv).append(divhtml);
             $(dlgSearchAdv).appendTo($("#mainparent"));
+            
         },
         addSearchField: function (srchFields) {
             var fldCount = $('.query_field').length;
@@ -253,6 +258,7 @@
                         id: "btnSearchAdvanced",
                         text: $.i18n._("_SEARCH"),
                         class: "btn btn-primary",
+                        disabled:true,
                         click: function () {
                             $("#btnSearchAdvanced").on("click", searchAdvanced.doAdvancedSearch());
                         }
@@ -273,6 +279,15 @@
                     $('#btnCloseSearchAdvanced').addClass("btn btn-default");
                     $('.glyphicon-resize-full').removeClass('ui-icon');
                     $('.glyphicon-resize-small').removeClass('ui-icon');
+                }
+            });
+            $("#selSearchLayer").change(function() {
+                if ($("#selSearchLayer").val()==="#") {
+                    $("#btnSearchAdvanced").prop('disabled', true);
+                    $("#btnSearchAdvanced").button("disable");
+                } else {
+                    $("#btnSearchAdvanced").prop('disabled', false);
+                    $("#btnSearchAdvanced").button("enable");
                 }
             });
             searchAdvanced.populateSearchLayerList(map);

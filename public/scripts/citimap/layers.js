@@ -1436,6 +1436,11 @@
                                             if (data.features.length === 0) {
                                                 return null;
                                             }
+                                            // Add the layer name in the returned data so we know which layer
+                                            // it came from. It will be used in the spatial query dialog
+                                            data.features.forEach(function(f) {
+                                                f.properties._layername= layer.get('name');
+                                            });
                                             var selLyr = legendUtilities.getLayerByName("selection");
                                             var arrSearch_fields = [];
                                             var arrIdentify_fields = [];
@@ -1447,8 +1452,11 @@
                                             }
                                             searchUtilities.renderQueryResultsAsTable(data, layer.get('label'), layer.get('name'), arrSearch_fields, arrIdentify_fields);
                                             if (data.features.length > 0) {
+                                                // TODO: Get all features not just the first
                                                 let geom = JSON.stringify(data.features[0].geometry.coordinates);
                                                 let geomtype = data.features[0].geometry.type;
+                                                // In case we have a container app, post the geometry to the container
+                                                // (used in the OTS interface)
                                                 window.parent.postMessage(geom, "*");
                                             }
 
