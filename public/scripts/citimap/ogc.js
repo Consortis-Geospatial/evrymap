@@ -119,6 +119,7 @@
                     }
                 ],
                 open: function (event) { // Add classes manually because of jqueryui classes overlapping
+                    $('#dlgAddWMS').parent().addClass("cg_dialog_class");
                     document.getElementById("btnAddWxS").removeAttribute("class");
                     $('#btnAddWxS').addClass("btn btn-primary");
                     document.getElementById("btnConnectToUrl").removeAttribute("class");

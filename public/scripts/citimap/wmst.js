@@ -47,10 +47,8 @@
             });
         },
         renderTools: function () {
-            str = '<style>';
-            str = str + 'div#fixBootstrapSliderPluginStyles div.slider.slider-horizontal .slider-track .slider-handle {height: 30px!important; }';
-            str = str + '</style>';
-            str = str + '<div style="position: absolute;left:4%; top:4em;width:70%">';
+            str = '';
+            str = str + '<div class="wms-t-control">';
             str = str + '<div class="row">';
             str = str + '   <div class="col-lg-6">';
             str = str + '       <div class="input-group"> <span class="input-group-addon">Layer</span>';

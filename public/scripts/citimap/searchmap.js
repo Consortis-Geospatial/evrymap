@@ -205,6 +205,7 @@
                         },
                         closeOnEscape: false,
                         open: function (event) { // Add classes manually because of jqueryui classes overlapping
+                            $('#modSearchResults').parent().addClass("cg_dialog_class");
                             document.getElementById("btnCloseSearchResults").removeAttribute("class");
                             $('#btnCloseSearchResults').addClass("btn btn-default");
                             $('.glyphicon-resize-full').removeClass('ui-icon');

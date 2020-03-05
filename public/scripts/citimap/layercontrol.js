@@ -61,6 +61,7 @@
                     }
                 ],
                 open: function (event) { // Add classes manually because of jqueryui classes overlapping
+                    $('#modLyrDialog').parent().addClass("cg_dialog_class");
                     document.getElementById("btnCloseLyrDialog").removeAttribute("class");
                     $('#btnCloseLyrDialog').addClass("btn btn-default");
                     $('.glyphicon-resize-full').removeClass('ui-icon');

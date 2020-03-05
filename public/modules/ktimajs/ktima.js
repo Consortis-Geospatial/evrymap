@@ -307,6 +307,7 @@
                     }
                 ],
                 open: function (event) { // Add classes manually because of jqueryui classes overlapping
+                    $('#dlgPrintApospasma').parent().addClass("cg_dialog_class");
                     document.getElementById("btnPrintApospasma").removeAttribute("class");
                     $('#btnPrintApospasma').addClass("btn btn-primary");
                     document.getElementById("btnClosePrintApospasma").removeAttribute("class");

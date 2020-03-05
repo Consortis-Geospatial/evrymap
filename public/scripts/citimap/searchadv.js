@@ -273,6 +273,7 @@
                     }
                 ],
                 open: function (event) { // Add classes manually because of jqueryui classes overlapping
+                    $('#dlgSearchAdv').parent().addClass("cg_dialog_class");
                     document.getElementById("btnSearchAdvanced").removeAttribute("class");
                     $('#btnSearchAdvanced').addClass("btn btn-primary");
                     document.getElementById("btnCloseSearchAdvanced").removeAttribute("class");

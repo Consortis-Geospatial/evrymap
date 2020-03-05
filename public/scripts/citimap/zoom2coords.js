@@ -223,6 +223,7 @@
                     }
                 ],
                 open: function (event) { // Add classes manually because of jqueryui classes overlapping
+                    $('#dlgXY').parent().addClass("cg_dialog_class");
                     document.getElementById("btnZoomToXY").removeAttribute("class");
                     $('#btnZoomToXY').addClass("btn btn-primary");
                     document.getElementById("btnCloseXY").removeAttribute("class");
