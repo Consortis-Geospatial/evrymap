@@ -338,6 +338,7 @@
                         });
                     })
                     .DataTable({
+                        responsive: true,
                         dom: 'Bfrtip',
                         buttons: [{
                             extend: 'collection',
