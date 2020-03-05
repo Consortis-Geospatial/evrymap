@@ -967,7 +967,7 @@ var featureEdit = (function () {
             if (typeof snap_layers !== "undefined") {
                 snap_layers.forEach(function (snaplayername) {
                     var snaplayer = legendUtilities.getLayerByName(snaplayername);
-                    if (typeof snaplayer !== "undefined") {
+                    if (typeof snaplayer !== "undefined" && snaplayer.get("tag")[0] ==="WMS") {
                         snaplayer.getSource().updateParams({ "time": Date.now() }); //Update the WMS layer. This works
                         snaplayer.setVisible(true);
                     }
