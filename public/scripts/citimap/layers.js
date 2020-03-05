@@ -19,6 +19,7 @@
             layers = mapPortal.readConfig("layers");
 
             mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields);
+            //mapUtils.initContextMenu();
             // if velocity layer exists
             if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
                 // create velocity map
@@ -206,22 +207,22 @@
                     destprojdescr
                 );
             } else {
-                $.each(projDef, function (key, val) { 
-                    if (key=== projcode ) {
+                $.each(projDef, function (key, val) {
+                    if (key === projcode) {
                         proj4.defs(
                             destprojcode,
                             val
                         );
                     }
-                }); 
-                $.each(projDef, function (key, val) { 
-                    if (key=== destprojcode ) {
+                });
+                $.each(projDef, function (key, val) {
+                    if (key === destprojcode) {
                         proj4.defs(
                             destprojcode,
                             val
                         );
                     }
-                }); 
+                });
             }
             var extentarray = mapextent.split(',');
             var extent = [Number(extentarray[0]), Number(extentarray[1]), Number(extentarray[2]), Number(extentarray[3])];
@@ -262,7 +263,7 @@
                         groups[grp] = [];
                     }
                 }
-               
+
                 // OSM Tiles
                 if (val.type === "OSM" && typeof useGMap === "undefined") {
                     let url = "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -362,7 +363,7 @@
                                 })
                             });
                     }
-                    
+
                     tmplyr.set('name', val.name);
                     tmplyr.set('label', val.label);
                     tmplyr.set('tiled', val.tiled);
@@ -459,6 +460,11 @@
                     } else {
                         tmpvector.set('queryable', false);
                     }
+                    if (typeof val.allowHover !== "undefined") {
+                        tmpvector.set('allowHover', val.allowHover);
+                    } else {
+                        tmpvector.set('allowHover', true);
+                    }
                     tmpvector.setVisible(val.display_on_startup);
                     if (typeof val.exportable !== "undefined") {
                         tmpvector.set('exportable', val.exportable);
@@ -526,21 +532,9 @@
                     oslayers.push(arcgislayer);
                 } else if (val.type === "GEOIMAGES") {
 
-                  // layerconfig-diavrosi.json
-                  // {
-                  //   "name": "Photos",
-                  //   "label": "Geophotos",
-                  //   "type": "GEOIMAGES",
-                  //   "url_folder": "C:\\Users\\tagopoulos\\Desktop\\Georeferenced Images",
-                  //   "display_on_startup": true,
-                  //   "search_fields": "NAME:Image Name",
-                  //   "identify_fields": "NAME:Image Name",
-                  //   "projcode": "EPSG:3857"
-                  // },
-                  
                     var marker = new ol.Feature({
                         geometry: new ol.geom.Point(
-                            [2560701,4955425]
+                            [2560701, 4955425]
                         )
                     });
                     var style = mapUtils.setDefaultFeatureStyle;
@@ -578,7 +572,7 @@
                     }
                 }
             }); // End Create layers loop
-            
+
             // Add the selection layer now so its at the topp
             oslayers.push(vectorSel);
             // Experiment with google layers
@@ -692,6 +686,69 @@
 
             return mymap;
         },
+        initContextMenu: function () {
+            var contextmenu = new ContextMenu({
+                width: 170,
+                defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
+                items: [{
+                        text: 'Σχετικά Αρχεία',
+                        classname: 'some-style-class', //, // add some CSS rules
+                        items: [ // <== this is a submenu
+                            {
+                              text: 'Στέλεχος Άδειας',
+                              callback: mapUtils.openStelexos
+                            },
+                            {
+                              text: 'Τοπογραφικό άδειας',
+                              callback: mapUtils.openTopografiko
+                            }
+                          ]
+                    },
+                    {
+                        text: 'Άιτηση για αντίγραφο'
+
+                    }
+                    //'-' // this is a separator
+                ]
+            });
+            contextmenu.on('beforeopen', function (evt) {
+                var feature = mymap.forEachFeatureAtPixel(evt.pixel, function (ft, l) {
+                    return ft;
+                });
+
+                if (feature) { // open only on features
+                    contextmenu.enable();
+                } else {
+                    contextmenu.disable();
+                }
+            });
+            mymap.addControl(contextmenu);
+            /*var contextmenu = new ContextMenu({
+              width: 170,
+              defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
+              items: [
+                {
+                  text: 'Center map here',
+                  classname: 'some-style-class', // add some CSS rules
+                  callback: center // `center` is your callback function
+                },
+                {
+                  text: 'Add a Marker',
+                  classname: 'some-style-class', // you can add this icon with a CSS class
+                                                 // instead of `icon` property (see next line)
+                  icon: 'img/marker.png',  // this can be relative or absolute
+                  callback: marker
+                },
+                '-' // this is a separator
+              ]
+            });*/
+        },
+        openStelexos : function(obj) {
+            window.open("tmp/stelexos-adeias-oikodomis-ypodeigma.pdf");
+        },
+        openTopografiko: function(obj) {
+            window.open("tmp/ΤΟΠΟΓΡΑΦΙΚΟ ΔΙΑΓΡΑΜΜΑ - ΕΝΤΟΣ ΣΧΕΔΙΟΥ.pdf");
+        },
         createVectorJsonLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped) {
             let vectorStyle = new ol.style.Style();
             let fill;
@@ -709,7 +766,7 @@
                         featureProjection: destprojcode
                     }),
                     url: function (x) {
-                        let wfsurl='';
+                        let wfsurl = '';
                         let mappath = '';
                         if (iswrapped !== "undefined" && iswrapped === true) {
                             mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
@@ -723,7 +780,7 @@
                             wfsurl = proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
                                 'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
                         }
-                      return wfsurl;
+                        return wfsurl;
                     },
                     strategy: ol.loadingstrategy.bbox,
                     crossOrigin: 'anonymous',
@@ -1035,8 +1092,8 @@
             }));
 
             // interaction for Georeferenced Photos layer
-            $mymapFI.on('pointermove', mapUtils.mapMouseHoverEvent);
-
+            //$mymapFI.on('pointermove', mapUtils.mapMouseHoverEvent);
+            mapUtils.mapMouseHoverEvent();
             $mymapFI.on('singleclick', mapUtils.mapClickEvent);
             //Set select interaction for identify
             mapUtils.setIdentifySelectInteraction();
@@ -1283,7 +1340,7 @@
             });
             $mymap.addInteraction(selectIntrAct);
         },
-        
+
         // The main map click event
         // If a pin is found, then it will display a window with the pin coordinates
         // Otherwise, it will do a WMS request to get the FeatureInfo for each visible and
@@ -1323,7 +1380,7 @@
             //Loop once through layers without the need for the active identify tool
             var pinItem = null;
             $map.getLayers().forEach(function (layer) {
-                
+
                 if (layer.get('name') === 'pinLayer' && layer.getSource().getFeatures().length > 0) {
                     pinItem = mapUtils.getClickResults($map, layer, evt);
                 }
@@ -1438,8 +1495,8 @@
                                             }
                                             // Add the layer name in the returned data so we know which layer
                                             // it came from. It will be used in the spatial query dialog
-                                            data.features.forEach(function(f) {
-                                                f.properties._layername= layer.get('name');
+                                            data.features.forEach(function (f) {
+                                                f.properties._layername = layer.get('name');
                                             });
                                             var selLyr = legendUtilities.getLayerByName("selection");
                                             var arrSearch_fields = [];
@@ -1481,51 +1538,87 @@
                 }
             });
         },
-        mapMouseHoverEvent: function(evt) {
+        mapMouseHoverEvent: function () {
+            var hover = new ol.interaction.Hover({
+                cursor: "pointer"
+            });
+            mymap.addInteraction(hover);
             var style = mapUtils.setDefaultFeatureStyle;
             var container = document.getElementById('popup1');
             var content = document.getElementById('popup-content');
             var closer = document.getElementById('popup-closer');
-            
-            mymap.getLayers().forEach(function(e) {
+            var popupOverlay;
+            hover.on("enter", function (e) {
+                let l = e.layer;
+                let f = e.feature;
+                if (l.get("tag")[0] === "GeoJSON") {
+                    popupOverlay = new ol.Overlay({
+                        element: container,
+                        autoPan: true,
+                        autoPanAnimation: {
+                            duration: 250
+                        }
+                    });
+
+                    /**
+                     * Add a click handler to hide the popup.
+                     * @return {boolean} Don't follow the href.
+                     */
+                    closer.onclick = function () {
+                        popupOverlay.setPosition(undefined);
+                        closer.blur();
+                        return false;
+                    };
+
+
+                    //style = mapUtils.setSelectedStyle;
+                    
+                    //f.setStyle(style);
+                    var coordinate = e.coordinate;
+                    if (l.get("name") === "Photos") {
+                        content.innerHTML = '<p>You clicked here:</p>' +
+                            '<img id="popupImage" alt="Image not found" width="42" height="42">';
+                    } else if (l.get("allowHover") === true) {
+                        let inHtml = '<table>';
+                        f.getKeys().forEach(function (k) {
+                            if (k !== "geometry") {
+                                $.each(l.get("identify_fields").split(','), function (index, ifld) {
+                                    if (ifld.split(':')[0] === k) {
+                                        lbl = ifld.split(':')[1];
+                                        inHtml = inHtml + '<tr><td style="border-right-width:1px;"><strong>' + lbl + '</strong></td><td>' + f.getProperties()[k] + '</td></tr>';
+                                    }
+                                });
+                                
+                            }
+                        });
+                        inHtml = inHtml + '</table>';
+                        content.innerHTML = inHtml;
+
+                    }
+
+                    mymap.addOverlay(popupOverlay);
+                    popupOverlay.setPosition(coordinate);
+
+                }
+            });
+            hover.on("leave", function (e) {
+                popupOverlay.setPosition(undefined);
+                closer.blur();
+            });
+            /*
+
+            mymap.getLayers().forEach(function (e) {
                 // Default feature style only for georeferenced photos
                 if (e.get('name') === 'Photos') {
-                    e.getSource().forEachFeature(function(r) {
+                    e.getSource().forEachFeature(function (r) {
                         r.setStyle(style);
                     });
                 }
             });
 
-            
-            mymap.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
-                if (layer.get("name") === "Photos") {
-                    var popupOverlay = new ol.Overlay({
-                        element: container,
-                        autoPan: true,
-                        autoPanAnimation: {
-                          duration: 250
-                        }
-                    });
-                    /**
-                     * Add a click handler to hide the popup.
-                     * @return {boolean} Don't follow the href.
-                     */
-                    closer.onclick = function() {
-                        popupOverlay.setPosition(undefined);
-                        closer.blur();
-                        return false;
-                    };
-                    var coordinate = feature.getGeometry().getCoordinates();
 
-                    mymap.addOverlay(popupOverlay);
-
-                    content.innerHTML = `<p>You clicked here:</p>
-                                        <img id="popupImage" alt="Image not found" width="42" height="42">`;
-                    popupOverlay.setPosition(coordinate);
-                    style = mapUtils.setSelectedStyle;
-                    feature.setStyle(style);
-                }
-            });
+            mymap.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+                 */
         },
         setSelectedStyle: function (feature, resolution) {
             var style = new ol.style.Style({
@@ -1550,9 +1643,12 @@
                 image: new ol.style.Circle({
                     radius: 7,
                     snapToPixel: false,
-                    fill: new ol.style.Fill({color: 'black'}),
+                    fill: new ol.style.Fill({
+                        color: 'black'
+                    }),
                     stroke: new ol.style.Stroke({
-                      color: 'white', width: 2
+                        color: 'white',
+                        width: 2
                     })
                 })
             });
@@ -1638,24 +1734,24 @@
         createVelocityMap() {
             // create velocity layer
             velocityLayer = new VelocityLayer({
-        
+
                 displayValues: true,
                 displayOptions: {
-                  velocityType: 'GBR Wind',
-                  position: 'bottomleft',
-                  emptyString: 'No velocity data',
-                  angleConvention: 'bearingCW',
-                  displayPosition: 'bottomleft',
-                  displayEmptyString: 'No velocity data',
-                  speedUnit: 'bft'
+                    velocityType: 'GBR Wind',
+                    position: 'bottomleft',
+                    emptyString: 'No velocity data',
+                    angleConvention: 'bearingCW',
+                    displayPosition: 'bottomleft',
+                    displayEmptyString: 'No velocity data',
+                    speedUnit: 'bft'
                 },
                 data: [], // velocityData, // see demo/*.json, or wind-js-server for example data service
-              
+
                 // OPTIONAL
-                minVelocity: 5,          // used to align color scale
-                maxVelocity: 20,         // used to align color scale
-                velocityScale: 0.005,    // modifier for particle animations, arbitrarily defaults to 0.005
-                particleMultiplier: 1/100,
+                minVelocity: 5, // used to align color scale
+                maxVelocity: 20, // used to align color scale
+                velocityScale: 0.005, // modifier for particle animations, arbitrarily defaults to 0.005
+                particleMultiplier: 1 / 100,
                 particleAge: 64,
                 lineWidth: 1,
                 colorScale: velocityColorScaleArray
@@ -1668,7 +1764,9 @@
             velocityMap = new Map({
                 layers: [
                     new TileLayer({
-                        source: new Stamen({layer: 'toner'})
+                        source: new Stamen({
+                            layer: 'toner'
+                        })
                     }),
                     // new TileLayer({
                     //     title: 'Open Street Map',
@@ -1681,7 +1779,7 @@
                     center: velocityCenter,
                     // projection: projectionCode,
                     extent: mymap.getView().getProjection().getExtent(),
-                    zoom: mymap.getView().getZoom()//,
+                    zoom: mymap.getView().getZoom() //,
                     // maxZoom: 29
                 })
             });
@@ -1695,7 +1793,7 @@
             // var timeIso = new Date().toISOString();
             var searchLimit = velocityControls.getVelocitySettings().timeSettings.days;
             var velocityUrl = `${velocityControls.getVelocitySettings().serverLocation}:${velocityControls.getVelocitySettings().serverPort}`;
-            
+
             $.ajax({
                 url: `${velocityUrl}/nearest?timeIso=${timeIso}&searchLimit=${searchLimit}`,
                 async: true,
@@ -1711,7 +1809,7 @@
                     velocityLayer.options.data = windData;
                     velocityLayer.addToMap(velocityMap);
                     // TODO: Figure out how to keep animation going without updating layer
-                    setInterval(function() {
+                    setInterval(function () {
                         velocityLayer._canvasLayer.changed();
                     }, 50);
                 },
@@ -1719,20 +1817,20 @@
                     $(".wait").hide();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    $(".wait").hide(400, function() {
+                    $(".wait").hide(400, function () {
                         console.log("Velocity data could not be loaded... Maybe the wind server is down");
                         alert("Velocity data could not loaded... Maybe the wind server is down");
                     });
                 },
                 failure: function (jqXHR, _textStatus, errorThrown) {
-                    $(".wait").hide(400, function() {
+                    $(".wait").hide(400, function () {
                         console.log("Get velocity data error");
                     });
                 }
-            }); 
+            });
         },
         removeWind() {
             velocityLayer.removeFromMap();
-          }
+        }
     };
 })();
