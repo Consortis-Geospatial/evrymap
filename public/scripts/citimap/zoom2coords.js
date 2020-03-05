@@ -42,6 +42,8 @@
                 '</div>';
             $(xydiv).append(divhtml);
             $(xydiv).appendTo($("#mainparent"));
+            // Set the selected projection value to the current map projection
+            $('#sel1').val(mymap.getView().getProjection().getCode().split(':')[1]);
             zoom2XY.setXYDialog();
         },
         zoomToXY: function () {
