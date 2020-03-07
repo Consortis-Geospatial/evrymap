@@ -166,6 +166,7 @@
             }
         },
         convertGeometryToDestProjection: function (type, geom) {
+            var coordInDest;
             if (type === 'Polygon') {
                 // A polygon is an array of rings, the first ring is
                 // the exterior ring, any others are the interior rings
@@ -174,7 +175,7 @@
                     var ring = [];
                     for (j = 0; j < geom.getCoordinates()[i].length; j++) {
                         //Transform each vertex in destination projection
-                        var coordInDest = ol.proj.transform(geom.getCoordinates()[i][j], mymap.getView().getProjection(), ol.proj.get(destprojcode));
+                        coordInDest = ol.proj.transform(geom.getCoordinates()[i][j], mymap.getView().getProjection(), ol.proj.get(destprojcode));
                         ring.push(coordInDest);
                     }
                     ringArray.push(ring);
@@ -517,7 +518,7 @@
                     // End Check if layer is editable
 
                     if (typeof val.group !== "undefined") {
-                        groups[grp].push(tmplyr);
+                        groups[grp].push(tmpvector);
                     } else {
                         oslayers.push(tmpvector);
                     }
@@ -527,7 +528,8 @@
                     var lbl = val.label;
                     var srid = val.srid;
                     var group = val.group;
-                    var arcgislayer = esriUtils.createEsriRestTile(esriname, esriurl, lbl, srid, group);
+                    var queryable=val.queryable;
+                    var arcgislayer = esriUtils.createEsriRestTile(esriname, esriurl, lbl, srid, group, queryable);
                     arcgislayer.setVisible(val.display_on_startup);
                     oslayers.push(arcgislayer);
                 } else if (val.type === "GEOIMAGES") {
@@ -642,6 +644,14 @@
                 olGM.activate();
             }
 
+            mapUtils.createNavToolbar();
+
+            return mymap;
+        },
+        /* 
+            Create the navigation toolbar
+        */
+        createNavToolbar: function () {
             // Create the navigation toolbar on the left
             var navBtnsHtml = '<button id="btnZoomIn" type="button" class="btn btn-primary mapnav" onclick="mapUtils.fixedZoom(1);" autocomplete= "off">' +
                 '    <i class="glyphicon glyphicon-plus"></i>' +
@@ -683,8 +693,6 @@
 
             //Make pan the default button
             $("#btnPan").addClass("active");
-
-            return mymap;
         },
         initContextMenu: function () {
             var contextmenu = new ContextMenu({
@@ -695,14 +703,14 @@
                         classname: 'some-style-class', //, // add some CSS rules
                         items: [ // <== this is a submenu
                             {
-                              text: 'Στέλεχος Άδειας',
-                              callback: mapUtils.openStelexos
+                                text: 'Στέλεχος Άδειας',
+                                callback: mapUtils.openStelexos
                             },
                             {
-                              text: 'Τοπογραφικό άδειας',
-                              callback: mapUtils.openTopografiko
+                                text: 'Τοπογραφικό άδειας',
+                                callback: mapUtils.openTopografiko
                             }
-                          ]
+                        ]
                     },
                     {
                         text: 'Άιτηση για αντίγραφο'
@@ -723,31 +731,6 @@
                 }
             });
             mymap.addControl(contextmenu);
-            /*var contextmenu = new ContextMenu({
-              width: 170,
-              defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
-              items: [
-                {
-                  text: 'Center map here',
-                  classname: 'some-style-class', // add some CSS rules
-                  callback: center // `center` is your callback function
-                },
-                {
-                  text: 'Add a Marker',
-                  classname: 'some-style-class', // you can add this icon with a CSS class
-                                                 // instead of `icon` property (see next line)
-                  icon: 'img/marker.png',  // this can be relative or absolute
-                  callback: marker
-                },
-                '-' // this is a separator
-              ]
-            });*/
-        },
-        openStelexos : function(obj) {
-            window.open("tmp/stelexos-adeias-oikodomis-ypodeigma.pdf");
-        },
-        openTopografiko: function(obj) {
-            window.open("tmp/ΤΟΠΟΓΡΑΦΙΚΟ ΔΙΑΓΡΑΜΜΑ - ΕΝΤΟΣ ΣΧΕΔΙΟΥ.pdf");
         },
         createVectorJsonLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped) {
             let vectorStyle = new ol.style.Style();
@@ -1166,8 +1149,6 @@
                         }
                         if (selFeatures && selFeatures.getLength() > 0) {
                             //Vector layer- not the pin layer
-                            //featItem.setStyle(mapUtils.setSelectedStyle(featItem));
-
                             if (typeof searchFields !== "undefined") {
                                 //console.log("selected features from select by rect: " + typeof selFeatures);
                                 if (searchFields.length > 0 && identifyFields.length > 0) {
@@ -1213,7 +1194,7 @@
                                         }
                                     }
                                 });
-                            } else if (layer instanceof ol.layer.Tile || layer instanceof ol.layer.Image) {
+                            } else if (layer instanceof ol.layer.Tile || layer instanceof ol.layer.Image || layer instanceof ol.layer.TileLayer) {
                                 if ((layer.getSource() instanceof ol.source.ImageWMS) || (layer.getSource() instanceof ol.source.TileWMS)) {
                                     //WMS only supports point queries, so check if we can do a wfs request instead
                                     var supportsWFS = false;
@@ -1223,22 +1204,6 @@
                                     } else {
                                         capabilitiesUrl = proxyUrl + layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetCapabilities";
                                     }
-                                    //console.log(url);
-                                    //$.ajax({
-                                    //    url: capabilitiesUrl,
-                                    //    async: false,
-                                    //    dataType: 'xml',
-                                    //    success: function (data) {
-                                    //        supportsWFS = true;
-                                    //    },
-                                    //    error: function (jqXHR, textStatus, errorThrown) {
-                                    //        console.log("WMS capabilities request error: " + capabilitiesUrl + "\n" + jqXHR.responseText);
-                                    //        //console.log(mapUtils.xmlToJson(jqXHR.responseText));
-                                    //    },
-                                    //    failure: function (jqXHR, textStatus, errorThrown) {
-                                    //        console.log("WMS capabilities request failure: " + capabilitiesUrl + "\n" + jqXHR.responseText);
-                                    //    }
-                                    //});
                                     //TODO: Extent should be in the layer srid and not the map's. Otherwise it won't return any records
 
                                     var intersectsUrl;
@@ -1291,8 +1256,52 @@
                                             console.log("WMS BBOX request failure: " + capabilitiesUrl + "\n" + jqXHR.responseText);
                                         }
                                     });
+                                } else if (layer.getSource() instanceof ol.source.TileArcGISRest) {
+                                    var intersectsUrl;
+
+                                    let esriUrl = layer.get("tag")[1] + '/identify?';
+                                    esriUrl = esriUrl + '&geometryType=esriGeometryEnvelope&';
+                                    esriUrl = esriUrl + 'geometry=' + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3]
+                                    esriUrl = esriUrl + 'sr=&layers=&layerDefs=&time=&layerTimeOptions=&tolerance=10&';
+                                    let viewExtent = mymap.getView().calculateExtent();
+                                    esriUrl = esriUrl + 'mapExtent=' + viewExtent[0] + ',' + viewExtent[1] + ',' + viewExtent[2] + ',' + viewExtent[3] + '&';
+                                    let mapSize = mymap.getSize();
+                                    esriUrl = esriUrl + 'imageDisplay=' + mapSize[0] + ',' + mapSize[1] + ',' + mymap.getView().getResolution() + '&';
+                                    esriUrl = esriUrl + 'returnGeometry=true&maxAllowableOffset=&geometryPrecision=&dynamicLayers=&returnZ=false&returnM=false&gdbVersion=&f=pjson';
+                                    console.log(esriUrl);
+                                    $.ajax({
+                                        url: esriUrl,
+                                        async: true,
+                                        dataType: 'json',
+                                        beforeSend: function () {
+                                            $(".wait").show();
+                                        },
+                                        success: function (data) {
+                                            if (data.results.length === 0) {
+                                                return null;
+                                            }
+                                            var selLyr = legendUtilities.getLayerByName("selection");
+                                            var geoJsonFeatures = esriUtils.esriFeaturesToGeoJson(data);
+                                            searchUtilities.renderQueryResultsAsTable(geoJsonFeatures, layer.get('label'), layer.get('name'), [], []);
+                                            //Always show the first tab as active
+                                            $('#searchResultsUl a').first().tab('show');
+                                            // Populate the selection layer
+                                            var geojson = new ol.format.GeoJSON();
+                                            selLyr.getSource().addFeatures(geojson.readFeatures(geoJsonFeatures));                            
+                                        },
+                                        complete: function (response) {
+                                            $(".wait").hide();
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            console.log("WMS BBOX request error: " + esriUrl + "\n" + jqXHR.responseText);
+                                            //console.log(mapUtils.xmlToJson(jqXHR.responseText));
+                                        },
+                                        failure: function (jqXHR, _textStatus, errorThrown) {
+                                            console.log("WMS BBOX request failure: " + esriUrl + "\n" + jqXHR.responseText);
+                                        }
+                                    });
                                 }
-                            }
+                            } 
                         }
                     }
                 });
@@ -1507,6 +1516,7 @@
                                             if (typeof layer.get('identify_fields') === "string" && typeof layer.get('identify_fields') !== "undefined" && layer.get('identify_fields') !== "") {
                                                 arrIdentify_fields = layer.get('identify_fields').split(',');
                                             }
+                                            var allFeatures = new ol.format.WMSGetFeatureInfo().readFeatures(data);
                                             searchUtilities.renderQueryResultsAsTable(data, layer.get('label'), layer.get('name'), arrSearch_fields, arrIdentify_fields);
                                             if (data.features.length > 0) {
                                                 // TODO: Get all features not just the first
@@ -1532,6 +1542,58 @@
                                         }
                                     });
                                 }
+                            } else if (layer.getSource() instanceof ol.source.TileArcGISRest) {
+                                //http://gis.epoleodomia.gov.gr/arcgis/rest/services/Rimotomika_Sxedia_Poleod_Meletes/XriseisGis_Individual/MapServer/identify?
+                                //geometry=407010%2C4502632&
+                                //geometryType=esriGeometryPoint&sr=&layers=&layerDefs=&time=&layerTimeOptions=&tolerance=10&
+                                //mapExtent=407244.7333778764%2C4502115.330202447%2C407985.33166683203%2C4502855.928491402&
+                                //imageDisplay=600%2C550%2C96&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&dynamicLayers=&returnZ=false&returnM=false&gdbVersion=&f=pjson
+                                console.log('ESRI tile');
+
+                                let esriUrl = layer.get("tag")[1] + '/identify?geometry=';
+                                esriUrl = esriUrl + evt.coordinate[0] + ',' + evt.coordinate[1] + '&geometryType=esriGeometryPoint&sr=&layers=&layerDefs=&time=&layerTimeOptions=&tolerance=10&';
+                                let viewExtent = mymap.getView().calculateExtent();
+                                esriUrl = esriUrl + 'mapExtent=' + viewExtent[0] + ',' + viewExtent[1] + ',' + viewExtent[2] + ',' + viewExtent[3] + '&';
+                                let mapSize = mymap.getSize();
+                                esriUrl = esriUrl + 'imageDisplay=' + mapSize[0] + ',' + mapSize[1] + ',' + mymap.getView().getResolution() + '&';
+                                esriUrl = esriUrl + 'returnGeometry=true&maxAllowableOffset=&geometryPrecision=&dynamicLayers=&returnZ=false&returnM=false&gdbVersion=&f=pjson';
+                                console.log(esriUrl);
+                                $.ajax({
+                                    url: esriUrl,
+                                    async: false,
+                                    dataType: 'json',
+                                    success: function (data) {
+                                        console.log(data);
+                                        if (data.results.length === 0) {
+                                            return null;
+                                        }
+                                        // Add the layer name in the returned data so we know which layer
+                                        // it came from. It will be used in the spatial query dialog
+                                        // data.results.forEach(function (ef) {
+                                        //     //ef._layername = layer.get('name');
+                                        //     var esriGeom = ef.geometry;
+                                        //     let geoJsonFeat = esriUtils.esriFeatureToGcFeature(ef);
+                                        //     console.log(geoJsonFeat);
+                                        // });
+                                        var geoJsonFeatures = esriUtils.esriFeaturesToGeoJson(data);
+                                        var selLyr = legendUtilities.getLayerByName("selection");
+                                        var arrSearch_fields = [];
+                                        var arrIdentify_fields = [];
+                                        searchUtilities.renderQueryResultsAsTable(geoJsonFeatures, layer.get('label'), layer.get('name'), arrSearch_fields, arrIdentify_fields);
+                                        //Always show the first tab as active
+                                        $('#searchResultsUl a').first().tab('show');
+                                        // Populate the selection layer
+                                        var geojson = new ol.format.GeoJSON();
+
+                                        selLyr.getSource().addFeatures(geojson.readFeatures(geoJsonFeatures));
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        console.log("request failed " + textStatus);
+                                    },
+                                    failure: function (jqXHR, textStatus, errorThrown) {
+                                        console.log("request failed " + textStatus);
+                                    }
+                                });
                             }
                         }
                     }
@@ -1551,7 +1613,7 @@
             hover.on("enter", function (e) {
                 let l = e.layer;
                 let f = e.feature;
-                if (l.get("tag")[0] === "GeoJSON") {
+                if (typeof l.get("tag") !== "undefined" && l.get("tag")[0] === "GeoJSON") {
                     popupOverlay = new ol.Overlay({
                         element: container,
                         autoPan: true,
@@ -1565,14 +1627,16 @@
                      * @return {boolean} Don't follow the href.
                      */
                     closer.onclick = function () {
-                        popupOverlay.setPosition(undefined);
-                        closer.blur();
+                        if (popupOverlay) {
+                            popupOverlay.setPosition(undefined);
+                            closer.blur();
+                        }
                         return false;
                     };
 
 
                     //style = mapUtils.setSelectedStyle;
-                    
+
                     //f.setStyle(style);
                     var coordinate = e.coordinate;
                     if (l.get("name") === "Photos") {
@@ -1588,7 +1652,7 @@
                                         inHtml = inHtml + '<tr><td style="border-right-width:1px;"><strong>' + lbl + '</strong></td><td>' + f.getProperties()[k] + '</td></tr>';
                                     }
                                 });
-                                
+
                             }
                         });
                         inHtml = inHtml + '</table>';
@@ -1602,23 +1666,12 @@
                 }
             });
             hover.on("leave", function (e) {
-                popupOverlay.setPosition(undefined);
-                closer.blur();
-            });
-            /*
-
-            mymap.getLayers().forEach(function (e) {
-                // Default feature style only for georeferenced photos
-                if (e.get('name') === 'Photos') {
-                    e.getSource().forEachFeature(function (r) {
-                        r.setStyle(style);
-                    });
+                if (popupOverlay) {
+                    popupOverlay.setPosition(undefined);
+                    closer.blur();
                 }
             });
 
-
-            mymap.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
-                 */
         },
         setSelectedStyle: function (feature, resolution) {
             var style = new ol.style.Style({

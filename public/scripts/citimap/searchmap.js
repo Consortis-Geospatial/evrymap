@@ -329,6 +329,9 @@
                         } else if (val === "t" || val === "true" || val === true) {
                             afeature.properties[key] = $.i18n._('_YES');
                         }
+                        if (val.startsWith("http://") || val.startsWith("https://")) {
+                            afeature.properties[key]='<a href="'+val + '" target="_blank">'+ val +'</a>';
+                        }
                     });
                 });
                 var dt = $('#tbl' + tblid)
@@ -379,7 +382,7 @@
                                     extend: 'pdf',
                                     text: $.i18n._('_EXPORTTOPDF'),
                                     title: lyrlabel,
-                                    messageBottom: 'Powered by citiMap - Consortis',
+                                    messageBottom: 'Powered by EVRYMAP - Consortis Geospatial',
                                     orientation: 'landscape',
                                     pageSize: 'A4',
                                     exportOptions: {
