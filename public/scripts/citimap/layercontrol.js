@@ -6,7 +6,8 @@
     });
     return {
         initLegend: function (map) {
-            legendUtilities.createLegendDialogUI(map);
+            // Create the Layer Control dialog
+            legendUtilities.createLegendDialogUI();
             // Render each layer in the legend dialog
             legendUtilities.renderLegendContent(map);
             // Set the sorting event
@@ -22,7 +23,10 @@
                 $('#graphicLegend').toggle();
             });
         },
-        createLegendDialogUI: function (map) {
+        /**
+         * Creates the html for the Legend control
+         */
+        createLegendDialogUI: function () {
             $.i18n.load(uiStrings);
             var modLyrDialog = document.createElement('div');
             modLyrDialog.setAttribute('id', 'modLyrDialog');
@@ -86,6 +90,9 @@
                 }
             });
         },
+        /**
+         * Filters the legend control
+         */
         searchLayerControlList: function () {
             var s= $("#txbSearchLegend").val();
             if (s === '') {
@@ -129,6 +136,9 @@
                 $('.modal-dialog').draggable({ handle: ".modal-header" });
             }
         },
+        /** 
+         * Reorders the legend when user changes layer order
+        */
         reorderLegend: function (map) {
             var legendLayerList = [];
             $('#layerList').children('div').each(function () {
@@ -175,6 +185,10 @@
                 legendUtilities.addLayerToLegend(map, layer);
             }
         },
+        /**
+         * Completely removes layer from map and legends
+         * @param {*} ctrl The delete control id so we can find the layer object
+         */
         removeLayer: function (ctrl) {
             var layername = ctrl.id.split("iconDeleteLyr_")[1];
             $map = $('#mapid').data('map');
@@ -189,8 +203,10 @@
             for (var i = 0; i < len; i++) {
                 $map.removeLayer(layersToRemove[i]);
             }
+            // Remove layer from layer control
             $('#layerList').find("#legendLayer_" + layername).remove();
-            //legendUtilities.reorderLegend($map);
+            // Remove layer from left legend control
+            legendUtilities.removeItemFromLegend(layername);
         },
         addLayerToLegend: function (map, layer, totop) {
             var htmlLegendContent = '';
@@ -282,7 +298,7 @@
                         });
                     }
                 } else if (tag[0] !== "" && tag[0] === "ESRIRESTTILE") {
-                    esriUtils.drawEsriRestLegend(tag[1], name);
+                    esriUtils.drawEsriRestLegend(tag[1], name, layer.get('label'));
                 }
             }
             // Create metadata link
@@ -442,9 +458,18 @@
             });
             return o;
         },
+        /**
+         * Remove layer entry from the left legend dialog
+         * @param {string} layer_name The layer name to remove
+         */
         removeItemFromLegend: function(layer_name) {
             $('#legendImgList').find('#img_'+ layer_name).remove();
         },
+        /**
+         * 
+         * @param {string} iId The 'eye' control id for the specified layer
+         * @param {string} lyrName Layer name
+         */
         toggleLayerVisibility: function (iId, lyrName) {
             map = $('#mapid').data('map');
             map.getLayers().forEach(function (layer, i) {
@@ -463,6 +488,8 @@
                                     $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img src="' + layer.get('legend_image') + '" /></li>');
                                 } else if (layer.get('tag')[0] === "GeoJSON" || layer.get('tag')[0] === "KML" || layer.get('tag')[0] === "XML") {
                                     $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img style="width:20px; height:20px; margin-right:3px" src="' + layer.get('legend_image') + '" /></li>');
+                                } else if (layer.get('tag')[0] === "ESRIRESTTILE") {
+                                    esriUtils.drawEsriRestLegend(layer.get('tag')[1], lyrName, layer.get('label'));
                                 }
                             }
                         }
@@ -505,6 +532,13 @@
                 }
             });
         },
+        /**
+         * Helper function for finding if all child 'eye' icons in the Layer control
+         * are on the same state (visible|hidden)
+         * Returns boolean
+         * @param {*} parent 
+         * @param {*} type 
+         */
         allChildIconsMatch: function (parent, type) {
             var isMatch = null;
             $('#' + parent.prop('id')).children('div').each(function () {
@@ -557,6 +591,11 @@
             });
             return isMatch;
         },
+        /**
+         * Returns boolean depending if the item in the legend control
+         * is a child of a parent item
+         * @param {*} elem 
+         */
         hasParent: function (elem) {
             if ($('#' + elem.prop('id')).parent().parent().parent().length !== 0) {
                 // layer is part of a collapsible group

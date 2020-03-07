@@ -172,25 +172,29 @@
             arcgislayer.set('queryable', queryable);
             return arcgislayer;
         },
-        drawEsriRestLegend: function (layerurl, name) {
+        drawEsriRestLegend: function (layerurl, name, label) {
+            $('#legendImgList').append('<li id="img_' + name + '" class="list-group-item"><h5>' + label + '</h5>');
             $.ajax({
                 url: layerurl + '/Legend?f=pjson',
                 async: true,
                 dataType: 'json',
                 success: function (esriLyrs) {
                     var injectString = '';
+                    var injectString2 = '';
                     $.each(esriLyrs.layers, function (index, item) {
                         var lname = item.layerName;
                         var imgtype = item.legend[0].contentType;
                         var imgdata = item.legend[0].imageData;
-                        injectString = injectString + '<p style="margin-left:20px;margin-top:20px"><span><img src="data:' + imgtype + ';base64,' + imgdata + '" />' + lname + '</span></p>';
+                        injectString = injectString + '<p style="margin-left:20px;margin-top:20px"><span><img src="data:' + imgtype + ';base64,' + imgdata + '" />&nbsp;' + lname + '</span></p>';
                     });
                     $("#legendLayer_" + name).append(injectString);
+                    $('#img_' + name).append(injectString);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     //console.log("request failed " + textStatus);
                 }
             });
+            legendUtilities.getLayerByName(name).set("legend_image", layerurl);
         }
     };
 })();
