@@ -299,8 +299,7 @@ tr.shown td.details-control {
 .ol-popup {
     position: absolute;
     background-color: white;
-    -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
-    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
     padding: 15px;
     border-radius: 10px;
     border: 1px solid #cccccc;
@@ -351,8 +350,7 @@ tr.shown td.details-control {
     z-index: 999;
     top: 4em;
     width: 30%;
-	left:50%;
-	transform:translate(-50%,0%);
+	right:4.5%;
 }
 .bottomtb {
     position: fixed;
@@ -684,6 +682,6 @@ button#btnSelByRect {
   div#modLogin {
 	  z-index:999999;
   }
-div#popup1 {
+/*div#popup1 {
 	position:unset;
-}
+}*/
