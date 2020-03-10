@@ -19,7 +19,7 @@
             layers = mapPortal.readConfig("layers");
 
             mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields);
-            //mapUtils.initContextMenu();
+            mapUtils.initContextMenu();
             // if velocity layer exists
             if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
                 // create velocity map
@@ -267,44 +267,13 @@
 
                 // OSM Tiles
                 if (val.type === "OSM" && typeof useGMap === "undefined") {
-                    let url = "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-                    if (typeof val.url !== "undefined" && val.url.trim() !== "") {
-                        url = val.url;
-                    }
-                    var osm =
-                        new ol.layer.Tile({
-                            source: new ol.source.OSM({
-                                crossOrigin: 'anonymous',
-                                url: url
-                            })
-                        });
-                    osm.set('name', val.name);
-                    osm.set('label', val.label);
-                    osm.set('tag', [val.type, '']);
-                    osm.set('group', val.group); // this maybe undefined
-                    osm.setVisible(val.display_on_startup);
-                    oslayers.push(osm);
-                    // Bing Maps
+                    osmLayer = mapUtils.createOSMLayer(val);
+                    oslayers.push(osmLayer);
+                // Bing Maps
                 } else if (val.type === "Bing" && typeof useGMap === "undefined") {
-                    var bing =
-                        new ol.layer.Tile({
-                            visible: false,
-                            preload: Infinity,
-                            source: new ol.source.BingMaps({
-                                key: val.bing_key,
-                                imagerySet: val.bing_style,
-                                // use maxZoom 19 to see stretched tiles instead of the BingMaps
-                                // "no photos at this zoom level" tiles
-                                maxZoom: 19
-                            })
-                        });
-                    bing.set('name', val.name);
-                    bing.set('label', val.label);
-                    bing.set('tag', [val.type, '']);
-                    bing.set('group', val.group); // this maybe undefined
-                    bing.setVisible(val.display_on_startup);
-                    oslayers.push(bing);
-                    // WMS Layers
+                    bingLayer = mapUtils.createBingLayer(val);
+                    oslayers.push(bingLayer);
+                // WMS Layers
                 } else if (val.type === "WMS") {
                     var wmsUrl = '';
                     let mapSettings = mapPortal.readConfig("map");
@@ -368,6 +337,7 @@
                     tmplyr.set('name', val.name);
                     tmplyr.set('label', val.label);
                     tmplyr.set('tiled', val.tiled);
+                    tmplyr.set('legendImg', val.legendImg); // this may be undefined. Used for WMS layers that the GetLegend request does not return a valid graphic
                     tmplyr.set("tag", [val.type, wmsUrl]);
                     if (typeof val.srid === "undefined") {
                         tmplyr.set("srid", projcode);
@@ -466,14 +436,17 @@
                     } else {
                         tmpvector.set('allowHover', true);
                     }
+                    if (typeof val.contextMenu !== "undefined") {
+                        tmpvector.set('contextMenu', val.contextMenu);
+                    }
                     tmpvector.setVisible(val.display_on_startup);
                     if (typeof val.exportable !== "undefined") {
                         tmpvector.set('exportable', val.exportable);
                     } else {
                         tmpvector.set('exportable', false);
                     }
-                    if (typeof val.legend_image !== "undefined") {
-                        tmpvector.set('legend_image', val.legend_image);
+                    if (typeof val.legendImg !== "undefined") {
+                        tmpvector.set('legendImg', val.legendImg);
                     }
                     if (typeof val.legend_wh !== "undefined") {
                         tmpvector.set('legend_wh', val.legend_wh);
@@ -528,7 +501,7 @@
                     var lbl = val.label;
                     var srid = val.srid;
                     var group = val.group;
-                    var queryable=val.queryable;
+                    var queryable = val.queryable;
                     var arcgislayer = esriUtils.createEsriRestTile(esriname, esriurl, lbl, srid, group, queryable);
                     arcgislayer.setVisible(val.display_on_startup);
                     oslayers.push(arcgislayer);
@@ -648,9 +621,49 @@
 
             return mymap;
         },
-        /* 
-            Create the navigation toolbar
-        */
+        createOSMLayer: function (lyrConfig) {
+            let url = "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+            if (typeof lyrConfig.url !== "undefined" && lyrConfig.url.trim() !== "") {
+                url = lyrConfig.url;
+            }
+            var osm =
+                new ol.layer.Tile({
+                    source: new ol.source.OSM({
+                        crossOrigin: 'anonymous',
+                        url: url
+                    })
+                });
+            osm.set('name', lyrConfig.name);
+            osm.set('label', lyrConfig.label);
+            osm.set('tag', [lyrConfig.type, '']);
+            osm.set('group', lyrConfig.group); // this maybe undefined
+            osm.setVisible(lyrConfig.display_on_startup);
+            return osm;
+        },
+        createBingLayer: function (lyrConfig) {
+            var bing =
+                new ol.layer.Tile({
+                    visible: false,
+                    preload: Infinity,
+                    source: new ol.source.BingMaps({
+                        key: lyrConfig.bing_key,
+                        imagerySet: lyrConfig.bing_style,
+                        // use maxZoom 19 to see stretched tiles instead of the BingMaps
+                        // "no photos at this zoom level" tiles
+                        maxZoom: 19
+                    })
+                });
+            bing.set('name', lyrConfig.name);
+            bing.set('label', lyrConfig.label);
+            bing.set('tag', [lyrConfig.type, '']);
+            bing.set('group', lyrConfig.group); // this maybe undefined
+            bing.setVisible(lyrConfig.display_on_startup);
+            return bing;
+        },
+        /**
+         * Creates the HTML for navigation toolbar, appends it to the zoomTools div 
+         * and set the titles for each button
+         */
         createNavToolbar: function () {
             // Create the navigation toolbar on the left
             var navBtnsHtml = '<button id="btnZoomIn" type="button" class="btn btn-primary mapnav" onclick="mapUtils.fixedZoom(1);" autocomplete= "off">' +
@@ -695,44 +708,42 @@
             $("#btnPan").addClass("active");
         },
         initContextMenu: function () {
-            var contextmenu = new ContextMenu({
-                width: 170,
-                defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
-                items: [{
-                        text: 'Σχετικά Αρχεία',
-                        classname: 'some-style-class', //, // add some CSS rules
-                        items: [ // <== this is a submenu
-                            {
-                                text: 'Στέλεχος Άδειας',
-                                callback: mapUtils.openStelexos
-                            },
-                            {
-                                text: 'Τοπογραφικό άδειας',
-                                callback: mapUtils.openTopografiko
-                            }
-                        ]
-                    },
-                    {
-                        text: 'Άιτηση για αντίγραφο'
+            mymap.getLayers().forEach(function (layer, i) {
+                if (typeof layer.get("contextMenu") !== "undefined") {
+                    var contextmenu = new ContextMenu({
+                        width: 170,
+                        defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
+                        items: layer.get("contextMenu")
+                    });
+                    contextmenu.on('beforeopen', function (evt) {
+                        var feature = mymap.forEachFeatureAtPixel(evt.pixel, function (ft, l) {
+                            return ft;
+                        });
 
-                    }
-                    //'-' // this is a separator
-                ]
-            });
-            contextmenu.on('beforeopen', function (evt) {
-                var feature = mymap.forEachFeatureAtPixel(evt.pixel, function (ft, l) {
-                    return ft;
-                });
-
-                if (feature) { // open only on features
-                    contextmenu.enable();
-                } else {
-                    contextmenu.disable();
+                        if (feature) { // open only on features
+                            contextmenu.enable();
+                        } else {
+                            contextmenu.disable();
+                        }
+                    });
+                    mymap.addControl(contextmenu);
                 }
             });
-            mymap.addControl(contextmenu);
         },
-        createVectorJsonLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped) {
+        /**
+         * Creates a vector layer in GeoJSON format and return a ol.layer.Vector object
+         * @param {string} mapfile The mapfile to use in the WFS request
+         * @param {string} table_name The table name in the WFS request
+         * @param {string} color Color to draw the layer in
+         * @param {integer} linewidth Line width to draw the layer in
+         * @param {boolean} hasfill If the style will be filled. If false or undefined layer will be drawn with a transparent fill
+         * @param {string} fillcolor Fill color
+         * @param {boolean} iswrapped If the mapserver to use has been setup with a reverse proxy and does not include the path to the mapfile
+         *                            i.e. instead of http://...?map=<path_to_mapfile> it is http://../<mapfile>
+         * @param {string} wfs_url If this is defined then it will be used for the WFS request ignoring the mapfile, table_name and iswrapped parameters
+         */
+        createVectorJsonLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped, wfs_url) {
+            var wfsurl = '';
             let vectorStyle = new ol.style.Style();
             let fill;
             if ((typeof hasfill !== "undefined" || hasfill === true) && typeof fillcolor !== "undefined") {
@@ -749,19 +760,22 @@
                         featureProjection: destprojcode
                     }),
                     url: function (x) {
-                        let wfsurl = '';
-                        let mappath = '';
-                        if (iswrapped !== "undefined" && iswrapped === true) {
-                            mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
+                        if (typeof wfs_url === "undefined") {
+                            let mappath = '';
+                            if (iswrapped !== "undefined" && iswrapped === true) {
+                                mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
+                            } else {
+                                mappath = '?map=' + mapfile;
+                            }
+                            if (window.location.host === $('#hidMS').val().split('/')[0]) {
+                                wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                    'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
+                            } else {
+                                wfsurl = proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                    'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
+                            }
                         } else {
-                            mappath = '?map=' + mapfile;
-                        }
-                        if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                            wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
-                        } else {
-                            wfsurl = proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
+                            wfs_url = wfsurl;
                         }
                         return wfsurl;
                     },
@@ -771,7 +785,7 @@
                     maxResolution: 500 // 500 resolution will display vector layers at a scale of 1: 2,500,000
                 }),
                 style: new ol.style.Style({
-                    fill,
+                    fill: fill,
                     stroke: new ol.style.Stroke({
                         color: color,
                         width: linewidth
@@ -1287,7 +1301,7 @@
                                             $('#searchResultsUl a').first().tab('show');
                                             // Populate the selection layer
                                             var geojson = new ol.format.GeoJSON();
-                                            selLyr.getSource().addFeatures(geojson.readFeatures(geoJsonFeatures));                            
+                                            selLyr.getSource().addFeatures(geojson.readFeatures(geoJsonFeatures));
                                         },
                                         complete: function (response) {
                                             $(".wait").hide();
@@ -1301,7 +1315,7 @@
                                         }
                                     });
                                 }
-                            } 
+                            }
                         }
                     }
                 });
@@ -1548,7 +1562,7 @@
                                 //geometryType=esriGeometryPoint&sr=&layers=&layerDefs=&time=&layerTimeOptions=&tolerance=10&
                                 //mapExtent=407244.7333778764%2C4502115.330202447%2C407985.33166683203%2C4502855.928491402&
                                 //imageDisplay=600%2C550%2C96&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&dynamicLayers=&returnZ=false&returnM=false&gdbVersion=&f=pjson
-                                console.log('ESRI tile');
+                                //console.log('ESRI tile');
 
                                 let esriUrl = layer.get("tag")[1] + '/identify?geometry=';
                                 esriUrl = esriUrl + evt.coordinate[0] + ',' + evt.coordinate[1] + '&geometryType=esriGeometryPoint&sr=&layers=&layerDefs=&time=&layerTimeOptions=&tolerance=10&';
@@ -1601,19 +1615,38 @@
             });
         },
         mapMouseHoverEvent: function () {
+            var hasHover=false;
+            mymap.getLayers().forEach(function (layer, i) {
+                if (typeof layer.get("allowHover") !== "undefined") {
+                    hasHover=true;
+                }
+            });
+            if (!hasHover) {
+                return false;
+            } else {
+                // Create the hover switch
+                var str='<input type="checkbox" data-toggle="toggle" id="chkShowTt" value="">';
+                //$('#bottomToolbar').append(str);
+                //$('#chkShowTt').bootstrapToggle({
+                //    on: $.i18n._('_YES'),
+                //    off: $.i18n._('_NO')
+                //});
+            }
             var hover = new ol.interaction.Hover({
                 cursor: "pointer"
             });
             mymap.addInteraction(hover);
             var style = mapUtils.setDefaultFeatureStyle;
             var container = document.getElementById('popup1');
+            $('#popup1').popover('destroy');
             var content = document.getElementById('popup-content');
             var closer = document.getElementById('popup-closer');
             var popupOverlay;
             hover.on("enter", function (e) {
+                $('#popup1').show();
                 let l = e.layer;
                 let f = e.feature;
-                if (typeof l.get("tag") !== "undefined" && l.get("tag")[0] === "GeoJSON") {
+                if (typeof l.get("tag") !== "undefined" && l.get("tag")[0] === "GeoJSON" && l.get("allowHover")) {
                     popupOverlay = new ol.Overlay({
                         element: container,
                         autoPan: true,
@@ -1633,11 +1666,6 @@
                         }
                         return false;
                     };
-
-
-                    //style = mapUtils.setSelectedStyle;
-
-                    //f.setStyle(style);
                     var coordinate = e.coordinate;
                     if (l.get("name") === "Photos") {
                         content.innerHTML = '<p>You clicked here:</p>' +
@@ -1662,6 +1690,7 @@
 
                     mymap.addOverlay(popupOverlay);
                     popupOverlay.setPosition(coordinate);
+                    //console.log(coordinate);
 
                 }
             });

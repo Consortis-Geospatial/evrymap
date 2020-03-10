@@ -194,7 +194,7 @@
                     //console.log("request failed " + textStatus);
                 }
             });
-            legendUtilities.getLayerByName(name).set("legend_image", layerurl);
+            legendUtilities.getLayerByName(name).set("legendImg", layerurl);
         }
     };
 })();

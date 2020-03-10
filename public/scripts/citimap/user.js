@@ -136,8 +136,8 @@
             } else {
                 mapsetString = mapsetString + ',"exportable": false';
             }
-            if (typeof layer.get("legend_image") !== "undefined") {
-                mapsetString = mapsetString + ',"legend_image": "' + layer.get("legend_image") + '"';
+            if (typeof layer.get("legendImg") !== "undefined") {
+                mapsetString = mapsetString + ',"legendImg": "' + layer.get("legendImg") + '"';
             }
             if (typeof layer.get("legend_wh") !== "undefined") {
                 mapsetString = mapsetString + ',"legend_wh": "' + layer.get("legend_wh") + '"';
