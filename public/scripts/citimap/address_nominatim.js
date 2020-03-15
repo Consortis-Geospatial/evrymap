@@ -1,8 +1,19 @@
-﻿var geocodeUtilities = (function () {
+﻿/**
+ * Utilities for address geocoding using the Nominatim service
+ * @namespace geocodeUtilities
+ */
+var geocodeUtilities = (function () {
     var addressTooltipElement;
 
     return {
+        /** 
+         * Parses the text in the "searchfield" control
+         * and returns all matched addresses and address points in the results table
+         * @function geocode
+         * @memberof geocodeUtilities
+         */
         geocode: function () {
+            
             let search_string = $('#searchfield').val();
             var search_params = '?format=json';
             let mapsettings = mapPortal.readConfig("map");
@@ -21,6 +32,14 @@
                 });
             }
         },
+        /**
+         * Returns the address at the give lon/lat coordinates
+         * @param {string} lon The longitude (WGS 84)
+         * @param {string} lat The longitute (WGS 84)
+         * @returns string
+         * @function reverse
+         * @memberof geocodeUtilities
+         */
         reverse: function (lon, lat) {
             address = '';
             $.ajax({
@@ -36,6 +55,12 @@
             });
             return address;
         },
+        /**
+         * Renders the address objects in a dataTable
+         * @param {object} jsonObj The GeoJSON object containing the address properties
+         * @function renderGeocodingResultsAsTable
+         * @memberof geocodeUtilities
+         */
         renderGeocodingResultsAsTable: function (jsonObj) {
             var $map = $('#mapid').data('map');
             if (jsonObj.length > 0) {
@@ -114,6 +139,15 @@
                 $('#modSearchResults').dialog('open');
             }
         },
+        /**
+         * Zooms the map to the given X,Y coordinates and displays a tooltip
+         * with the full address details at that position
+         * @param {string} x X/Lon coordinate
+         * @param {string} y Y/Lat coordinate
+         * @param {string} address Address string
+         * @function zoomToAddress
+         * @memberof geocodeUtilities
+         */
         zoomToAddress: function (x, y, address) {
             var $map = $('#mapid').data('map');
             $map.getView().setCenter([x, y]);
@@ -170,15 +204,14 @@
 window.Geocode = {};
 var Geocode = window.Geocode;
 Geocode.SearchButton = function () {
-    //var str = '<button id="btnAdressSearch" class="btn btn-success" type="button" onclick="geocodeUtilities.geocode();">'+
-    //'<i class="glyphicon glyphicon-map-marker"></i>' +
-    //    '</button>';
+    //Create the HTML for the Search address option
     var str = '<li><a id="btnAdressSearch" href="#" onclick="geocodeUtilities.geocode();">_SEARCHADDRESS</a></li>';
-    //$('#grpBtnSearch').append(str);
+    // Append to drop down
     $('#searchOpt').append(str);
+    // Set the option label
     $("#btnAdressSearch").html($.i18n._('_SEARCHADDRESS'));
 };
 $(document).ready(function () {
     var $map = $('#mapid').data('map');
-    var btn = new Geocode.SearchButton;
+    var btn = new Geocode.SearchButton();
 });
