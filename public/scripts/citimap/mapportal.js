@@ -26,12 +26,19 @@ var mapPortal = (function (configfile) {
     });
     return {
         config: function () {
+            // Set User dropdown options
+            $('#lnkOptions').html("<span class='glyphicon glyphicon-cog' aria-hidden='true'></span>&nbsp;&nbsp;" + $.i18n._('_PREFERENCES'));
+            $('#lnkUserGuide').html("<span class='glyphicon glyphicon-question-sign' aria-hidden='true'></span>&nbsp;&nbsp;" + $.i18n._('_USERGUIDE'));
+            $("#lnkUserGuide").prop("href", userGuide);
+            $("#lnkUserGuide").prop("target", "_blank")
+            // Set the app layout if defined
             var layout = mapPortal.readConfig("layout");
             if (typeof layout !== "undefined") {
                 showprint = layout.print;
                 showheader = layout.header;
                 if (!showheader) $('#cnavbar').hide();
             }
+            //Read mapsettings from config
             var mapSettings = mapPortal.readConfig("map");
             mapserver = mapSettings.mapserver;
             if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {

@@ -97,6 +97,7 @@
     "_LOGINTITLE": "Login",
     "_LOGINBUTTON": "Login",
     "_USERNAME": "Username",
+    "_USERGUIDE": "User Guide",
     "_PASSWORD": "Password",
     "_CANCEL": "Cancel",
     "_LOGOUT": "Logout",
@@ -172,5 +173,16 @@
     "_PAN": "Click and drag on the map to pan",
     "_LEGEND" :"Map Legend",
     "_VELOCITY" : "Wind Velocity",
-    "_CANNOTEDIT" : "Cannot edit this layer. Please check its configuration"
+    "_CANNOTEDIT" : "Cannot edit this layer. Please check its configuration",
+    "_GENERALPREFS" : "General",
+    "_EDITPREFS" : "Editor Preferences",
+    "_PREFSSELCOLOR" : "Selection color",
+    "_PREFSSELWIDTH" : "Selected line width",
+    "_PREFSSELFILLCOLOR" : "Selection Fill color",
+    "_PREFSEDITCOLOR" : "Edit color",
+    "_PREFSEDITWIDTH" : "Edit Line Width",
+    "_PREFSEDITFILLCOLOR" : "Edit Fill",
+    "_PREFSEDITVRTXCOLOR" : "Vertex Border color",
+    "_PREFSEDITVRTXWIDTH" : "Vertex Border width",
+    "_PREFSEDITVRTXFILLCOLOR" : "Vertex Fill Color"
 };

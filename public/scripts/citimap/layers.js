@@ -241,6 +241,9 @@
             // Setting the 'invisible' selection layer. This is used to highlight features
             // when using the identify or select by rectangle buttons
             var vectorSourceSel = new ol.source.Vector();
+            // Read the settings for the selected style from Preferences
+            preferences.createDialog();
+            // Create the selection layer
             var vectorSel = new ol.layer.Vector({
                 source: vectorSourceSel,
                 style: mapUtils.setSelectedStyle(),
@@ -1646,7 +1649,7 @@
                 $('#popup1').show();
                 let l = e.layer;
                 let f = e.feature;
-                if (typeof l.get("tag") !== "undefined" && l.get("tag")[0] === "GeoJSON" && l.get("allowHover")) {
+                if (l !== null && typeof l.get("tag") !== "undefined" && l.get("tag")[0] === "GeoJSON" && l.get("allowHover")) {
                     popupOverlay = new ol.Overlay({
                         element: container,
                         autoPan: true,
@@ -1705,11 +1708,11 @@
         setSelectedStyle: function (feature, resolution) {
             var style = new ol.style.Style({
                 fill: new ol.style.Fill({
-                    color: 'rgba(255, 255, 255, 0.2)'
+                    color: preferences.getSelectedFillColor(),
                 }),
                 stroke: new ol.style.Stroke({
-                    color: '#2EFEF7',
-                    width: 2
+                    color: preferences.getSelectedStrokeColor(),
+                    width: preferences.getSelectedStrokeWidth(),
                 }),
                 image: new ol.style.Circle({
                     radius: 7,

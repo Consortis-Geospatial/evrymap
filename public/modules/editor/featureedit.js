@@ -3,8 +3,8 @@ var layer2split;
 var originalEditLayer = null;
 var featureEdit = (function () {
     $(document).ready(function () {
+        $('#lnkLogin').show();
         $('#lnkLogin').html("<span class='glyphicon glyphicon-log-in' aria-hidden='true'></span>&nbsp;&nbsp;" + $.i18n._('_LOGINBUTTON'));
-        $('#lnkOptions').html("<span class='glyphicon glyphicon-cog' aria-hidden='true'></span>&nbsp;&nbsp;" + $.i18n._('_PREFERENCES'));
         $('#btnLogin').val($.i18n._('_LOGINBUTTON'));
         $('#btnCloseLogin').html($.i18n._('_CLOSE'));
         $("#lblLoginTitle").html($.i18n._('_LOGINTITLE'));
@@ -858,11 +858,55 @@ var featureEdit = (function () {
             if (editLayer instanceof ol.layer.Tile || editLayer instanceof ol.layer.Image) {
                 editLayer = featureEdit.convertTileToVector(editLayer, false);
             }
+            // Set Edit style
+            editLayer.setStyle(featureEdit.setEditStyle());
             // Display Edit tools
             featureEdit.setEditTools();
             //Set Edit tool as default
             $('#btnEdit').removeClass("active").addClass("active");
             featureEdit.initModify();
+        },
+        /**
+         * 
+         * @param {object} feature 
+         */
+        setEditStyle: function (feature) {
+            var styles = [
+                /* We are using two different styles for the polygons:
+                 *  - The first style is for the polygons themselves.
+                 *  - The second style is to draw the vertices of the polygons.
+                 *    In a custom `geometry` function the vertices of a polygon are
+                 *    returned as `MultiPoint` geometry, which will be used to render
+                 *    the style.
+                 */
+                new  ol.style.Style({
+                  stroke: new ol.style.Stroke({
+                    color: preferences.getEditStrokeColor(),
+                    width: preferences.getEditStrokeWidth()
+                  }),
+                  fill: new  ol.style.Fill({
+                    color: preferences.getEditFillColor()
+                  }),
+                }),
+                new  ol.style.Style({
+                  image: new  ol.style.Circle({
+                    radius: 2,
+                    stroke: new ol.style.Stroke({
+                        color: preferences.getEditVertexColor(),
+                        width: preferences.getEditVertexWidth()
+                      }),
+                    fill: new  ol.style.Fill({
+                      color: preferences.getEditVertexFillColor()
+                    })
+                  }),
+                  geometry: function(feature) {
+                    // return the coordinates of the first ring of the polygon
+                    var coordinates = feature.getGeometry().getCoordinates()[0];
+                    return new ol.geom.MultiPoint(coordinates);
+                  }
+                })
+              ];
+            return styles;
         },
         setEditTools: function () {
             featureEdit.unselectEditTools();
