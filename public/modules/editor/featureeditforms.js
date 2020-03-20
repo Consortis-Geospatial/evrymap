@@ -104,6 +104,11 @@ var featureEditForms = (function () {
                                 //bootstrapValidate('#' + ctrl_id, 'numeric:' + $.i18n._('_INVALIDNUMBER'));
                             }
                         }
+                        if (fldConfig.type.split(':')[0] === "date") {
+                            $('#' + ctrl_id + '_dtpicker').datetimepicker({
+                                format: 'DD/MM/YYYY'
+                            });
+                        }
                         if (typeof fldConfig.calc !== "undefined") {
                             if (fldConfig.calc === "AREA") {
                                 area_control = ctrl_id;
@@ -164,18 +169,18 @@ var featureEditForms = (function () {
                 });
             }
         },
-        isFieldTypeAhead: function(lyr, fieldName) {
-            var isTypeAhead=false;
+        isFieldTypeAhead: function (lyr, fieldName) {
+            var isTypeAhead = false;
             var editFlds = lyr.get('edit_fields');
-                $.each(editFlds, function (i, fldConfig) {
-                    var fldName = fldConfig.name.split(':')[0];
-                    if (fldName === fieldName) {
-                        if (fldConfig.control === "typeahead") {
-                            isTypeAhead=true;
-                        }
-                        return false;
+            $.each(editFlds, function (i, fldConfig) {
+                var fldName = fldConfig.name.split(':')[0];
+                if (fldName === fieldName) {
+                    if (fldConfig.control === "typeahead") {
+                        isTypeAhead = true;
                     }
-                });
+                    return false;
+                }
+            });
             return isTypeAhead;
         },
         prepareEditForm: function (e) {
@@ -418,6 +423,13 @@ var featureEditForms = (function () {
                                     html = html + '<input type="text" class="form-control input"' + is_readonly + ' id="' + fldName + '" ' + is_required +
                                         'pattern="^\d+(,\d+)*$" onblur="featureEditForms.validateFldOnBlur(this.id)">';
                                     html = html + '<span id="fdb_' + fldName + '"></span></div>';
+                                } else if (field_type === "date") {
+                                    html = html + '<div class="input-group date" id="' + fldName + '_dtpicker">';
+                                    html = html + '<input type="text" class="form-control input"' + is_readonly + ' id="' + fldName + '" ' + is_required +
+                                        'pattern="^\d+(,\d+)*$" onblur="featureEditForms.validateFldOnBlur(this.id)">';
+                                    html = html + '<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>';
+                                    html = html + '</div>'
+                                    html = html + '<span id="fdb_' + fldName + '"></span></div>';
                                 }
                             }
                         }
@@ -432,43 +444,43 @@ var featureEditForms = (function () {
                 });
                 html = html + '</form>';
                 $('#attrContent').html(html);
-               
+
             }
         },
-        setAutocompleteControls: function(lyr, mode) {
+        setAutocompleteControls: function (lyr, mode) {
             var editFlds = lyr.get('edit_fields');
-             // Now loop through the edit fields once more to find and set autocompletes
-             $.each(editFlds, function (i, fldConfig) {
+            // Now loop through the edit fields once more to find and set autocompletes
+            $.each(editFlds, function (i, fldConfig) {
                 var fldName = fldConfig.name.split(':')[0];
                 var fldctrl = fldConfig.control;
                 if (fldctrl === "typeahead") {
                     var acData = featureEditForms.popTypeAheadList(fldConfig.service_url);
                     $('#' + fldName).autocomplete({
-                        source:acData,
+                        source: acData,
                         // Autocomplete will by default, display the value and not the label when selecting
                         // a value. We don't want this, so bind select, focus and change event to store the value in the hidden field
                         // of the autocomplete input control
-                        select: function( event, ui ) {
-                            
+                        select: function (event, ui) {
+
                             $('#' + fldName).val(ui.item.label);
                             $('#hidVal_' + fldName).val(ui.item.value).trigger('change');
                         },
-                        focus:  function( event, ui ) {
-                          $('#' + fldName).val(ui.item.label);
+                        focus: function (event, ui) {
+                            $('#' + fldName).val(ui.item.label);
                         },
-                        change: function( event, ui ) {
-                           $('#' + fldName).val(ui.item.label);
-                           $('#hidVal_' + fldName).val(ui.item.value).trigger('change');
+                        change: function (event, ui) {
+                            $('#' + fldName).val(ui.item.label);
+                            $('#hidVal_' + fldName).val(ui.item.value).trigger('change');
 
                         }
                     });
-                    if (mode==="UPDATE"){
+                    if (mode === "UPDATE") {
                         // Get the label for the hidden value field
                         let lbl = acData.find(x => x.value === $('#hidVal_' + fldName).val()).label;
                         $('#' + fldName).val(lbl);
                     }
                 }
-                
+
             });
         },
         openEditForm: function (mode, lyrname, lyrlabel) {
@@ -478,8 +490,8 @@ var featureEditForms = (function () {
                 height: 500,
                 maxHeight: 700,
                 maxWidth: 641,
-                open: function() {
-                   featureEditForms.setAutocompleteControls( legendUtilities.getLayerByName(lyrname), mode);
+                open: function () {
+                    featureEditForms.setAutocompleteControls(legendUtilities.getLayerByName(lyrname), mode);
                 },
                 buttons: [{
                         id: "btnEditFormSave",
@@ -577,17 +589,17 @@ var featureEditForms = (function () {
                     if (data !== null && data !== "") {
                         var vals = data.d.replace('{', '').replace('}', '').split(',');
                         $.each(vals, function (i, valueObj) {
-                            item={};
+                            item = {};
                             let kv = valueObj.split(':');
                             let k = (typeof kv[0] === "undefined") ? "undefined" : kv[0].replace(/\"/g, "");
                             let v = (typeof kv[1] === "undefined") ? "undefined" : kv[1].replace(/\"/g, "");
                             if (typeof kv[0] === "undefined" || typeof kv[1] === "undefined") {
                                 console.log(valueObj);
                             }
-                            item.label=v;
-                            item.value=k;
+                            item.label = v;
+                            item.value = k;
                             acArray.push(item);
-                        });                      
+                        });
                     }
                 },
                 error: function (response) {

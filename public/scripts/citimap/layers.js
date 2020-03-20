@@ -1,4 +1,11 @@
-﻿var mapUtils = (function () {
+﻿/**
+ * Functions for controlling the layers and the map
+ * 1. Adding the various layer types reading the *layerconfig.json
+ * 2. Creating the map toolbars and tools
+ * 3. Sets the initial map interactions
+ * @namespace mapUtils
+ */
+var mapUtils = (function () {
     var infoOptions = [];
     var infoTitle = [];
     var searchFields = {};
@@ -10,6 +17,8 @@
          * @param {string} projcode Project code e.g. EPSG:2100
          * @param {string} projdescr Project description
          * @param {string} mapextent Map extent. 4 numbers separated by comma
+         * @function initlayers
+         * @memberof mapUtils
          */
         initlayers: function (projcode, projdescr, mapextent) {
             var layers;
@@ -165,6 +174,15 @@
                 userUtils.setMapView(mymap, "Home");
             }
         },
+        /**
+         * Converts a line or polygon geometry to the projection
+         * defined in the destprojcode variable (set in the *layerconfig.json)
+         * @param {string} type Geometry type
+         * @param {object} geom Geometry object
+         * @returns {object} Geometry object
+         * @function convertGeometryToDestProjection
+         * @memberof mapUtils
+         */
         convertGeometryToDestProjection: function (type, geom) {
             var coordInDest;
             if (type === 'Polygon') {
@@ -195,6 +213,24 @@
                 return line;
             }
         },
+        /**
+         * Creates the main map
+         * @param {array} layers        The layer list as read from the *-layerconfig.json
+         * @param {array} oslayers      The array of layer objects that will be added to the map
+         * @param {array} infoOptions   The array of objects that will hold the idenfify fields
+         *                              for each layer as defined in the *-layerconfig.json 
+         * @param {array} infoTitle     The array of objects that will hold the label
+         *                              for each layer as defined in the *-layerconfig.json
+         * @param {object} searchFields Object containing the array of the search fields
+         *                              for each layer as defined in the *-layerconfig.json
+         * @param {string} projcode     The EPSG code in the form 'EPSG:<code> as defined in the *-layerconfig.json
+         * @param {string} projdescr    The proj4js description as defined in the *-layerconfig.json
+         * @param {string} mapextent    The mapextent as defined in the *-layerconfig.json
+         * @param {object} identifyFields Object containing the array of the idnetify fields
+         *                              for each layer as defined in the *-layerconfig.json
+         * @function createMap
+         * @memberof mapUtils
+         */
         createMap: function (layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields) {
             // Set source and destination projections
             if (typeof projDef === "undefined") { //Projection definitions is not set
@@ -734,7 +770,7 @@
             });
         },
         /**
-         * Creates a vector layer in GeoJSON format and return a ol.layer.Vector object
+         * Creates a vector layer in GeoJSON format and returns a ol.layer.Vector object
          * @param {string} mapfile The mapfile to use in the WFS request
          * @param {string} table_name The table name in the WFS request
          * @param {string} color Color to draw the layer in
@@ -1159,6 +1195,9 @@
                             selFeaturesArray = [];
                             layer.getSource().forEachFeatureIntersectingExtent(extent, function (feature) {
                                 if (mapUtils.featuresExistsInList(selFeatures, feature) === false) {
+                                    // Add the layer name in the returned data so we know which layer
+                                    // it came from. It will be used in the spatial query dialog
+                                    feature.properties._layername = layer.get('name');
                                     selFeatures.push(feature);
                                     selFeaturesArray.push(feature);
                                 }
@@ -1249,6 +1288,11 @@
                                             if (data.features.length === 0) {
                                                 return null;
                                             }
+                                            // Add the layer name in the returned data so we know which layer
+                                            // it came from. It will be used in the spatial query dialog
+                                            data.features.forEach(function (f) {
+                                                f.properties._layername = layer.get('name');
+                                            });
                                             var selLyr = legendUtilities.getLayerByName("selection");
                                             if (searchFields.length > 0 && identifyFields.length > 0) {
                                                 searchUtilities.renderQueryResultsAsTable(data, layer.get('label'), layer.get('name'), searchFields.split(','), identifyFields.split(','));

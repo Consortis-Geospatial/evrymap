@@ -535,11 +535,8 @@
                     mymap.getView().fit(selLyr.getSource().getExtent(), mymap.getSize());
                 } else { //Its a point. Zoom to a fixed extent
                     mymap.getView().setCenter(featurething.getGeometry().getCoordinates());
-                    if (typeof xyzoomlevel === "undefined" || isNaN(Number(xyzoomlevel))) {
-                        mymap.getView().setZoom(13);
-                    } else {
-                        mymap.getView().setZoom(xyzoomlevel);
-                    }
+                    mymap.getView().setZoom(Number(preferences.getPointZoom()));
+                    
                 }
             }
         },
@@ -562,11 +559,7 @@
                 mymap.getView().fit(selLyr.getSource().getExtent(), mymap.getSize());
             } else { //Its a point. Zoom to a fixed extent
                 mymap.getView().setCenter(feature.getGeometry().getCoordinates());
-                if (typeof xyzoomlevel === "undefined" || isNaN(Number(xyzoomlevel))) {
-                    mymap.getView().setZoom(13);
-                } else {
-                    mymap.getView().setZoom(xyzoomlevel);
-                }
+                mymap.getView().setZoom(Number(preferences.getPointZoom()));
             }
         },
         clearSearchTabs: function () {

@@ -188,6 +188,8 @@
     "_PREFSEDITWIDTH" : "Πάχος Γραμμών",
     "_PREFSEDITFILLCOLOR" : "Χρώμα Πολυγώνων",
     "_PREFSEDITVRTXCOLOR" : "Χρώμα Κορυφών",
-    "_PREFSEDITVRTXWIDTH" : "Πάχος Κορυφών",
-    "_PREFSEDITVRTXFILLCOLOR" : "Χρώμα Πολυγώνων"
+    "_PREFSEDITVRTXWIDTH" : "Διάμετρος Κορυφών",
+    "_PREFSEDITVRTXFILLCOLOR" : "Χρώμα Πολυγώνων",
+    "_PREFSPOINTZOOM" : "Επίπεδο εστίασης (σημείο)",
+    "_PREFSSAVESUCCESS" : "Οι ρυθμίσεις αποθηκεύτηκαν"
 };

@@ -882,7 +882,6 @@ var featureEdit = (function () {
                 new  ol.style.Style({
                   stroke: new ol.style.Stroke({
                     color: preferences.getEditStrokeColor(),
-                    width: preferences.getEditStrokeWidth()
                   }),
                   fill: new  ol.style.Fill({
                     color: preferences.getEditFillColor()
@@ -890,7 +889,7 @@ var featureEdit = (function () {
                 }),
                 new  ol.style.Style({
                   image: new  ol.style.Circle({
-                    radius: 2,
+                    radius: preferences.getEditStrokeWidth(),
                     stroke: new ol.style.Stroke({
                         color: preferences.getEditVertexColor(),
                         width: preferences.getEditVertexWidth()

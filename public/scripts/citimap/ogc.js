@@ -1,5 +1,15 @@
-﻿var WxSUtils = (function () {
+﻿/**
+ * Utilities for adding WMS and WFS layers from external sources
+ * @namespace WxsUtils
+ */
+var WxSUtils = (function () {
     return {
+        /**
+         * Creates the HTML for the Add OGC layer dialog
+         * and appends it to the DOM
+         * @function createWxSDialog
+         * @memberof WxsUtils
+         */
         createWxSDialog: function () {
             $.i18n.load(uiStrings);
             var dlgAddWMS = document.createElement('div');
@@ -53,6 +63,11 @@
             $(dlgAddWMS).appendTo($("#mainparent"));
             WxSUtils.setWxSDialog();
         },
+        /**
+         * Filters the OGC layer list
+         * @function searchOgcList
+         * @memberof WxsUtils
+         */
         searchOgcList: function () {
             var s= $("#txbSearchLyr").val();
             if (s === '') {
@@ -61,6 +76,12 @@
                 $("#lsWMSLayerList").children("a").not(":contains(" + s + ")").hide();
             }
         },
+        /**
+         * Activates the Add OGC layer dialog
+         * as a jqueryUI dialog
+         * @function setWxSDialog
+         * @memberof WxsUtils
+         */
         setWxSDialog: function () {
             $("#dlgAddWMS").dialog({
                 title: $.i18n._("_ADDWXSTITLE"),
@@ -134,6 +155,12 @@
                 }
             });
         },
+        /**
+         * Issues a GetCapabilities request for the WMS or WFS layer
+         * @param {string} type WMS or WFS
+         * @function getWxSCapabilities
+         * @memberof WxsUtils
+         */
         getWxSCapabilities: function (type) {
             $('#lsWMSLayerList').empty();
 
@@ -253,6 +280,12 @@
                 }
             });
         },
+        /**
+         * Event on layer selection
+         * @param {*} ctrl
+         * @function selectWxSLayer
+         * @memberof WxsUtils
+         */
         selectWxSLayer: function (ctrl) {
             $('#txbWMSAbstract').empty();
             $('#lsWMSLayerList').children('a').each(function () {
@@ -264,6 +297,18 @@
             $('#btnAddWxS').prop("disabled", false);
             $('#lsSrid').prop("disabled", false);
         },
+        /**
+         * Adds the WMS layer to the view
+         * @param {string} lyrname Layer name
+         * @param {string} lyrtitle Layer label
+         * @param {string} lyrurl Layer URL
+         * @param {string} srid EPSG code
+         * @param {string} info_format Info format - should be GeoJSON
+         * @param {string} isqueryable Boolean
+         * @param {string} candelete Boolean
+         * @function addWMSLayer
+         * @memberof WxsUtils
+         */
         addWMSLayer: function (lyrname, lyrtitle, lyrurl, srid, info_format, isqueryable, candelete) {
             //console.log(lyrname);
             //console.log(lyrtitle);
@@ -300,11 +345,24 @@
             tmplyr.set('feature_info_format', info_format);
             tmplyr.set('candelete', candelete);
             mymap.addLayer(tmplyr);
-            legendUtilities.addLayerToLegend(mymap, tmplyr, true);
+            legendUtilities.addLayerToLegend(tmplyr, true);
             mapUtils.showMessage('success', $.i18n._('_LAYERADDED'), $.i18n._('_LAYERADDTITLE'));
             return tmplyr;
         },
-        addWFSLayer: function (lyrname, lyrtitle, lyrurl, srid, info_format, isqueryable) {
+        /**
+         * Adds the WMS layer to the view
+         * @param {string} lyrname Layer name
+         * @param {string} lyrtitle Layer label
+         * @param {string} lyrurl Layer URL
+         * @param {string} srid EPSG code
+         * @param {string} info_format Info format - should be GeoJSON
+         * @param {string} isqueryable Boolean
+         * @param {string} candelete Boolean
+         * @function addWFSLayer
+         * @memberof WxsUtils
+         */
+        addWFSLayer: function (lyrname, lyrtitle, lyrurl, srid, info_format, isqueryable, candelete) {
+            // TODO: Implement candelete
             if (!isqueryable) { return null; }
             var tmpvector = new ol.layer.Vector({
                 source: new ol.source.Vector({
@@ -352,7 +410,7 @@
             tmpvector.set('feature_info_format', info_format);
             tmpvector.set('candelete', true);
             mymap.addLayer(tmpvector);
-            legendUtilities.addLayerToLegend(mymap, tmpvector, true);
+            legendUtilities.addLayerToLegend(tmpvector, true);
             mapUtils.showMessage('success', $.i18n._('_LAYERADDED'), $.i18n._('_LAYERADDTITLE'));
             return tmpvector;
         }

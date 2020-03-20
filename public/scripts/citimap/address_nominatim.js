@@ -9,7 +9,6 @@ var geocodeUtilities = (function () {
         /** 
          * Parses the text in the "searchfield" control
          * and returns all matched addresses and address points in the results table
-         * @function geocode
          * @memberof geocodeUtilities
          */
         geocode: function () {
@@ -37,7 +36,6 @@ var geocodeUtilities = (function () {
          * @param {string} lon The longitude (WGS 84)
          * @param {string} lat The longitute (WGS 84)
          * @returns string
-         * @function reverse
          * @memberof geocodeUtilities
          */
         reverse: function (lon, lat) {
@@ -151,12 +149,9 @@ var geocodeUtilities = (function () {
         zoomToAddress: function (x, y, address) {
             var $map = $('#mapid').data('map');
             $map.getView().setCenter([x, y]);
-            if (typeof xyzoomlevel === "undefined" || isNaN(Number(xyzoomlevel))) {
-                mymap.getView().setZoom(13);
-            } else {
-                mymap.getView().setZoom(xyzoomlevel);
-            }
-
+            // Zoom level based on Preferences
+            mymap.getView().setZoom(Number(preferences.getPointZoom()));
+            
             //Remove Address overlay if exists
             var ovlToRemove = [];
             $map.getOverlays().forEach(function (ovl) {

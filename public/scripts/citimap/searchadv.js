@@ -11,7 +11,7 @@
                 '        <select class="form-control" id="selSearchLayer">' +
                 '        </select>' +
                 '    </div>' +
-                '    <div class="col-lg-3">'+
+                '    <div class="col-lg-3">' +
                 '        <label for="chkSS">' + $.i18n._("_SPATIALSELECT") + '</label>' +
                 '        <input type="checkbox" data-toggle="toggle" id="chkSS" value="">' +
                 '    </div>' +
@@ -21,7 +21,7 @@
                 '</div>';
             $(dlgSearchAdv).append(divhtml);
             $(dlgSearchAdv).appendTo($("#mainparent"));
-            
+
         },
         addSearchField: function (srchFields) {
             var fldCount = $('.query_field').length;
@@ -134,7 +134,9 @@
                 mapUtils.showMessage('danger', $.i18n._('_NOCONNECTIONDESCR'), $.i18n._('_NOCONNECTIONTITLE'));
                 return false;
             }
-            var params = { "enc": enc };
+            var params = {
+                "enc": enc
+            };
             params = JSON.stringify(params);
             $.ajax({
                 url: url,
@@ -202,7 +204,43 @@
             }
             //console.log(qryString);
             if (qryString === "") {
-                mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
+                if ($('#chkSS').length > 0) {
+                    if (!$('#chkSS').prop("checked") || $("#selSelectedFeatures").val() == "-1" || $("#selSpatialOps").val() === "-1") {
+                        mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
+                    } else {
+                        var sQueryString = '';
+                        var slname = $("#selSelectedFeatures").val().split(':')[0];
+                        var fcount = parseInt($("#selSelectedFeatures").val().split(':')[2]);
+                        if (fcount > 1) {
+                            sQueryString = +sQueryString + '<AND>';
+                        }
+                        sQueryString = sQueryString + '<' + $("#selSpatialOps").val() + '>';
+                        // TODO: We only use the default msGeometry as the spatial column
+                        // TODO: Which means this will only work for layer from mapserver
+                        // TODO: We should issue a DescribeFeatureType request first to be
+                        // TODO: safe
+                        sQueryString = sQueryString + '<PropertyName>msGeometry</PropertyName>';
+                        var squery = spatialSearch.getSelectedGeomAsGML(slname);
+                        sQueryString = sQueryString + squery;
+                        sQueryString = sQueryString + '</' + $("#selSpatialOps").val() + '>';
+                        if (fcount > 1) {
+                            sQueryString = +sQueryString + '</AND>';
+                        }
+                        console.log(sQueryString);
+                        // generate a GetFeature request
+                        var searchLyr = legendUtilities.getLayerByName($("#selSearchLayer").val().split("|")[0]);
+                        var searchUrl;
+                        if (window.location.host === $('#hidMS').val().split('/')[0]) {
+                            searchUrl = searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + sQueryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
+
+                        } else {
+                            searchUrl =   searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + sQueryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
+                        }
+                        console.log(searchUrl);
+                    }
+                } else {
+                    mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
+                }
             } else {
                 // generate a GetFeature request
                 var searchLyr = legendUtilities.getLayerByName($("#selSearchLayer").val().split("|")[0]);
@@ -213,7 +251,7 @@
                 } else {
                     searchUrl = proxyUrl + searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + qryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
                 }
-                    //console.log(searchUrl);
+                //console.log(searchUrl);
                 var found = false;
                 $.ajax({
                     url: searchUrl,
@@ -250,15 +288,14 @@
             $("#dlgSearchAdv").dialog({
                 title: $.i18n._("_ADVANCEDSEARCH"),
                 autoOpen: false,
-                height: 323,
+                height: 423,
                 width: 700,
                 //position: { my: "right-5 top+60", at: "right-5 top+60" },
-                buttons: [
-                    {
+                buttons: [{
                         id: "btnSearchAdvanced",
                         text: $.i18n._("_SEARCH"),
                         class: "btn btn-primary",
-                        disabled:true,
+                        disabled: true,
                         click: function () {
                             $("#btnSearchAdvanced").on("click", searchAdvanced.doAdvancedSearch());
                         }
@@ -268,6 +305,7 @@
                         text: $.i18n._("_CLOSE"),
                         class: "btn btn-default",
                         click: function () {
+
                             $("#dlgSearchAdv").dialog("close");
                         }
                     }
@@ -280,10 +318,19 @@
                     $('#btnCloseSearchAdvanced').addClass("btn btn-default");
                     $('.glyphicon-resize-full').removeClass('ui-icon');
                     $('.glyphicon-resize-small').removeClass('ui-icon');
+                },
+                close: function (event) {
+                    //Check if spatial search controls are present
+                    // and reset them
+                    if ($('#chkSS').length > 0) {
+                        $('#chkSS').bootstrapToggle('off');
+                        $("#selSelectedFeatures").empty();
+                    }
                 }
+
             });
-            $("#selSearchLayer").change(function() {
-                if ($("#selSearchLayer").val()==="#") {
+            $("#selSearchLayer").change(function () {
+                if ($("#selSearchLayer").val() === "#") {
                     $("#btnSearchAdvanced").prop('disabled', true);
                     $("#btnSearchAdvanced").button("disable");
                 } else {

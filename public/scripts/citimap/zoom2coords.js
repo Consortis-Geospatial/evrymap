@@ -1,5 +1,15 @@
-﻿var zoom2XY = (function () {
+﻿/**
+ * Zoom to Coordinates dialog-specific functions
+ * @namespace zoom2XY
+ */
+var zoom2XY = (function () {
     return {
+        /**
+         * Creates the HTML for the Zoom to Coordinates dialog
+         * and adds it to the #mainparent div
+         * @function createDialog
+         * @memberof zoom2XY
+         */
         createDialog: function () {
             $.i18n.load(uiStrings);
             var $mymap = $('#mapid').data('map');
@@ -46,6 +56,14 @@
             $('#sel1').val(mymap.getView().getProjection().getCode().split(':')[1]);
             zoom2XY.setXYDialog();
         },
+        /**
+         * Zooms to a coordinate by reading the settings from the
+         * Zoom to XY dialog.
+         * If the name parameter is not an empty string, a popup will
+         * display when clicking the pin, showing the pin name and the coordinates
+         * @function zoomToXY
+         * @memberof zoom2XY
+         */
         zoomToXY: function () {
             $mymap = $('#mapid').data('map');
             var xinput;
@@ -93,12 +111,18 @@
             zoom2XY.addPin(iconFeature);
 
             $mymap.getView().setCenter(ol.proj.transform(coordinate, 'EPSG:' + coortype, $mymap.getView().getProjection().getCode()));
-            if (typeof xyzoomlevel === "undefined" || isNaN(Number(xyzoomlevel))) {
-                mymap.getView().setZoom(13);
-            } else {
-                mymap.getView().setZoom(xyzoomlevel);
-            }
+            mymap.getView().setZoom(Number(preferences.getPointZoom()));
+            
         },
+        /**
+         * Returns a pin feature at the input coordinates
+         * and sets its name property to the input name if not an empty string
+         * @param {array} coords The XY coordinate pair
+         * @param {string} name Pin "name"
+         * @returns {object} The pin feature 
+         * @function createPinFeature
+         * @memberof zoom2XY
+         */
         createPinFeature: function (coords, name) {
             var iconFeature = new ol.Feature({
                 geometry: new ol.geom.Point(coords),
@@ -120,6 +144,12 @@
             iconFeature.setStyle(iconStyle);
             return iconFeature;
         },
+        /**
+         * Add the input point feature to the 'pinLayer' in the map
+         * @param {*} pinFeature
+         * @function addPin
+         * @memberof zoom2XY 
+         */
         addPin: function (pinFeature) {
             $mymap = $('#mapid').data('map');
             var pinlayer;
@@ -155,10 +185,16 @@
             }
             // If no pin exists in this position add feature
             if (!pinExists) {
-                console.log('added pin');
+                //console.log('added pin');
                 pinlayer.getSource().addFeature(pinFeature);
             }
         },
+        /**
+         * Makes the coordinate transormations inside the
+         * Zoom to XY dialog
+         * @function otfCoorTransform
+         * @memberof zoom2XY
+         */
         otfCoorTransform: function () {
             var $mymap = $('#mapid').data('map');
             var xinput;
@@ -178,6 +214,11 @@
             $('#yinput').val(String(newCenter[1]).replace('.', $.i18n._("_DECIMALSEPARATOR")));
             $('#prevCoorVal').val($('#sel1').val());
         },
+        /**
+         * Creates the Zoom to XY dialog as s jQueryUI dialog
+         * @function setXYDialog
+         * @memberof zoom2XY
+         */
         setXYDialog: function () {
             $("#dlgXY").dialog({
                 title: $.i18n._("_ZOOMTOXY"),
@@ -254,6 +295,12 @@
                 $("#dlgXY").dialog("open");
             });
         },
+        /**
+         * Sets the onlclick event when getting
+         * coordinats from the map 
+         * @function initGetCoordsFromMap
+         * @memberof zoom2XY
+         */
         initGetCoordsFromMap: function () {
             // Remove any map click interactions
             mapUtils.resetMapInteractions(mymap);

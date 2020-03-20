@@ -183,6 +183,8 @@
     "_PREFSEDITWIDTH" : "Edit Line Width",
     "_PREFSEDITFILLCOLOR" : "Edit Fill",
     "_PREFSEDITVRTXCOLOR" : "Vertex Border color",
-    "_PREFSEDITVRTXWIDTH" : "Vertex Border width",
-    "_PREFSEDITVRTXFILLCOLOR" : "Vertex Fill Color"
+    "_PREFSEDITVRTXWIDTH" : "Vertex diameter",
+    "_PREFSEDITVRTXFILLCOLOR" : "Vertex Fill Color",
+    "_PREFSPOINTZOOM" : "Point Zoom Level",
+    "_PREFSSAVESUCCESS" : "Preferences saved successfully"
 };

@@ -58,7 +58,7 @@
             var citiPortalObj = JSON.parse(localStorage.getItem("citiPortal"));
             // If the current saved view list does not exist, create it
             if (typeof citiPortalObj[mapKey] === "undefined") {
-                citiPortalObj[mapKey] = JSON.parse("{\"saved_views\":[]}");
+                citiPortalObj[mapKey] = JSON.parse("{\"saved_views\":[]}}");
             }
             //Create mapset
             var mapSetObject = userUtils.createMapSet($map, savename);
@@ -75,6 +75,10 @@
             }
             //Add mapset to saved_views array
             citiPortalObj[mapKey].saved_views.push(mapSetObject);
+
+            // Get Preferences
+            prefs = preferences.getPrefsObject();
+            citiPortalObj[mapKey].saved_views = prefs;
 
             //Convert the JSON object back to string and add it to local storage
             localStorage.setItem('citiPortal', JSON.stringify(citiPortalObj));
