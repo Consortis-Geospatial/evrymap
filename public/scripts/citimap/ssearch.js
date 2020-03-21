@@ -1,6 +1,6 @@
 /**
  *  @namespace spatialSearch
- * Includes functions for spatial and attribute search using WFS requests
+ *  Add spatial search functionality to the Advanced Search dialog
  */
 var spatialSearch = (function () {
     return {
@@ -38,7 +38,7 @@ var spatialSearch = (function () {
                 '    <div class="col-lg-3" id="rowDWithin" style="display:none">' +
                 '       <label for="txbDWithin">&nbsp;</label>' +
                 '        <div class="input-group">' +
-                '           <input type="text" id="txbDWithin" class="form-control" placeholder="" aria-label="" aria-describedby="txbDWithinUnits"> ' +
+                '           <input type="number" id="txbDWithin" class="form-control" placeholder="" aria-label="" aria-describedby="txbDWithinUnits"> ' +
                 '           <span class="input-group-addon" id="txbDWithinUnits"></span>' +
                 '       </div>' +
                 '    </div>' +
@@ -123,22 +123,6 @@ var spatialSearch = (function () {
                                 let llabel = llayer.get("label");
                                 let lsrid = llayer.get("srid");
 
-                                /*
-                                // Create a GML format object
-                                var gmlf = new ol.format.GML({
-                                    "featureNS": "http://consortis.gr",
-                                    "featureType": f.getGeometry().getType(),
-                                    "srsName": lsrid
-                                });
-                                // Convert the feature to GML
-                                var origGML = gmlf.writeFeatures([f]);
-                                // The GML returned is not in the format required by mapserver 
-                                // so we need to do some 'massaging' to just get the geometry node
-                                var xmlDoc = $.parseXML(origGML);
-                                $xml = $(xmlDoc);
-                                var xmlString = (new XMLSerializer()).serializeToString($xml.find("geometry").children(0)[0]);
-                                //sstring=sstring + xmlString;
-                                */
                                 if (typeof selLayerFeature[llabel] === "undefined") {
                                     selLayerFeature[llabel] = {
                                         "name": lname,
@@ -158,10 +142,10 @@ var spatialSearch = (function () {
 
                         });
                         selFeaturesArray.push(selLayerFeature);
-                        console.log("selectected features for layer " + l + ":" + selCount);
+                        //console.log("selectected features for layer " + l + ":" + selCount);
 
                     });
-                    console.log(selFeaturesArray);
+                    //console.log(selFeaturesArray);
                     // Now populate the dropdown
                     selFeaturesArray.forEach(function (sfl) {
                         $("#selSelectedFeatures").append('<option value="' + Object.values(sfl)[0].name + ':' + Object.values(sfl)[0].geometryType + ':' + Object.values(sfl)[0].count + '">' + Object.keys(sfl)[0] + ' (' + Object.values(sfl)[0].count + ')...</option> ');

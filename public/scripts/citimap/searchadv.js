@@ -1,5 +1,15 @@
-﻿var searchAdvanced = (function (mymap) {
+﻿/**
+ *  @namespace searchAdvanced
+ * Includes functions to control the Advanced Search dialog
+ */
+var searchAdvanced = (function (mymap) {
     return {
+         /**
+         * Creates the HTML for the Advanced Search dialog
+         * and appends it the #mainparent div
+         * @function createDialog
+         * @memberof searchAdvanced
+         */
         createDialog: function () {
             $.i18n.load(uiStrings);
             var dlgSearchAdv = document.createElement('div');
@@ -23,6 +33,12 @@
             $(dlgSearchAdv).appendTo($("#mainparent"));
 
         },
+        /**
+         * Adds an additional search field row
+         * in the dialog
+         * @function addSearchField
+         * @memberof searchAdvanced
+         */
         addSearchField: function (srchFields) {
             var fldCount = $('.query_field').length;
             var curCount = fldCount + 1;
@@ -80,11 +96,19 @@
                 searchAdvanced.selSearchField(this.id);
             });
         },
+        /**
+         * Change event when selecting a search field
+         * If the field contains a definion in the "edit_fields" array
+         * in the *layerconfig.json the value control will be rendered accordingly
+         * as a text or dropdown
+         * @function selSearchField
+         * @memberof searchAdvanced
+         */
         selSearchField: function (selid) {
             var str = '';
-            console.log(selid);
+            //console.log(selid);
             var suffix = selid.split('_')[1];
-            console.log(suffix);
+            //console.log(suffix);
             var fldname = $('#' + selid).val();
             if (fldname === "#") {
                 $('#valdiv_' + suffix).empty();
@@ -127,6 +151,13 @@
                 $('#valdiv_' + suffix).append('<input type="text" class="form-control fieldval">');
             }
         },
+        /**
+         * Populates the value dropdown for a search field
+         * This will only occur if the field contains a definion in the "edit_fields" array
+         * in the *layerconfig.json 
+         * @function popSearchValList
+         * @memberof searchAdvanced
+         */
         popSearchValList: function (url) {
             var retVal;
             var enc = $('#hidEnc').val();
@@ -158,6 +189,12 @@
             });
             return retVal;
         },
+        /**
+         * Formulates the WFS GetFeature request string
+         * based on the search criteria
+         * @function doAdvancedSearch
+         * @memberof searchAdvanced
+         */
         doAdvancedSearch: function () {
             var qryString = '';
             var c = 0;
@@ -199,13 +236,12 @@
 
                 c++;
             });
-            if (c > 1) {
-                qryString = "<" + $("#cboJoinType").val() + ">" + qryString + "</" + $("#cboJoinType").val() + ">";
-            }
+
             //console.log(qryString);
             if (qryString === "") {
+                // No attribute criteria. Check spatial criteria
                 if ($('#chkSS').length > 0) {
-                    if (!$('#chkSS').prop("checked") || $("#selSelectedFeatures").val() == "-1" || $("#selSpatialOps").val() === "-1") {
+                    if (!$('#chkSS').prop("checked") || $("#selSelectedFeatures").val() === "-1" || $("#selSpatialOps").val() === "-1") {
                         mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
                     } else {
                         var sQueryString = '';
@@ -216,17 +252,27 @@
                         }
                         sQueryString = sQueryString + '<' + $("#selSpatialOps").val() + '>';
                         // TODO: We only use the default msGeometry as the spatial column
-                        // TODO: Which means this will only work for layer from mapserver
+                        // TODO: which means this will only work for layer from mapserver
                         // TODO: We should issue a DescribeFeatureType request first to be
                         // TODO: safe
                         sQueryString = sQueryString + '<PropertyName>msGeometry</PropertyName>';
                         var squery = spatialSearch.getSelectedGeomAsGML(slname);
                         sQueryString = sQueryString + squery;
-                        sQueryString = sQueryString + '</' + $("#selSpatialOps").val() + '>';
+                        if ($("#selSpatialOps").val() === "DWITHIN") { // Within Distance operator so need to add the distance and units
+                            if ($("#txbDWithin").val().trim() === "") {
+                                // TODO: Display correct warning
+                                mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
+                                return false;
+                            } else {
+                                sQueryString = sQueryString + '<Distance units=\'' + $('#txbDWithinUnits').text() + '\'>' + $("#txbDWithin").val() + '</Distance></' + $("#selSpatialOps").val() + '>';
+                            }
+                        } else {
+                            sQueryString = sQueryString + '</' + $("#selSpatialOps").val() + '>';
+                        }
                         if (fcount > 1) {
                             sQueryString = +sQueryString + '</AND>';
                         }
-                        console.log(sQueryString);
+                        //console.log(sQueryString);
                         // generate a GetFeature request
                         var searchLyr = legendUtilities.getLayerByName($("#selSearchLayer").val().split("|")[0]);
                         var searchUrl;
@@ -234,14 +280,41 @@
                             searchUrl = searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + sQueryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
 
                         } else {
-                            searchUrl =   searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + sQueryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
+                            searchUrl = searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + sQueryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
                         }
-                        console.log(searchUrl);
+                        //console.log(searchUrl);
+                        searchAdvanced.getWFSFeatureResults(searchUrl, searchLyr);
                     }
                 } else {
                     mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
                 }
-            } else {
+            } else { // Attribute criteria set
+                hasSpatialCriteria=false;
+                if ($('#chkSS').length > 0 && $('#chkSS').prop("checked") && $("#selSelectedFeatures").val() !== "-1" || $("#selSpatialOps").val() !== "-1") {
+                    qryString = qryString + '<' + $("#selSpatialOps").val() + '>';
+                    qryString = qryString + '<PropertyName>msGeometry</PropertyName>';
+                    var slname1 = $("#selSelectedFeatures").val().split(':')[0];
+                    var squery1 = spatialSearch.getSelectedGeomAsGML(slname1);
+                    qryString = qryString + squery1;
+                    hasSpatialCriteria=true;
+                }
+                if (c > 1 || hasSpatialCriteria) { // More than one attribute criteria  or spatial criteria set. Add <AND> or <OR> operator to the query
+                    if (hasSpatialCriteria) {
+                        if ($("#selSpatialOps").val() === "DWITHIN") { // Within Distance operator so need to add the distance and units
+                            if ($("#txbDWithin").val().trim() === "") {
+                                // TODO: Display correct warning
+                                mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
+                                return false;
+                            } else {
+                                qryString = "<" + $("#cboJoinType").val() + ">" + qryString + '<Distance units=\'' + $('#txbDWithinUnits').text() + '\'>' + $("#txbDWithin").val() + '</Distance></' + $("#selSpatialOps").val() + '></' + $("#cboJoinType").val() + '>';
+                            }
+                        } else {
+                            qryString = "<" + $("#cboJoinType").val() + ">" + qryString + "</" + $("#selSpatialOps").val() + "></" + $("#cboJoinType").val() + ">";
+                        }
+                    } else {
+                        qryString = "<" + $("#cboJoinType").val() + ">" + qryString + "</" + $("#cboJoinType").val() + ">";
+                    }
+                }
                 // generate a GetFeature request
                 var searchLyr = legendUtilities.getLayerByName($("#selSearchLayer").val().split("|")[0]);
                 var searchUrl;
@@ -252,31 +325,49 @@
                     searchUrl = proxyUrl + searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + qryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
                 }
                 //console.log(searchUrl);
-                var found = false;
-                $.ajax({
-                    url: searchUrl,
-                    dataType: 'json',
-                    beforeSend: function () {
-                        $(".wait").show();
-                    },
-                    success: function (data) {
-                        if (data.features.length > 0) {
-                            found = true;
-                            searchUtilities.renderQueryResultsAsTable(data, searchLyr.get("label"), searchLyr.get("name"), searchLyr.get("search_fields").split(','), searchLyr.get("identify_fields").split(','));
-                            //Always show the first tab as active
-                            $('#searchResultsUl a').first().tab('show');
-                        }
-                    },
-                    complete: function (response) {
-                        $(".wait").hide();
-                        if (!found) {
-                            mapUtils.showMessage('warning', $.i18n._('_NOSEARCHRESULTS'), $.i18n._('_ERRORWARNING'));
-                        }
-                    },
-                    async: true
-                });
+                searchAdvanced.getWFSFeatureResults(searchUrl, searchLyr);
+
             }
         },
+        /**
+         * Executes the WFS GetFeature request
+         * @param {string} url The GetFeature url
+         * @param {object} searchLyr The layer object
+         * @function doAdvancedSearch
+         * @memberof searchAdvanced
+         */
+        getWFSFeatureResults: function (url, searchLyr) {
+            var found = false;
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                beforeSend: function () {
+                    $(".wait").show();
+                },
+                success: function (data) {
+                    if (data.features.length > 0) {
+                        found = true;
+                        searchUtilities.renderQueryResultsAsTable(data, searchLyr.get("label"), searchLyr.get("name"), searchLyr.get("search_fields").split(','), searchLyr.get("identify_fields").split(','));
+                        //Always show the first tab as active
+                        $('#searchResultsUl a').first().tab('show');
+                    }
+                },
+                complete: function (response) {
+                    $(".wait").hide();
+                    if (!found) {
+                        mapUtils.showMessage('warning', $.i18n._('_NOSEARCHRESULTS'), $.i18n._('_ERRORWARNING'));
+                    }
+                },
+                async: true
+            });
+
+        },
+        /**
+         * Removes a search field
+         * @param {string} fldid The control id to remove
+         * @function removeSearchField
+         * @memberof searchAdvanced
+         */
         removeSearchField: function (fldid) {
             $('#' + fldid).remove();
             var fldCount = $('.query_field').length;
@@ -284,6 +375,12 @@
                 $("#cboJoinType").prop("disabled", true);
             }
         },
+        /**
+         * Activates the Advanced Search dialog as a jQueryUI dialog
+         * @param {object} map The map object
+         * @function setSearchAdvDialog
+         * @memberof searchAdvanced
+         */
         setSearchAdvDialog: function (map) {
             $("#dlgSearchAdv").dialog({
                 title: $.i18n._("_ADVANCEDSEARCH"),
@@ -340,6 +437,13 @@
             });
             searchAdvanced.populateSearchLayerList(map);
         },
+        /**
+         * Populates the #selSearchLayer dropdown
+         * and binds its onchange event
+         * @param {object} map The map object
+         * @function populateSearchLayerList
+         * @memberof searchAdvanced
+         */
         populateSearchLayerList: function (map) {
             var htmlOpt = '';
             map.getLayers().forEach(function (layer, i) {
@@ -360,10 +464,17 @@
                     return false;
                 }
                 var srchFields = val.split('|')[1];
-                console.log(srchFields);
+                //console.log(srchFields);
                 searchAdvanced.addSearchField(srchFields);
             });
         },
+        /**
+         * Adds the Advanced search option in the main
+         * search dropdown and creates the Advanced Search dialog
+         * @param {object} mymap The map object
+         * @function addSearchOption
+         * @memberof searchAdvanced
+         */
         addSearchOption: function (mymap) {
             searchAdvanced.createDialog();
             searchAdvanced.setSearchAdvDialog(mymap);
