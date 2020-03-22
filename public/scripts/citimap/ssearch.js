@@ -1,6 +1,6 @@
 /**
- *  @namespace spatialSearch
  *  Add spatial search functionality to the Advanced Search dialog
+ *  @namespace spatialSearch
  */
 var spatialSearch = (function () {
     return {

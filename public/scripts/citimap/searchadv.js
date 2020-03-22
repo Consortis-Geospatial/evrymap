@@ -1,6 +1,6 @@
 ﻿/**
- *  @namespace searchAdvanced
  * Includes functions to control the Advanced Search dialog
+ * @namespace searchAdvanced
  */
 var searchAdvanced = (function (mymap) {
     return {

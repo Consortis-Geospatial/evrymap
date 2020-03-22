@@ -859,6 +859,10 @@ var featureEditForms = (function () {
                 });
             }
         },
+        selectEditGeometry: function(features) {
+            // TODO: Display features attrs as table for user to select the feature to edit
+
+        },
         onModifyGeometry: function (e) {
             var format = new ol.format.WKT();
             var wktGeom;
