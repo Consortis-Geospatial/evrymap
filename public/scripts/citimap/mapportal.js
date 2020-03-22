@@ -36,7 +36,9 @@ var mapPortal = (function (configfile) {
             if (typeof layout !== "undefined") {
                 showprint = layout.print;
                 showheader = layout.header;
+                showquicksearch= layout.quicksearch;
                 if (!showheader) $('#cnavbar').hide();
+                if (!showquicksearch) $('.searchpanel').hide();
             }
             //Read mapsettings from config
             var mapSettings = mapPortal.readConfig("map");
