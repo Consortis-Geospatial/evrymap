@@ -593,7 +593,12 @@ var legendUtilities = (function () {
                         if (typeof layer.get('legendImg') !== "undefined") {
                             if (typeof layer.get('tag') !== "undefined") {
                                 if (layer.get('tag')[0] === "WMS") {
-                                    $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img src="' + layer.get('legendImg') + '" style="width:20px; height:20px; margin-right:3px" /></li>');
+                                    // Check if legend image comes from a URL. If not, set the image style
+                                    var imgStyle=''
+                                    if (!layer.get('legendImg').startsWith("http")) {
+                                        imgStyle='style="width:20px; height:20px; margin-right:3px"';
+                                    }
+                                    $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img src="' + layer.get('legendImg') + '"' + imgStyle +'  /></li>');
                                 } else if (layer.get('tag')[0] === "GeoJSON" || layer.get('tag')[0] === "KML" || layer.get('tag')[0] === "XML") {
                                     $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img style="width:20px; height:20px; margin-right:3px" src="' + layer.get('legendImg') + '" /></li>');
                                 } else if (layer.get('tag')[0] === "ESRIRESTTILE") {
