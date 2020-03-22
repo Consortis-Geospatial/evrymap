@@ -473,7 +473,7 @@ var mapUtils = (function () {
                     if (typeof val.allowHover !== "undefined") {
                         tmpvector.set('allowHover', val.allowHover);
                     } else {
-                        tmpvector.set('allowHover', true);
+                        tmpvector.set('allowHover', false);
                     }
                     if (typeof val.contextMenu !== "undefined") {
                         tmpvector.set('contextMenu', val.contextMenu);
@@ -1294,7 +1294,7 @@ var mapUtils = (function () {
                                                 f.properties._layername = layer.get('name');
                                             });
                                             var selLyr = legendUtilities.getLayerByName("selection");
-                                            if (searchFields.length > 0 && identifyFields.length > 0) {
+                                            if (typeof searchFields !== "undefined" && typeof identifyFields !== "undefined" && searchFields.length > 0 && identifyFields.length > 0) {
                                                 searchUtilities.renderQueryResultsAsTable(data, layer.get('label'), layer.get('name'), searchFields.split(','), identifyFields.split(','));
                                             } else {
                                                 searchUtilities.renderQueryResultsAsTable(data, layer.get('label'), layer.get('name'), [], []);
@@ -1724,7 +1724,7 @@ var mapUtils = (function () {
                                 $.each(l.get("identify_fields").split(','), function (index, ifld) {
                                     if (ifld.split(':')[0] === k) {
                                         lbl = ifld.split(':')[1];
-                                        inHtml = inHtml + '<tr><td style="border-right-width:1px;"><strong>' + lbl + '</strong></td><td>' + f.getProperties()[k] + '</td></tr>';
+                                        inHtml = inHtml + '<tr><td style="border-right-width:1px;font-size:10px"><strong>' + lbl + '</strong></td><td style="font-size:10px">:&nbsp;' + f.getProperties()[k] + '</td></tr>';
                                     }
                                 });
 
