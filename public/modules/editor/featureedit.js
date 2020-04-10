@@ -550,38 +550,7 @@ var featureEdit = (function () {
             var selectIntrAct = featureEdit.setEditSelectInteraction(editLayer);
             this.modifyIntrAct = new ol.interaction.Modify({
                 features: selectIntrAct.getFeatures(),
-                style: new ol.style.Style({
-                    image:
-                        //Start of the Icon style
-                        /*
-                        //Start of the circle style
-                        /*new ol.style.Circle({
-                            fill: new ol.style.Fill({
-                                color: 'green'
-                            }),
-                            stroke: new ol.style.Stroke({
-                                width: 3,
-                                color: 'red'
-                            }),
-                            radius: 8
-                        })*/
-                        //Start of the star style
-                        new ol.style.RegularShape({
-                            fill: new ol.style.Fill({
-                                color: 'blue'
-                            }),
-                            points: 4,
-                            radius1: 10,
-                            radius2: 1
-                        }),
-                    stroke: new ol.style.Stroke({
-                        color: 'blue',
-                        width: 5
-                    }),
-                    fill: new ol.style.Fill({
-                        color: 'green'
-                    })
-                })
+                style: featureEdit.setEditStyle() 
             });
             this.modifyIntrAct.on("modifyend", featureEditForms.onModifyGeometry);
             $mymap.addInteraction(this.modifyIntrAct);
@@ -899,9 +868,14 @@ var featureEdit = (function () {
                     })
                   }),
                   geometry: function(feature) {
-                    // return the coordinates of the first ring of the polygon
-                    var coordinates = feature.getGeometry().getCoordinates()[0];
-                    return new ol.geom.MultiPoint(coordinates);
+                      if (feature.getGeometry().getType()=== "Polygon") {
+                        // return the coordinates of the first ring of the polygon
+                        var coordinates = feature.getGeometry().getCoordinates()[0];
+                        return new ol.geom.MultiPoint(coordinates);
+                      } else if (feature.getGeometry().getType()=== "Point") {
+                        return new ol.geom.MultiPoint(feature.getGeometry().getCoordinates());
+                      }
+                    
                   }
                 })
               ];
@@ -941,7 +915,7 @@ var featureEdit = (function () {
                     $('#btnAddPart').show();
                     //$('#btnAddHole').unbind('click').bind('click', function () { featureEdit.initAddHole(); });
                 }
-                featureEdit.setEditSelectInteraction(editLayer);
+                //featureEdit.setEditSelectInteraction(editLayer);
             }
         },
         setEditSelectInteraction: function (editLayer) {
@@ -957,19 +931,18 @@ var featureEdit = (function () {
             var selectIntrAct = new ol.interaction.Select({
                 layers: [editLayer],
                 condition: ol.events.condition.click,
-                style: mapUtils.setSelectedStyle,
+                multi: true, //select all overlapping features at the clicked map position
+                style: featureEdit.setEditStyle, //selection style should be the same as edit style
                 filter: function (feat, layer) {
                     if ($("#btnEdit").is(":visible")) {
                         return true;
                     } else { return false; }
-                },
-                hitTolerance: 5
+                }
             });
             $mymap.addInteraction(selectIntrAct);
             selectIntrAct.on("select", function (e) {
+                var selFets = selectIntrAct.getFeatures().getLength();
                 if ($("#editTools").is(":visible") && $("#btnMerge").is(":visible")) {
-                    var selFets = selectIntrAct.getFeatures().getLength();
-                    //console.log(e.selected.length);
                     if (selFets === 2) {
                         $("#btnMerge").prop('disabled', false);
                     } else {
@@ -977,7 +950,17 @@ var featureEdit = (function () {
                     }
                 }
                 if ($("#btnEdit").hasClass("active")) {
-                    featureEditForms.prepareEditForm(e);
+                    if (selFets > 1) {
+                        console.log("Number of selected features: " + selFets);
+                        // More that 1 feature selected. Prompt user to select one.
+                        featureEditForms.selectFeatureToEdit(selectIntrAct.getFeatures());
+                    } else {
+                        if (e.selected.length === 0) {
+                            return;
+                        }
+                        var f = e.selected[0]; // Get the feature
+                        featureEditForms.prepareEditForm(f);
+                    }
                 }
             });
             return selectIntrAct;

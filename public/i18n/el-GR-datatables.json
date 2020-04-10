@@ -9,9 +9,9 @@
   "sLengthMenu": "Εμφάνιση _MENU_ εγγραφών",
   "sLoadingRecords": "Φόρτωση...",
   "sProcessing": "Επεξεργασία...",
-  "sSearch": "Αναζήτηση:",
-  "sSearchPlaceholder": "Αναζήτηση",
-  "sThousands": ",",
+  "sSearch": "Φίλτρο:",
+  "sSearchPlaceholder": "Φίλτρο...",
+  "sThousands": ".",
   "sUrl": "",
   "sZeroRecords": "Δεν βρέθηκαν εγγραφές",
   "oPaginate": {
@@ -20,13 +20,13 @@
     "sNext": "<i title=\"Επόμενη σελίδα\" class=\"glyphicon glyphicon-step-forward\"></i>",
     "sLast": "<i title=\"Τελευταία σελίδα\" class=\"glyphicon glyphicon-fast-forward\"></i>"
   },
-  "copy": "Copy",
+  "copy": "Αντιγραφή",
   "copySuccess": {
-    "1": "Copied one row to clipboard",
-    "_": "Copied %d rows to clipboard"
+    "1": "Αντιγραφή εγγραφής στο πρόχειρο",
+    "_": "Αντιγραφή %d εγγραφών στο πρόχειρο"
   },
-  "copyTitle": "Copy to clipboard",
-  "copyKeys": "Press <i>ctrl</i> or <i>⌘</i> + <i>C</i> to copy the table data<br>to your system clipboard.<br><br>To cancel, click this message or press escape.",
+  "copyTitle": "Αντιγραφή στο πρόχειρο",
+  "copyKeys": "Πατήστε <i>ctrl</i> ή <i>⌘</i> + <i>C</i> για να αντιγράψετε τα δεδομένα του πίνακα<br>στο πρόχειρο.<br><br>Για να ακυρώσετε, πατήστε αυτό το μήνυμα ή το κουμπί <Esc>.",
   "oAria": {
     "sSortAscending": ": ενεργοποιήστε για αύξουσα ταξινόμηση της στήλης",
     "sSortDescending": ": ενεργοποιήστε για φθίνουσα ταξινόμηση της στήλης"

@@ -186,5 +186,7 @@
     "_PREFSEDITVRTXWIDTH" : "Vertex diameter",
     "_PREFSEDITVRTXFILLCOLOR" : "Vertex Fill Color",
     "_PREFSPOINTZOOM" : "Point Zoom Level",
-    "_PREFSSAVESUCCESS" : "Preferences saved successfully"
+    "_PREFSSAVESUCCESS" : "Preferences saved successfully",
+    "_MULTIFEATSFOUNDTITLE": "Multiple features found",
+    "_MULTIFEATSFOUND4EDIT": "Multiple features found at this location. Select the one you want to edit from the table below and press the [Select] button"
 };

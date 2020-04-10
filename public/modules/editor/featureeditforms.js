@@ -1,7 +1,21 @@
-﻿var area_control = '';
+﻿/**
+ * Utilities for dynamically creating the edit forms based
+ * on the edit_fields setting in the *-layerconfig.json file
+ * @namespace featureEditForms
+ */
+var area_control = '';
 var length_control = '';
 var featureEditForms = (function () {
+    $(document).ready(function () {
+        featureEditForms.createSelFeatureDialog();
+    });
     return {
+        /**
+         * Generates the HTML for the Add new feature form and formats the
+         * fields based on the edit_field settings for the editable layer
+         * @param {*} e event
+         * @memberof featureEditForms
+         */
         prepareNewEditForm: function (e) {
             e.feature.setProperties({
                 'tmp_id': -1
@@ -169,6 +183,12 @@ var featureEditForms = (function () {
                 });
             }
         },
+        /**
+         * Determines if the input text field is of typeahead
+         * @param {object} lyr Edit layer object
+         * @param {string} fieldName Field name
+         * @memberof featureEditForms
+         */
         isFieldTypeAhead: function (lyr, fieldName) {
             var isTypeAhead = false;
             var editFlds = lyr.get('edit_fields');
@@ -183,11 +203,119 @@ var featureEditForms = (function () {
             });
             return isTypeAhead;
         },
-        prepareEditForm: function (e) {
-            if (e.selected.length === 0) {
-                return;
+        selectFeatureToEdit: function (feats) {
+            // Clear the contents of the modal dialog
+            $('#modSelFeatBody').empty();
+            // Get the currently edited layer
+            var el = legendUtilities.getLayerByName($("#hidEditLayer").val().trim());
+            // Get identify fields for the layer
+            var identifyFlds = el.get("identify_fields").split(',');
+            // Start creating the table html
+            var str = '<p>' + $.i18n._('_MULTIFEATSFOUND4EDIT') +'</p>';
+            str = str + '<br /><table class="table table-striped table-bordered" style="width:100%;" id="tblSelFeatDialog"><thead style="width:100%"><tr>';
+            // Create header row from the first feature
+            $.each(feats.getArray()[0].getProperties(), function (key, val) {
+                if (identifyFlds.length > 0 && identifyFlds[0] !== "") {
+                    for (var i = 0; i < identifyFlds.length; i++) {
+                        if (identifyFlds[i].split(':')[0].toUpperCase() === key.toUpperCase()) {
+                            str = str + '<th>' + identifyFlds[i].split(':')[1] + '</th>';
+                            break;
+                        }
+                    }
+                } else {
+                    str = str + '<th>' + key + '</th>';
+                }
+
+            });
+            str = str + '</tr></thead>';
+            // Now start creating the table body
+            str = str + '<tbody>';
+            $.each(feats.getArray(), function (key, f) {
+                str = str + '<tr>';
+                $.each(f.getProperties(), function (j, val) {
+                    if (identifyFlds.length > 0 && identifyFlds[0] !== "") {
+                        for (var i = 0; i < identifyFlds.length; i++) {
+                            if (identifyFlds[i].split(':')[0].toUpperCase() === j.toUpperCase()) {
+                                str = str + '<td>' + val + '</td>';
+                                break;
+                            }
+                        }
+                    } else {
+                        str = str + '<td>' + val + '</td>';
+                    }
+                });
+                str = str + '</tr>';
+            });
+            str = str + '</tbody></table>';
+            $('#modSelFeatBody').append(str);
+            
+            var tblSelFeatDialog = featureEditForms.initSelFeatureTable();
+
+            $('#tblSelFeatDialog tbody').on('click', 'tr', function () {
+                if ($(this).hasClass('info')) {
+                    $(this).removeClass('info');
+                } else {
+                    tblSelFeatDialog.$('tr.info').removeClass('info');
+                    $(this).addClass('info');
+                    // Enable the select button
+                    $('#btnSelOne').prop('disabled', false);
+                }
+            });
+            $('#btnSelOne').on('click', function() {
+                var tblSelFeatDialog = featureEditForms.initSelFeatureTable();
+                var r=tblSelFeatDialog.row('.info').index();
+                var selFeature= feats.getArray()[r];
+                console.log(r);
+                $('#modSelFeatDialog').modal('hide');
+                featureEditForms.prepareEditForm(selFeature);
+                
+            });
+            $('#modSelFeatDialog').modal('show');
+        },
+        /**
+         * Initializes the Select Feature table when multiple features found at the click location
+         * @memberof featureEditForms
+         */
+        initSelFeatureTable: function() {
+            var langDt = '';
+            if (typeof lang !== "undefined") {
+                langDt = lang.split('.')[0] + '-datatables.json'; // lang variable must be already defined
             }
-            var f = e.selected[0];
+            return $('#tblSelFeatDialog').DataTable({
+                responsive: true,
+                retrieve: true,
+                language: {
+                    url: 'i18n/' + langDt
+                }
+            });
+        },
+        /**
+         * Generates the HTML string for the [Mulitple features found] dialog
+         * @memberof featureEditForms
+         */
+        createSelFeatureDialog: function () {
+            $.i18n.load(uiStrings);
+            var divhtml = '<div class="modal fade" tabindex="-1" role="dialog" id="modSelFeatDialog" data-backdrop="static">' +
+                '<div class="modal-dialog" role="document">' +
+                '  <div class="modal-content">' +
+                '     <div class="modal-header">' +
+                '      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                '      <h4 class="modal-title">' + $.i18n._('_MULTIFEATSFOUNDTITLE') + '</h4>' +
+                '    </div>' +
+                '    <div class="modal-body" id="modSelFeatBody">' +
+                '    </div>' +
+                '    <div class="modal-footer">' +
+                '      <button type="button" id="btnSelOneCancel" class="btn btn-default" data-dismiss="modal">' + $.i18n._('_CLOSE')  + '</button>' +
+                '      <button type="button" id="btnSelOne" class="btn btn-active" data-dismiss="modal" disabled>' + $.i18n._('_SELECT')  + '</button>' +
+                '    </div>' +
+                '  </div><!-- /.modal-content -->' +
+                '</div><!-- /.modal-dialog -->' +
+                '</div><!-- /.modal -->';
+            $("body").prepend(divhtml);
+
+        },
+        prepareEditForm: function (f) {
+            if (typeof f === "undefined") {return false;}
             // Change selected style
             //f.setStyle(mapUtils.setSelectedStyle(f));
             if (editLayer instanceof ol.layer.Vector && (editLayer.get('edit_pk') !== undefined && editLayer.get('edit_fields') !== undefined)) {
@@ -859,10 +987,6 @@ var featureEditForms = (function () {
                 });
             }
         },
-        selectEditGeometry: function(features) {
-            // TODO: Display features attrs as table for user to select the feature to edit
-
-        },
         onModifyGeometry: function (e) {
             var format = new ol.format.WKT();
             var wktGeom;
@@ -1020,6 +1144,3 @@ var featureEditForms = (function () {
         }
     };
 })();
-$(document).ready(function () {
-
-});
