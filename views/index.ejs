@@ -189,7 +189,7 @@
     <% gConfig.custommods.forEach(function(mod) { %>
     <% var js=mod.js; %>
     <% js.forEach(function(scr) { %>
-    <script src=<%- "\"modules/" + scr.split(':')[0]+ "\"" %>></script>
+    <script src=<%- "\"modules/" + scr.split(':')[0]+ "\" defer" %>></script>
     <% }) %>
     <% }) %>
     <% } %>
