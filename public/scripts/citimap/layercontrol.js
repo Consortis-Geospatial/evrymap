@@ -531,14 +531,14 @@ var legendUtilities = (function () {
         generateExportButton: function (lyrname) {
             var genStr = '<span class="pull-right" title="' + $.i18n._('_EXPORTTOTITLE') + '">' +
                 '<div class="dropdown">' +
-                '<button class="btn btn-success dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">' +
-                '<span id="curExport" class="glyphicon glyphicon-globe"></span>' +
-                '<span class="caret"></span>' +
-                '</button>' +
-                '<ul class="dropdown-menu" role="menu" style="min-width:100px" aria-labelledby="menu1">' +
-                '<li role="presentation" style="cursor:pointer" title="' + $.i18n._('_EXPORTTOSHP') + '" onclick="legendUtilities.exportTo(\'' + lyrname.trim() + '\', \'SHAPEZIP\');">&nbsp;<i class="glyphicon glyphicon-globe"></i>Shapefile</li>' +
-                '<li role="presentation" style="cursor:pointer" title="' + $.i18n._('_EXPORTTOCSV') + '" onclick="legendUtilities.exportTo(\'' + lyrname.trim() + '\', \'CSV\');">&nbsp;<i class="glyphicon glyphicon-list-alt"></i>CSV</li>' +
-                '</ul>' +
+                '   <button class="btn btn-success dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">' +
+                '       <span id="curExport" class="glyphicon glyphicon-globe"></span>' +
+                '       <span class="caret"></span>' +
+                '   </button>' +
+                '   <ul class="dropdown-menu" role="menu" style="min-width:90px" aria-labelledby="menu1">' +
+                '       <li role="presentation" style="cursor:pointer" title="' + $.i18n._('_EXPORTTOSHP') + '" onclick="legendUtilities.exportTo(\'' + lyrname.trim() + '\', \'SHAPEZIP\');">&nbsp;<i class="glyphicon glyphicon-globe"></i>Shapefile</li>' +
+                '       <li role="presentation" style="cursor:pointer" title="' + $.i18n._('_EXPORTTOCSV') + '" onclick="legendUtilities.exportTo(\'' + lyrname.trim() + '\', \'CSV\');">&nbsp;<i class="glyphicon glyphicon-list-alt"></i>CSV</li>' +
+                '   </ul>' +
                 '</div>' +
                 '</span>';
             return genStr;
