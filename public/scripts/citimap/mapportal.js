@@ -30,15 +30,20 @@ var mapPortal = (function (configfile) {
             $('#lnkOptions').html("<span class='glyphicon glyphicon-cog' aria-hidden='true'></span>&nbsp;&nbsp;" + $.i18n._('_PREFERENCES'));
             $('#lnkUserGuide').html("<span class='glyphicon glyphicon-question-sign' aria-hidden='true'></span>&nbsp;&nbsp;" + $.i18n._('_USERGUIDE'));
             $("#lnkUserGuide").prop("href", userGuide);
-            $("#lnkUserGuide").prop("target", "_blank")
+            $("#lnkUserGuide").prop("target", "_blank");
             // Set the app layout if defined
             var layout = mapPortal.readConfig("layout");
             if (typeof layout !== "undefined") {
                 showprint = layout.print;
                 showheader = layout.header;
                 showquicksearch= layout.quicksearch;
+                showlegendcontrol=layout.legendcontrol;
+                showmeasure=layout.measuretools;
+                showsave=layout.saveview;
                 if (!showheader) $('#cnavbar').hide();
                 if (!showquicksearch) $('.searchpanel').hide();
+                // TODO: Add ids to the bottom toolbar controls so we can control them from layerconfig.json
+                //if (!showlegendcontrol)
             }
             //Read mapsettings from config
             var mapSettings = mapPortal.readConfig("map");
