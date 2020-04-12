@@ -39,8 +39,10 @@ var featureEditForms = (function () {
                             }
                             if (typeof fldConfig.child_fields !== "undefined") {
                                 $.each(fldConfig.child_fields, function (key, val) {
-                                    var childField = val.split(':')[0];
-                                    var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                  // var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                  const getFirstSemicolon = val.indexOf(':');
+                                  var childField = val.substring(0, getFirstSemicolon);
+                                  var childUrl = val.substring(getFirstSemicolon + 1, val.length);
                                     $('#' + childField).prop("disabled", true);
                                     $('#' + ctrl_id).on('change', function () {
                                         $('#' + childField).prop("disabled", false);
@@ -80,8 +82,11 @@ var featureEditForms = (function () {
                     } else if (fldConfig.control === "typeahead") {
                         if (typeof fldConfig.child_fields !== "undefined") {
                             $.each(fldConfig.child_fields, function (key, val) {
-                                var childField = val.split(':')[0];
-                                var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                // var childField = val.split(':')[0];
+                                // var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                const getFirstSemicolon = val.indexOf(':');
+                                var childField = val.substring(0, getFirstSemicolon);
+                                var childUrl = val.substring(getFirstSemicolon + 1, val.length);
                                 $('#' + childField).prop("disabled", true);
                                 $('#hidVal_' + ctrl_id).on('change', function () {
                                     $('#' + childField).prop("disabled", false);
@@ -351,8 +356,11 @@ var featureEditForms = (function () {
                                 }
                                 if (typeof fldConfig.child_fields !== "undefined") {
                                     $.each(fldConfig.child_fields, function (key, val) {
-                                        var childField = val.split(':')[0];
-                                        var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                        // var childField = val.split(':')[0];
+                                        // var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                        const getFirstSemicolon = val.indexOf(':');
+                                        var childField = val.substring(0, getFirstSemicolon);
+                                        var childUrl = val.substring(getFirstSemicolon + 1, val.length);
                                         $('#' + childField).prop("disabled", true);
                                         if (typeof fldConfig.parent_field === "undefined") {
                                             featureEditForms.popChildAttrList(childField, childUrl, f.get(ctrl_id));
@@ -392,8 +400,11 @@ var featureEditForms = (function () {
                         } else if (fldConfig.control === "typeahead") {
                             if (typeof fldConfig.child_fields !== "undefined") {
                                 $.each(fldConfig.child_fields, function (key, val) {
-                                    var childField = val.split(':')[0];
-                                    var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                    // var childField = val.split(':')[0];
+                                    // var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                    const getFirstSemicolon = val.indexOf(':');
+                                    var childField = val.substring(0, getFirstSemicolon);
+                                    var childUrl = val.substring(getFirstSemicolon + 1, val.length);
                                     $('#' + childField).prop("disabled", true);
                                     // Populate child field
                                     featureEditForms.popChildAttrList(childField, childUrl, f.get(ctrl_id));
@@ -715,7 +726,8 @@ var featureEditForms = (function () {
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
                     if (data !== null && data !== "") {
-                        var vals = data.d.replace('{', '').replace('}', '').split(',');
+                        // var vals = data.d.replace('{', '').replace('}', '').split(',');
+                        var vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
                         $.each(vals, function (i, valueObj) {
                             item = {};
                             let kv = valueObj.split(':');
@@ -761,7 +773,9 @@ var featureEditForms = (function () {
                     //var vals = JSON.parse(data.d);
 
                     if (vals !== null && vals !== "") {
-                        var vals = data.d.replace('{', '').replace('}', '').split(',');
+                        // var vals = data.d.replace('{', '').replace('}', '').split(',');
+                        var vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
+                        
                         if (type === "dropdown") {
                             var ddl = $("#" + ctrl);
                             ddl.empty().append('<option value="#">' + $.i18n._('_SELECT') + '...</option>');
@@ -818,7 +832,8 @@ var featureEditForms = (function () {
                     $(".wait").show();
                 },
                 success: function (data) {
-                    var vals = JSON.parse(data.d);
+                    // var vals = JSON.parse(data.d);
+                    var vals = data;
                     if (vals !== null) {
                         var ddl = $("#" + ctrl);
                         ddl.empty().append('<option value="#">' + $.i18n._('_SELECT') + '...</option>');
@@ -863,7 +878,8 @@ var featureEditForms = (function () {
                     $(".wait").show();
                 },
                 success: function (data) {
-                    var vals = JSON.parse(data.d);
+                    // var vals = JSON.parse(data.d);
+                    var vals = data;
                     if (vals !== null) {
                         var ddl = $("#" + ctrl);
                         ddl.empty().append('<option value="#">' + $.i18n._('_SELECT') + '...</option>');
@@ -941,7 +957,8 @@ var featureEditForms = (function () {
                         $(".wait").show();
                     },
                     success: function (data) {
-                        var s = data.d;
+                        // var s = data.d;
+                        var s = data;
                         featureEdit.refreshVectorLayer(editLayer.get("name"));
                         area_control = '';
                         length_control = '';
