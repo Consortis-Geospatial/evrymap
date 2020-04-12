@@ -10,9 +10,4 @@
 [submodule "modules/cpfjs"]
 	path = modules/cpfjs
 	url = https://gaiocorp.visualstudio.com/DefaultCollection/_git/cpfJS
-[submodule "public/modules/lrmjs"]
-	path = public/modules/lrmjs
-	url = https://gaiocorp.visualstudio.com/DefaultCollection/lrmJS/_git/lrmJS
-[submodule "modules/lrm"]
-	path = modules/lrm
-	url = https://gaiocorp.visualstudio.com/DefaultCollection/lrm/_git/lrm.nodejs
+

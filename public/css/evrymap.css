@@ -339,6 +339,20 @@ tr.shown td.details-control {
   }
 /* END Popup for markers */
 
+/* Popup for COVID-19 Layers radio group */
+  .covid-radio-group {
+    position:fixed;
+    top:8px;
+    right:100px;
+    z-index:99;
+    background-color:rgba(255,255,255,0.15);
+    border:none
+  }
+  .covid-radio-item {
+    background-color:rgba(0,0,0,0.5); 
+    color:white;
+  }
+/* END Popup for COVID-19 Layers radio group */
 
 /* 
   ##Device = Laptops, Desktops
@@ -460,6 +474,14 @@ div#bottomToolbar {
 	height:70% !important;
 }
 /* END DIALOGS */
+.covid-radio-group {
+    position:fixed;
+    top:55px;
+    left:50px;
+    z-index:9;
+    background-color:rgba(255,255,255,0.15);
+    border:none
+  }
 }
 
 
@@ -560,6 +582,14 @@ display:none;
 	height:70% !important;
 }
 /* END DIALOGS */
+.covid-radio-group {
+    position:fixed;
+    top:55px;
+    left:50px;
+    z-index:9;
+    background-color:rgba(255,255,255,0.15);
+    border:none
+  }
 }
 
 /* 
@@ -571,6 +601,9 @@ display:none;
 /* START TOP BAR */
 .navbar-brand {
 	width:80%;
+}
+.navbar-text {
+	font-size:15px!important;
 }
 #legendButton {
 	top:55px !important;
@@ -671,6 +704,25 @@ button#btnSelByRect {
 	height:70% !important;
 }
 /* END DIALOGS */
+/* Popup for COVID-19 Layers radio group */
+.covid-form-group {
+    margin-bottom:1px;
+}
+.covid-radio-group {
+    position:fixed;
+    top:55px;
+    right:100px;
+    z-index:9;
+    background-color:rgba(255,255,255,0.15);
+    border:none
+  }
+  .covid-radio-item {
+    background-color:rgba(0,0,0,0.5); 
+    color:white;
+    font-size:10px;
+    width:38%!important
+  }
+/* END Popup for COVID-19 Layers radio group */
 }
 
 /* 
