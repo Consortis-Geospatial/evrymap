@@ -1,5 +1,13 @@
-﻿var searchUtilities = (function () {
+﻿/**
+ * Search Utilities functions
+ * @namespace searchUtilities
+ */
+var searchUtilities = (function () {
     return {
+        /**
+         * Gets the hidden search layer (vector). If not found, it will get created
+         * @param {object} map The map object
+         */
         getSelectionLayer: function (map) {
             var selLyr;
             var foundsel = false;
@@ -606,6 +614,11 @@
                 '</div></div>';
             $('#mainparent').prepend(str);
         },
+        /**
+         * Create the HTML for the Search Results dialog and adds it to the DOM
+         * @function createSearchResultsDlg
+         * @memberof searchUtilities
+         */
         createSearchResultsDlg: function () {
             var str1 = '<div id="modSearchResults">' +
                 '<div class="row" style = "margin-left: 5px; margin-right: 5px; height: 0px;" >' +
