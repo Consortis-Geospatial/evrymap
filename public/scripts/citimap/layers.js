@@ -1669,18 +1669,19 @@ var mapUtils = (function () {
                 }
             });
             if (!hasHover) {
+                $('#divShowMaptips').hide();
                 return false;
             } else {
+                $('#divShowMaptips').show();
                 // Create the hover switch
-                var str='<input type="checkbox" data-toggle="toggle" id="chkShowTt" value="">';
-                //$('#bottomToolbar').append(str);
-                //$('#chkShowTt').bootstrapToggle({
-                //    on: $.i18n._('_YES'),
-                //    off: $.i18n._('_NO')
-                //});
+                $('#chkShowMaptips').bootstrapToggle({
+                    on: $.i18n._('_YES'),
+                    off: $.i18n._('_NO')
+                });
+                $('#lblShowMaptips').html($.i18n._('_SHOWMAPTIPS'));
             }
             var hover = new ol.interaction.Hover({
-                cursor: "pointer"
+                cursor: "help"
             });
             mymap.addInteraction(hover);
             var style = mapUtils.setDefaultFeatureStyle;
@@ -1690,6 +1691,10 @@ var mapUtils = (function () {
             var closer = document.getElementById('popup-closer');
             var popupOverlay;
             hover.on("enter", function (e) {
+                // Show maptips only if the switch is set to On
+                if (!$('#chkShowMaptips').prop('checked')) {
+                    return false;
+                }
                 $('#popup1').show();
                 let l = e.layer;
                 let f = e.feature;

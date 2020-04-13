@@ -204,8 +204,9 @@ var featureEditForms = (function () {
             return isTypeAhead;
         },
         selectFeatureToEdit: function (feats) {
-            // Clear the contents of the modal dialog
+            // Clear the contents of the modal dialog and disable the select button
             $('#modSelFeatBody').empty();
+            $('#btnSelOne').prop('disabled', false);
             // Get the currently edited layer
             var el = legendUtilities.getLayerByName($("#hidEditLayer").val().trim());
             // Get identify fields for the layer
