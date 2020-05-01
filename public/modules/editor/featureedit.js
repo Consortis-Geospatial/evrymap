@@ -548,12 +548,14 @@ var featureEdit = (function () {
                 return false;
             }
             var selectIntrAct = featureEdit.setEditSelectInteraction(editLayer);
-            this.modifyIntrAct = new ol.interaction.Modify({
-                features: selectIntrAct.getFeatures(),
-                style: featureEdit.setEditStyle() 
-            });
-            this.modifyIntrAct.on("modifyend", featureEditForms.onModifyGeometry);
-            $mymap.addInteraction(this.modifyIntrAct);
+            if (typeof editLayer.get("allow_edit_geom") === "undefined" || editLayer.get("allow_edit_geom")=== true) {
+                this.modifyIntrAct = new ol.interaction.Modify({
+                    features: selectIntrAct.getFeatures(),
+                    style: featureEdit.setEditStyle() 
+                });
+                this.modifyIntrAct.on("modifyend", featureEditForms.onModifyGeometry);
+                $mymap.addInteraction(this.modifyIntrAct);
+            }
             //console.log("added modify interaction for " + layername);
             if (typeof editLayer.get("edit_snapping_layers") !== "undefined") {
                 $.each(editLayer.get("edit_snapping_layers"), function (i, snap_layer) {
@@ -782,6 +784,7 @@ var featureEdit = (function () {
                 vLayer.set('edit_pk', lyr.get("edit_pk"));
                 vLayer.set('edit_geomcol', lyr.get("edit_geomcol"));
                 vLayer.set('edit_geomtype', lyr.get("edit_geomtype"));
+                vLayer.set('allow_edit_geom', lyr.get("allow_edit_geom"));
                 vLayer.set('edit_snapping_layers', lyr.get("edit_snapping_layers"));
                 vLayer.set('edit_fields', lyr.get("edit_fields"));
                 vLayer.set('edit_service_url', lyr.get("edit_service_url"));
@@ -872,9 +875,13 @@ var featureEdit = (function () {
                         // return the coordinates of the first ring of the polygon
                         var coordinates = feature.getGeometry().getCoordinates()[0];
                         return new ol.geom.MultiPoint(coordinates);
-                      } else if (feature.getGeometry().getType()=== "Point") {
-                        return new ol.geom.MultiPoint(feature.getGeometry().getCoordinates());
-                      }
+                      } else if (feature.getGeometry().getType()=== "LineString") {
+                        return new ol.geom.MultiPoint(feature.getGeometry().getCoordinates()[0]);
+                      } else {
+                          return feature.getGeometry();
+                      }//else if (feature.getGeometry().getType()=== "Point") {
+                        //return new ol.geom.MultiPoint(feature.getGeometry().getCoordinates());
+                      //}
                     
                   }
                 })
@@ -915,7 +922,6 @@ var featureEdit = (function () {
                     $('#btnAddPart').show();
                     //$('#btnAddHole').unbind('click').bind('click', function () { featureEdit.initAddHole(); });
                 }
-                //featureEdit.setEditSelectInteraction(editLayer);
             }
         },
         setEditSelectInteraction: function (editLayer) {
@@ -950,6 +956,12 @@ var featureEdit = (function () {
                     }
                 }
                 if ($("#btnEdit").hasClass("active")) {
+                    // Clear any selected features that may have come from a previous selection
+                    // If not, you may end up with duplicate features in the Select Features dialog
+                    // Also, if you have selected a feature before, then edit this feature and reshape
+                    // it, it will show the old selected feature from the selection layer which will
+                    // be confusing to the user.
+                    legendUtilities.getLayerByName("selection").getSource().clear();
                     if (selFets > 1) {
                         console.log("Number of selected features: " + selFets);
                         // More that 1 feature selected. Prompt user to select one.
@@ -958,6 +970,7 @@ var featureEdit = (function () {
                         if (e.selected.length === 0) {
                             return;
                         }
+                        
                         var f = e.selected[0]; // Get the feature
                         featureEditForms.prepareEditForm(f);
                     }

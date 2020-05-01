@@ -213,7 +213,7 @@ var featureEditForms = (function () {
             var identifyFlds = el.get("identify_fields").split(',');
             // Start creating the table html
             var str = '<p>' + $.i18n._('_MULTIFEATSFOUND4EDIT') +'</p>';
-            str = str + '<br /><table class="table table-striped table-bordered" style="width:100%;" id="tblSelFeatDialog"><thead style="width:100%"><tr>';
+            str = str + '<br /><table class="table table-striped table-bordered dt-responsive"  id="tblSelFeatDialog"><thead><tr>';
             // Create header row from the first feature
             $.each(feats.getArray()[0].getProperties(), function (key, val) {
                 if (identifyFlds.length > 0 && identifyFlds[0] !== "") {
@@ -272,6 +272,8 @@ var featureEditForms = (function () {
                 
             });
             $('#modSelFeatDialog').modal('show');
+            $('.modal-dialog').draggable({ handle: ".modal-header"});
+            
         },
         /**
          * Initializes the Select Feature table when multiple features found at the click location
@@ -303,7 +305,7 @@ var featureEditForms = (function () {
                 '      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
                 '      <h4 class="modal-title">' + $.i18n._('_MULTIFEATSFOUNDTITLE') + '</h4>' +
                 '    </div>' +
-                '    <div class="modal-body" id="modSelFeatBody">' +
+                '    <div class="modal-body" id="modSelFeatBody" style="overflow-x:auto">' +
                 '    </div>' +
                 '    <div class="modal-footer">' +
                 '      <button type="button" id="btnSelOneCancel" class="btn btn-default" data-dismiss="modal">' + $.i18n._('_CLOSE')  + '</button>' +
@@ -322,7 +324,11 @@ var featureEditForms = (function () {
             if (editLayer instanceof ol.layer.Vector && (editLayer.get('edit_pk') !== undefined && editLayer.get('edit_fields') !== undefined)) {
                 featureEditForms.generateEditForm(editLayer);
                 var editFlds = editLayer.get('edit_fields');
-                var pkVal = f.get(editLayer.get('edit_pk'));
+                var pkfield=editLayer.get('edit_pk');
+                if (pkfield.split(':').length===2) {
+                    pkfield=pkfield.split(':')[0];
+                }
+                var pkVal = f.get(pkfield);
                 $('#hidPk').val(pkVal);
                 // Check if the layer has related data
                 if (editLayer.get("has_relation")) {
@@ -546,10 +552,10 @@ var featureEditForms = (function () {
                                     html = html + '<input type="text" class="form-control input" maxlength=' + fldlength + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)">';
                                     html = html + '<span id="fdb_' + fldName + '"></span></div>';
                                 } else if (field_type === "integer") {
-                                    html = html + '<input type="number" class="form-control input"' + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)">';
+                                    html = html + '<input type="number" pattern="\\d+" class="form-control input"' + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)">';
                                     html = html + '<span id="fdb_' + fldName + '"></span></div>';
                                 } else if (field_type === "number") {
-                                    html = html + '<input type="text" class="form-control input"' + is_readonly + ' id="' + fldName + '" ' + is_required +
+                                    html = html + '<input type="text" pattern="[0-9]+([,][0-9]{1,2})?" class="form-control input"' + is_readonly + ' id="' + fldName + '" ' + is_required +
                                         'pattern="^\d+(,\d+)*$" onblur="featureEditForms.validateFldOnBlur(this.id)">';
                                     html = html + '<span id="fdb_' + fldName + '"></span></div>';
                                 } else if (field_type === "date") {
@@ -902,7 +908,24 @@ var featureEditForms = (function () {
             var params1 = "";
             if (editLayer instanceof ol.layer.Vector && (editLayer.get('edit_pk') !== undefined && editLayer.get('edit_fields') !== undefined)) {
                 params["table_name"] = editLayer.get('table_name');
-                params["pk_fieldval"] = editLayer.get('edit_pk') + ":" + $("#hidPk").val();
+                // Get the primary key value. For updates this should be in the hidPK hidden field
+                // For new items, if the pk is user-defined it would be in the relevant control
+                var pk_value="";
+                var pk_fieldName=editLayer.get('edit_pk');
+                var pk_fieldType="integer";
+                if (editLayer.get('edit_pk').split(':').length==2) {
+                    pk_fieldType=editLayer.get('edit_pk').split(':')[1];
+                    pk_fieldName=editLayer.get('edit_pk').split(':')[0];
+                }
+                if (mode === "UPDATE" || mode=="DELETE") {
+                    pk_value=$("#hidPk").val();
+                } else if (mode=="NEW") {
+                    pk_value=$("#" +pk_fieldName).val();
+                    if (typeof pk_value === "undefined") {
+                        pk_value="";
+                    }
+                }
+                params["pk_fieldval"] = pk_fieldName + ":" + pk_value +":" + pk_fieldType;
                 var editFlds = editLayer.get('edit_fields');
                 var isvalid = true;
                 $.each(editFlds, function (i, fldConfig) {
