@@ -73,9 +73,9 @@ var searchUtilities = (function () {
                                 // generate a GetFeature request
                                 var searchUrl;
                                 if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                                    searchUrl = window.location.protocol + "//" + $('#hidMS').val() + mappath + "SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + tableName + "&Filter=<Filter>" + paramString + "</Filter>&OUTPUTFORMAT=GEOJSON";
+                                    searchUrl = window.location.protocol + "//" + $('#hidMS').val() + mappath + "SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + lyrname + "&Filter=<Filter>" + paramString + "</Filter>&OUTPUTFORMAT=GEOJSON";
                                 } else {
-                                    searchUrl = proxyUrl + window.location.protocol + "//" + $('#hidMS').val() + mappath + "SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + tableName + "&Filter=<Filter>" + paramString + "</Filter>&OUTPUTFORMAT=GEOJSON";
+                                    searchUrl = proxyUrl + window.location.protocol + "//" + $('#hidMS').val() + mappath + "SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + lyrname + "&Filter=<Filter>" + paramString + "</Filter>&OUTPUTFORMAT=GEOJSON";
                                 }
                                 $.ajax({
                                     url: searchUrl,
@@ -350,7 +350,6 @@ var searchUtilities = (function () {
                         });
                     })
                     .DataTable({
-                        responsive: true,
                         dom: 'Bfrtip',
                         buttons: [{
                             extend: 'collection',
