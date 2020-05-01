@@ -417,6 +417,7 @@ var mapUtils = (function () {
                             tmplyr.set('table_name', val.table_name);
                             tmplyr.set('edit_pk', val.edit_pk);
                             tmplyr.set('edit_geomcol', val.edit_geomcol);
+                            tmplyr.set('allow_edit_geom', val.allow_edit_geom);
                             tmplyr.set('edit_geomtype', val.edit_geomtype);
                             tmplyr.set('edit_snapping_layers', val.edit_snapping_layers);
                             tmplyr.set('edit_fields', val.edit_fields);
@@ -507,6 +508,7 @@ var mapUtils = (function () {
                             typeof val.edit_service_url !== "undefined" && typeof val.edit_geomcol !== "undefined" && typeof val.edit_geomtype !== "undefined") {
                             tmpvector.set('edit_pk', val.edit_pk);
                             tmpvector.set('edit_geomcol', val.edit_geomcol);
+                            tmpvector.set('allow_edit_geom', val.allow_edit_geom);
                             tmpvector.set('edit_geomtype', val.edit_geomtype);
                             tmpvector.set('edit_snapping_layers', val.edit_snapping_layers);
                             tmpvector.set('edit_fields', val.edit_fields);
@@ -1197,9 +1199,15 @@ var mapUtils = (function () {
                                 if (mapUtils.featuresExistsInList(selFeatures, feature) === false) {
                                     // Add the layer name in the returned data so we know which layer
                                     // it came from. It will be used in the spatial query dialog
-                                    feature.properties._layername = layer.get('name');
-                                    selFeatures.push(feature);
-                                    selFeaturesArray.push(feature);
+                                    //TODO: This doesnt work for vector layers and it goes into an endless loop for some reason
+                                    try {
+                                        feature.properties._layername = layer.get('name');
+                                        selFeatures.push(feature);
+                                        selFeaturesArray.push(feature);
+                                    } catch (error) {
+                                        
+                                    }
+                                    
                                 }
                             });
                         }
