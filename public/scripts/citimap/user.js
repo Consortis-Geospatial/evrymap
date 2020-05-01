@@ -47,6 +47,8 @@
             if (!userUtils.hasSettings()) {
                 return false;
             }
+            var localSettings={};
+            //localSettings
             $map = $('#mapid').data('map');
             if (typeof savename === "undefined" || savename.trim() === "") {
                 savename = "Home";
@@ -78,7 +80,7 @@
 
             // Get Preferences
             prefs = preferences.getPrefsObject();
-            citiPortalObj[mapKey].saved_views = prefs;
+            citiPortalObj[mapKey].preferences = prefs;
 
             //Convert the JSON object back to string and add it to local storage
             localStorage.setItem('citiPortal', JSON.stringify(citiPortalObj));
@@ -141,7 +143,7 @@
                 mapsetString = mapsetString + ',"exportable": false';
             }
             if (typeof layer.get("legendImg") !== "undefined") {
-                mapsetString = mapsetString + ',"legendImg": "' + layer.get("legendImg") + '"';
+                mapsetString = mapsetString + ',"legendImg": "' + encodeURI(layer.get("legendImg")) + '"';
             }
             if (typeof layer.get("legend_wh") !== "undefined") {
                 mapsetString = mapsetString + ',"legend_wh": "' + layer.get("legend_wh") + '"';
@@ -187,6 +189,7 @@
             return mapsetString;
         },
         createMapSet: function (mymap, mapsetname) {
+            //var mapset={}
             var mapsetString = '';
             //mapsetString = mapsetString + '"saved_views": [';
             if (typeof mapsetname === "undefined" || mapsetname === "" || mapsetname === null || mapsetname === "Home") {

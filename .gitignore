@@ -21,3 +21,5 @@ public/config/layerconfig-water-morpheas_w_e-pol.json
 proxy/arcgis-proxy-node.log
 proxy/citimap-proxy-node.log
 proxy/citimap-proxy-node.log
+/public/modules/maptheyajs
+/public/modules/cpfjs

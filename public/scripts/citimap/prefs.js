@@ -288,7 +288,7 @@ var preferences = (function () {
             var citiPortalObj = JSON.parse(localStorage.getItem("citiPortal"));
             // If the current saved view list does not exist, create it
             if (typeof citiPortalObj[mapKey] === "undefined") {
-                citiPortalObj[mapKey] = JSON.parse("{\"saved_views\":[]}}");
+                citiPortalObj[mapKey] = JSON.parse("{\"saved_views\":[]}");
             }
             // Get Preferences
             prefs = preferences.getPrefsObject();
