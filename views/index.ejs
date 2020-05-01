@@ -186,12 +186,14 @@
     
     <%} %>
     <% if (typeof gConfig.custommods !== "undefined") { %>
-    <% gConfig.custommods.forEach(function(mod) { %>
-    <% var js=mod.js; %>
-    <% js.forEach(function(scr) { %>
-    <script src=<%- "\"modules/" + scr.split(':')[0]+ "\" defer" %>></script>
-    <% }) %>
-    <% }) %>
+        <% gConfig.custommods.forEach(function(mod) { %>
+            <% if (typeof mod.active === "undefined" || mod.active=== true) { %>
+                <% var js=mod.js; %>
+                <% js.forEach(function(scr) { %>
+                    <script src=<%- "\"modules/" + scr.split(':')[0]+ "\" defer" %>></script>
+                <% }) %>
+            <% } %>
+        <% }) %>
     <% } %>
     <script src='scripts/citimap/comms.js' defer></script>
     <script src='scripts/citimap/wmst.js' defer></script>
