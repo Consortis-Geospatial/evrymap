@@ -3,3 +3,6 @@
 [submodule "public/modules/landifyjs"]
 	path = public/modules/landifyjs
 	url = https://consortis-geospatial@dev.azure.com/consortis-geospatial/Landify/_git/landify-js
+[submodule "public/modules/maptheya-js"]
+	path = public/modules/maptheya-js
+	url = https://consortis-geospatial@dev.azure.com/consortis-geospatial/MAPTheYA/_git/maptheya-js
