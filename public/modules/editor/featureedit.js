@@ -23,11 +23,15 @@ var featureEdit = (function () {
         $("#btnLogin").click(function(){
             user=$("#txbUsername").val();
             pass=$("#txbPassword").val();
-            $.post("/login",{user: user,password: pass}, function(data){
-                if (typeof data.originalError !== "undefined") {
-                    // Error occured
+            $.post(window.location.origin+window.location.pathname + "login",{user: user,password: pass}, function(data){
+                if (typeof data.originalError !== "undefined") { // For MSSQL
+                    // Error occured 
                     $('#hidEnc').val('');
                     mapUtils.showMessage('danger',data.originalError.message, $.i18n._('_ERROROCCUREDTITLE'));
+                    return false;
+                } else if (data.startsWith("error")) { // For postgres
+                    $('#hidEnc').val('');
+                    mapUtils.showMessage('danger',data, $.i18n._('_ERROROCCUREDTITLE'));
                     return false;
                 } else {
                     $('#modLogin').modal('hide');

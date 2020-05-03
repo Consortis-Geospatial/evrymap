@@ -56,29 +56,44 @@ function login(req, res) {
       var connectionString;
       if (editConnectionType === "POSTGRES") {
          //var flatConnectionString = "postgres://" + name + ":" + pass + "@" + server + ":5432/" + dbname;
-         
-         var pg=require('pg');
+
+         var pg = require('pg');
          const client = new pg.Client({
             user: name,
             host: server,
             database: dbname,
             password: pass,
             port: 5432,
-        });
-        client.connect();
-        var flatConnectionString = "User Id=" + name + ";Password=" + pass + "; Host=" + server + ";Database=" + dbname + ";Port=5432";
-         
-        if (typeof encDllProxy !== "undefined") {
-         encDllProxy(flatConnectionString + '|' + config.authKey + '|0', function (error, encString) {
-            addCookie(res, encString, editConnectionType, name);
-            res.send(encString);
          });
-      } else {
-         let encString = crypto.encrypt(flatConnectionString)
-         addCookie(res, encString, editConnectionType, name);
-         res.send(encString);
-      }
-      client.end();
+         client.connect(function (err) {
+            if (err) {
+               res.send(err.toString());
+               return console.error('could not connect to postgres', err);
+            }
+            client.query('SELECT NOW() AS "theTime"', function (err, result) {
+               if (err) {
+                  res.send(err.toString());
+                  return console.error('error running query', err);
+               }
+               console.log(result.rows[0].theTime);
+               // This will be used as the connection string if we are connecting through a DDL
+               var flatConnectionString = "User Id=" + name + ";Password=" + pass + "; Host=" + server + ";Database=" + dbname + ";Port=5432";
+
+               if (typeof encDllProxy !== "undefined") {
+                  encDllProxy(flatConnectionString + '|' + config.authKey + '|0', function (error, encString) {
+                     addCookie(res, encString, editConnectionType, name);
+                     res.send(encString);
+                  });
+               } else {
+                  let encString = crypto.encrypt(flatConnectionString);
+                  addCookie(res, encString, editConnectionType, name);
+                  res.send(encString);
+               }
+               client.end();
+            });
+         });
+
+         //client.end();
 
       } else if (editConnectionType === "MSSQL") {
          connectionString = {
