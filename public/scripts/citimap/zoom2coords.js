@@ -304,6 +304,8 @@ var zoom2XY = (function () {
         initGetCoordsFromMap: function () {
             // Remove any map click interactions
             mapUtils.resetMapInteractions(mymap);
+            // Prompt user
+            mapUtils.showMessage('info', $.i18n._('_GETCOORDFROMMAPPROMPT'), $.i18n._('_ZOOMTOXY'));
             // Add click interaction
             mymap.on('singleclick', zoom2XY.getCoordsFromMap);
         },
