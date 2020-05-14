@@ -19,7 +19,14 @@ var featureEdit = (function () {
             $('#modLogin').modal('show');
         });
         featureEdit.renderEditTools();
-        featureEdit.checkCookie();
+        try {
+            featureEdit.checkCookie(); //withing a try/catch in case the cookie is invalid
+        } catch (error) {
+            console.log ('evrymap cookie is invalid. Removing.')
+            //remove cookie
+            document.cookie = 'evrymap=; Max-Age=-99999999;'; 
+        }
+        
         $("#btnLogin").click(function(){
             user=$("#txbUsername").val();
             pass=$("#txbPassword").val();
@@ -38,7 +45,7 @@ var featureEdit = (function () {
                     featureEdit.showConnected(user, data);
                 }
             });
-          });
+        });
     });
     return {
         checkCookie: function () {
@@ -1025,7 +1032,11 @@ var featureEdit = (function () {
             }
             // Hide edit tools
             $('#btnStartEdit').show();
-            $('#btnLrmSearch').show();
+            // TODO: Remove dependency on Landify
+            if (typeof lrmForm !== "undefined") {
+                $('#btnLrmSearch').show();
+            }
+            
             $('#btnCreate').hide();
             $('#btnEdit').hide();
             $('#btnSplit').hide();

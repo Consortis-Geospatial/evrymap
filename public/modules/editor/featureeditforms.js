@@ -32,7 +32,7 @@ var featureEditForms = (function () {
                     if (fldConfig.control === "dropdown") {
                         if (typeof fldConfig.service_url !== "undefined") {
                             if (typeof fldConfig.parent_field === "undefined") {
-                                featureEditForms.popAttrList(ctrl_id, fldConfig.service_url, fldConfig.control);
+                                featureEditForms.popAttrList(ctrl_id, fldConfig.service_url, fldConfig.control, fldConfig.lut_table);
                                 $('#' + ctrl_id).on('change', function () {
                                     featureEditForms.validateEditForm();
                                 });
@@ -40,12 +40,15 @@ var featureEditForms = (function () {
                             if (typeof fldConfig.child_fields !== "undefined") {
                                 $.each(fldConfig.child_fields, function (key, val) {
                                     var childField = val.split(':')[0];
-                                    var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                    //var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                    var childUrl = val.split(/:(.+)/)[1];
                                     $('#' + childField).prop("disabled", true);
+                                   
                                     $('#' + ctrl_id).on('change', function () {
                                         $('#' + childField).prop("disabled", false);
                                         if (typeof fldConfig.parent_field === "undefined") {
                                             featureEditForms.popChildAttrList(childField, childUrl, $('#' + ctrl_id).val());
+                                            
                                         } else {
                                             var grandparentvalue;
                                             if (featureEditForms.isFieldTypeAhead(editLayer, fldConfig.parent_field)) {
@@ -55,6 +58,7 @@ var featureEditForms = (function () {
                                             }
                                             featureEditForms.popGrandChildAttrList(childField, childUrl, $('#' + ctrl_id).val(), grandparentvalue);
                                         }
+                                        
                                         featureEditForms.validateEditForm();
                                     });
                                 });
@@ -81,7 +85,8 @@ var featureEditForms = (function () {
                         if (typeof fldConfig.child_fields !== "undefined") {
                             $.each(fldConfig.child_fields, function (key, val) {
                                 var childField = val.split(':')[0];
-                                var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                //var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                var childUrl = val.split(/:(.+)/)[1];
                                 $('#' + childField).prop("disabled", true);
                                 $('#hidVal_' + ctrl_id).on('change', function () {
                                     $('#' + childField).prop("disabled", false);
@@ -131,6 +136,18 @@ var featureEditForms = (function () {
                                 length_control = ctrl_id;
                                 $('#' + ctrl_id).val((measureUtilities.formatLengthInM(e.feature.getGeometry())).toString().replace('.', $.i18n._('_DECIMALSEPARATOR')));
                             }
+                        }
+                    }
+                    // Set default value if defined
+                    if (typeof fldConfig.default !== "undefined") {
+                        if (fldConfig.type.split(':')[0] === "boolean") {
+                            if (fldConfig.default === true || fldConfig.default.toUpperCase()=== "TRUE" || fldConfig.default.toUpperCase()==="T" || fldConfig.default==="1" || fldConfig.default===1) {
+                                $('#' + ctrl_id).prop("checked", true);
+                            } else {
+                                $('#' + ctrl_id).prop("checked", false);
+                            }
+                        } else {
+                            $('#' + ctrl_id).val(fldConfig.default);
                         }
                     }
                 });
@@ -353,13 +370,14 @@ var featureEditForms = (function () {
                         if (fldConfig.control === "dropdown") {
                             if (typeof fldConfig.service_url !== "undefined") {
                                 if (typeof fldConfig.parent_field === "undefined") {
-                                    featureEditForms.popAttrList(ctrl_id, fldConfig.service_url, fldConfig.control);
+                                    featureEditForms.popAttrList(ctrl_id, fldConfig.service_url, fldConfig.control, fldConfig.lut_table);
                                     $('#' + ctrl_id + ' option[value="' + f.get(ctrl_id) + '"]').prop('selected', 'selected');
                                 }
                                 if (typeof fldConfig.child_fields !== "undefined") {
                                     $.each(fldConfig.child_fields, function (key, val) {
                                         var childField = val.split(':')[0];
-                                        var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                        //var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                        var childUrl = val.split(/:(.+)/)[1];
                                         $('#' + childField).prop("disabled", true);
                                         if (typeof fldConfig.parent_field === "undefined") {
                                             featureEditForms.popChildAttrList(childField, childUrl, f.get(ctrl_id));
@@ -400,7 +418,8 @@ var featureEditForms = (function () {
                             if (typeof fldConfig.child_fields !== "undefined") {
                                 $.each(fldConfig.child_fields, function (key, val) {
                                     var childField = val.split(':')[0];
-                                    var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                    //var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                    var childUrl = val.split(/:(.+)/)[1];
                                     $('#' + childField).prop("disabled", true);
                                     // Populate child field
                                     featureEditForms.popChildAttrList(childField, childUrl, f.get(ctrl_id));
@@ -745,7 +764,7 @@ var featureEditForms = (function () {
             //featureEditForms.validateEditForm();
             return acArray;
         },
-        popAttrList: function (ctrl, url, type) {
+        popAttrList: function (ctrl, url, type, lut_table) {
             var enc = $('#hidEnc').val();
             if (enc.trim() === '') {
                 mapUtils.showMessage('danger', $.i18n._('_NOCONNECTIONTITLE'), $.i18n._('_NOCONNECTIONDESCR'));
@@ -754,6 +773,9 @@ var featureEditForms = (function () {
             var params = {
                 "enc": enc
             };
+            if (typeof lut_table !== "undefined") {
+                params.lut_table=lut_table;
+            }
             params = JSON.stringify(params);
             $.ajax({
                 url: url,
@@ -765,20 +787,16 @@ var featureEditForms = (function () {
                     $(".wait").show();
                 },
                 success: function (data) {
-                    //var vals = JSON.parse(data.d);
-
-                    if (vals !== null && vals !== "") {
+                    if (data !== null && data !== "") {
                         var vals = data.d.replace('{', '').replace('}', '').split(',');
                         if (type === "dropdown") {
                             var ddl = $("#" + ctrl);
                             ddl.empty().append('<option value="#">' + $.i18n._('_SELECT') + '...</option>');
-                            //$.each(vals, function (key, valueObj) {
-                            //    ddl.append($("<option></option>").val(key).html(valueObj));
-                            //});
                             $.each(vals, function (i, valueObj) {
                                 let kv = valueObj.split(':');
-                                let k = (typeof kv[0] === "undefined") ? "undefined" : kv[0].replace(/\"/g, "");
-                                let v = (typeof kv[1] === "undefined") ? "undefined" : kv[1].replace(/\"/g, "");
+                                // If the data contains invalid json values then they will come as undefined
+                                let k = (typeof kv[0] === "undefined") ? "CHECK YOUR DATA!" : kv[0].replace(/\"/g, "");
+                                let v = (typeof kv[1] === "undefined") ? "CHECK YOUR DATA!" : kv[1].replace(/\"/g, "");
                                 if (typeof kv[0] === "undefined" || typeof kv[1] === "undefined") {
                                     console.log(valueObj);
                                 }
@@ -792,10 +810,22 @@ var featureEditForms = (function () {
                     }
                 },
                 error: function (response) {
-                    alert(response.responseText);
+                    var msg="";
+                    if (typeof response.responseJSON !== "undefined") {
+                        msg = response.responseJSON.Message;
+                    } else {
+                        msg = response.statusText;
+                    }
+                    mapUtils.showMessage('danger', msg, $.i18n._('_ERROR') + ": " + url +"(" +ctrl +")");
                 },
                 failure: function (response) {
-                    alert(response.responseText);
+                    var msg="";
+                    if (typeof response.responseJSON !== "undefined") {
+                        msg = response.responseJSON.Message;
+                    } else {
+                        msg = response.statusText;
+                    }
+                    mapUtils.showMessage('danger', msg, $.i18n._('_ERROR') + ": " + url +"(" +ctrl +")");
                 },
                 complete: function (response) {
                     $(".wait").hide();
@@ -832,7 +862,8 @@ var featureEditForms = (function () {
                         $.each(vals, function (key, valueObj) {
                             ddl.append($("<option></option>").val(key).html(valueObj));
                         });
-                        //ddl.val(selval);
+                        $('#' + ctrl).change();
+                        
                     }
                 },
                 error: function (response) {
@@ -934,7 +965,10 @@ var featureEditForms = (function () {
                         return false;
                     }
                     if (fldConfig.control === "dropdown" || fldConfig.control === "text") {
-                        var fldval = $("#" + fldConfig.name.split(':')[0]).val().replace(",", ".");
+                        var fldval='';
+                        if ($("#" + fldConfig.name.split(':')[0]).val() !== null) { //Would be null for an unitialized dropdown
+                            fldval = $("#" + fldConfig.name.split(':')[0]).val().replace(",", ".");
+                        }
                         params1 = params1 + fldConfig.name.split(':')[0] + ":" + fldval + ":" + fldConfig.type + "|";
                     } else if (fldConfig.control === "typeahead") { // Get the value from the hidden field
                         var fldHidval = $("#hidVal_" + fldConfig.name.split(':')[0]).val().replace(",", ".");
