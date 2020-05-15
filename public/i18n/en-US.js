@@ -85,6 +85,7 @@
     "_PINNAMETT": "You can name the pin to save it on the map",
     "_INVALIDCOORDS": "Invalid coordinates",
     "_ZOOMTOXY": "Zoom to XY",
+    "_GETCOORDFROMMAPPROMPT": "Click on a location on the map to get its coordinates",
     "_CLEARALL": "Remove all pins",
     "_YES": "Yes",
     "_NO": "No",
