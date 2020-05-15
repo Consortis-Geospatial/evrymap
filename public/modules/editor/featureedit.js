@@ -1,6 +1,7 @@
 ﻿var editLayer;
 var layer2split;
 var originalEditLayer = null;
+
 var featureEdit = (function () {
     $(document).ready(function () {
         $('#lnkLogin').show();
@@ -23,21 +24,47 @@ var featureEdit = (function () {
         $("#btnLogin").click(function(){
             user=$("#txbUsername").val();
             pass=$("#txbPassword").val();
-            $.post(window.location.origin+window.location.pathname + "login",{user: user,password: pass}, function(data){
-                if (typeof data.originalError !== "undefined") { // For MSSQL
-                    // Error occured 
-                    $('#hidEnc').val('');
-                    mapUtils.showMessage('danger',data.originalError.message, $.i18n._('_ERROROCCUREDTITLE'));
-                    return false;
-                } else if (data.startsWith("error")) { // For postgres
-                    $('#hidEnc').val('');
-                    mapUtils.showMessage('danger',data, $.i18n._('_ERROROCCUREDTITLE'));
-                    return false;
-                } else {
-                    $('#modLogin').modal('hide');
-                    featureEdit.showConnected(user, data);
+            let cusModule = $("#CusModule").val();
+            
+            if (cusModule === 'landify') {
+              let params = { user: user, password: pass };
+              params = JSON.stringify(params);
+              let url = lrmForm.getParcelUrl();
+              $.ajax({
+                type: 'POST',
+                url: url + 'login',
+                data: params,
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function(data) {
+                  $('#modLogin').modal('hide');
+                  featureEdit.showConnected(user, data.con);
+                },
+                error: function(data) {
+                  $('#hidEnc').val('');
+                  mapUtils.showMessage('danger', data.responseJSON.message, $.i18n._('_ERROROCCUREDTITLE'));
+                  return false;
                 }
-            });
+              });
+            }
+            else{
+              $.post(window.location.origin+window.location.pathname + "login",{user: user,password: pass}, function(data){
+                console.log('data', data);
+                  if (typeof data.originalError !== "undefined") { // For MSSQL
+                      // Error occured 
+                      $('#hidEnc').val('');
+                      mapUtils.showMessage('danger',data.originalError.message, $.i18n._('_ERROROCCUREDTITLE'));
+                      return false;
+                  } else if (data.startsWith("error")) { // For postgres
+                      $('#hidEnc').val('');
+                      mapUtils.showMessage('danger',data, $.i18n._('_ERROROCCUREDTITLE'));
+                      return false;
+                  } else {
+                      $('#modLogin').modal('hide');
+                      featureEdit.showConnected(user, data);
+                  }
+              });
+            }
           });
     });
     return {
