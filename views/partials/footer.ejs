@@ -1,16 +1,22 @@
 <!-- views/partials/footer.ejs -->
 <div style="background-color: rgb(34, 34, 34); height: 35px; position: fixed;bottom: 0; width: 100%;">
-    <div class="navbar-form navbar-right"
+    <div class="navbar-form navbar-right" id="divMcoords"
         style="padding-right: 0; padding-left: 0; padding-bottom: 0; margin-right: 5px; margin-bottom: 0;">
         <label class="text-primary" id="mcoords"></label>
     </div>
-    <div class="navbar-form navbar-left"
+    <div class="navbar-form navbar-left" id="divCopyright"
         style="padding-right: 0; padding-left: 10px; padding-bottom: 0; margin-right: 5px; margin-bottom: 0;">
-        <label class="text-primary">Powered by EVERYMAP &copy; 2018-<%= new Date().getFullYear()%> | <a href="http://www.consortis.gr"
+        <label class="text-primary" id="lblCopyright" >Powered by EVERYMAP &copy; 2018-<%= new Date().getFullYear()%> | <a href="http://www.consortis.gr"
                 target="_blank" style="color: #ffffff">Consortis Geospatial</a></label>
     </div>
-    <div class="navbar-form navbar-center"  id="divShowMaptips">
-        <label class="checkbox-inline" style="left:50%">
+    <div id="divEditPanel" style="display:none"> 
+        <strong><span id="lblCurrentlyEditing" style="color:white"></span>
+        <button class="btn btn-primary btn-sm" id="btnStopEdits" onclick="featureEdit.stopEditing();" title="Ολοκλήρωση επεξεργασίας">
+            Ολοκλήρωση
+        </button>
+    </div>
+    <div id="divShowMaptips">
+        <label class="checkbox-inline" >
             <input type="checkbox"  id="chkShowMaptips" checked data-size="mini" /> <span id="lblShowMaptips" style="color:white">Show Maptips</span>
           </label>
     </div>

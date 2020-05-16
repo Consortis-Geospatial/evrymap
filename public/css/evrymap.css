@@ -1,16 +1,23 @@
-html, body {
+html,
+body {
     height: 100%;
     width: 100%;
     margin: 0;
 }
+
 .ol-attribution {
     bottom: 6em;
 }
+
 .dl-horizontal dt {
     white-space: normal;
 }
 
-.ui-autocomplete { position: absolute; cursor: default;z-index:9999 !important;} 
+.ui-autocomplete {
+    position: absolute;
+    cursor: default;
+    z-index: 9999 !important;
+}
 
 /* Set width on the form input elements since they're 100% wide by default */
 /*input,
@@ -74,37 +81,38 @@ textarea {
     left: 0;
     height: 100%;
     width: 100%;
-    background: rgba( 255, 255, 255, .8 ) url('images/ajax-loader.gif') 50% 50% no-repeat;
+    background: rgba(255, 255, 255, .8) url('images/ajax-loader.gif') 50% 50% no-repeat;
 }
 
 .panel-heading {
     position: relative;
 }
 
- .panel-heading[data-toggle="collapse"]:after {
-        font-family: 'Glyphicons Halflings';
-        content: "\e072"; /* "play" icon */
-        position: absolute;
-        color: #b0c5d8;
-        font-size: 18px;
-        line-height: 22px;
-        right: 20px;
-        top: calc(50% - 10px);
-        /* rotate "play" icon from > (right arrow) to down arrow */
-        -webkit-transform: rotate(-90deg);
-        -moz-transform: rotate(-90deg);
-        -ms-transform: rotate(-90deg);
-        -o-transform: rotate(-90deg);
-        transform: rotate(-90deg);
+.panel-heading[data-toggle="collapse"]:after {
+    font-family: 'Glyphicons Halflings';
+    content: "\e072";
+    /* "play" icon */
+    position: absolute;
+    color: #b0c5d8;
+    font-size: 18px;
+    line-height: 22px;
+    right: 20px;
+    top: calc(50% - 10px);
+    /* rotate "play" icon from > (right arrow) to down arrow */
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
 }
 
 .panel-heading[data-toggle="collapse"].collapsed:after {
-        /* rotate "play" icon from > (right arrow) to ^ (up arrow) */
-        -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-        -ms-transform: rotate(90deg);
-        -o-transform: rotate(90deg);
-        transform: rotate(90deg);
+    /* rotate "play" icon from > (right arrow) to ^ (up arrow) */
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
 }
 
 .footer {
@@ -113,7 +121,8 @@ textarea {
     width: 100%;
     /* Set the fixed height of the footer here */
     height: 20px;
-    line-height: 20px; /* Vertically center the text there */
+    line-height: 20px;
+    /* Vertically center the text there */
     background-color: #f5f5f5;
     opacity: 0.5;
     text-align: left;
@@ -137,7 +146,7 @@ textarea {
     min-width: 250px;
     padding: 10px 10px 0;
     overflow: hidden;
-    background-color: rgba(255,255,255,1);
+    background-color: rgba(255, 255, 255, 1);
 }
 
 .login-profile-img {
@@ -159,18 +168,21 @@ textarea {
     background-color: rgb(51, 122, 183);
     background-image: none;
     color: white;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     font-weight: 400;
 }
+
 /* WMS-T layers controls */
 div#fixBootstrapSliderPluginStyles div.slider.slider-horizontal .slider-track .slider-handle {
-    height: 30px!important; 
+    height: 30px !important;
 }
+
 .wms-t-control {
     position: absolute;
-    left:4%; top:4em;
-    width:30%
+    left: 4%;
+    top: 4em;
+    width: 30%
 }
 
 /* END WMS-T layers controls */
@@ -185,10 +197,11 @@ div#fixBootstrapSliderPluginStyles div.slider.slider-horizontal .slider-track .s
 }
 
 .input-group[class*=col-] {
-    width:15%;
-    }
+    width: 15%;
+}
 
-.scalebar, #lblScaleBar {
+.scalebar,
+#lblScaleBar {
     background-color: #428bca;
     color: white;
 }
@@ -205,6 +218,7 @@ div#fixBootstrapSliderPluginStyles div.slider.slider-horizontal .slider-track .s
     bottom: 2em;
     width: 200px;
 }
+
 /* END Scalebar */
 
 /* Navigation buttons */
@@ -216,7 +230,8 @@ div#fixBootstrapSliderPluginStyles div.slider.slider-horizontal .slider-track .s
 }
 
 .ol-control {
-    background-color: rgba(255,255,255,0); /* This will make the background transparent */
+    background-color: rgba(255, 255, 255, 0);
+    /* This will make the background transparent */
 }
 
 .mapnav {
@@ -238,6 +253,7 @@ td.details-control {
 tr.shown td.details-control {
     background: url('images/details_close.png') no-repeat center center;
 }
+
 /* End search control */
 
 .modal-backdrop {
@@ -299,15 +315,17 @@ tr.shown td.details-control {
 .ol-popup {
     position: absolute;
     background-color: white;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     padding: 15px;
     border-radius: 10px;
     border: 1px solid #cccccc;
     bottom: 12px;
     left: -50px;
     min-width: 280px;
-  }
-  .ol-popup:after, .ol-popup:before {
+}
+
+.ol-popup:after,
+.ol-popup:before {
     top: 100%;
     border: solid transparent;
     content: " ";
@@ -315,87 +333,113 @@ tr.shown td.details-control {
     width: 0;
     position: absolute;
     pointer-events: none;
-  }
-  .ol-popup:after {
+}
+
+.ol-popup:after {
     border-top-color: white;
     border-width: 10px;
     left: 48px;
     margin-left: -10px;
-  }
-  .ol-popup:before {
+}
+
+.ol-popup:before {
     border-top-color: #cccccc;
     border-width: 11px;
     left: 48px;
     margin-left: -11px;
-  }
-  .ol-popup-closer {
+}
+
+.ol-popup-closer {
     text-decoration: none;
     position: absolute;
     top: 2px;
     right: 8px;
-  }
-  .ol-popup-closer:after {
+}
+
+.ol-popup-closer:after {
     content: "✖";
-  }
+}
+
 /* END Popup for markers */
 
 /* Popup for COVID-19 Layers radio group */
-  .covid-radio-group {
-    position:fixed;
-    top:8px;
-    right:100px;
-    z-index:99;
-    background-color:rgba(255,255,255,0.15);
-    border:none
-  }
-  .covid-radio-item {
-    background-color:rgba(0,0,0,0.5); 
-    color:white;
-  }
+.covid-radio-group {
+    position: fixed;
+    top: 8px;
+    right: 100px;
+    z-index: 99;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: none
+}
+
+.covid-radio-item {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
 /* END Popup for COVID-19 Layers radio group */
 
 /* 
   ##Device = Laptops, Desktops
 */
 @media (min-width: 1025px) {
-/* START SEARCH BAR */
-.searchpanel {
-    position: fixed;
-    z-index: 999;
-    top: 4em;
-    width: 30%;
-	right:4.5%;
-}
-.bottomtb {
-    position: fixed;
-    z-index: 999;
-    right: 30%;
-    left: 30%;
-    bottom: 1.3em;
-}
-/* END SEARCH BAR */
-#legendButton {
-	top:55px !important;
-}
-#graphicLegend {
-	top:55px !important;
-}
-/* START BOTTOM TOOLBAR */
-.bottomtb {
-    position: fixed;
-    z-index: 999;
-    bottom: 2.6em;
-}
-div#bottomToolbar {
-	left:50%;
-	width:406px;
-	transform:translate(-50%, 0%);
-}
 
-.btn-group>.btn {
-	position:unset;
-}
-/* END BOTTOM TOOLBAR */
+    /* START SEARCH BAR */
+    .searchpanel {
+        position: fixed;
+        z-index: 999;
+        top: 4em;
+        width: 30%;
+        right: 4.5%;
+    }
+
+    .bottomtb {
+        position: fixed;
+        z-index: 999;
+        right: 30%;
+        left: 30%;
+        bottom: 1.3em;
+    }
+
+    /* END SEARCH BAR */
+    #legendButton {
+        top: 55px !important;
+    }
+
+    #graphicLegend {
+        top: 55px !important;
+    }
+
+    /* START BOTTOM TOOLBAR */
+    .bottomtb {
+        position: fixed;
+        z-index: 999;
+        bottom: 2.6em;
+    }
+
+    div#bottomToolbar {
+        left: 50%;
+        width: 406px;
+        transform: translate(-50%, 0%);
+    }
+
+    .btn-group>.btn {
+        position: unset;
+    }
+
+    #divEditPanel {
+       position:absolute;
+       bottom:5px;
+       left:40%; 
+    }
+
+    #divShowMaptips{
+        position:absolute;
+        bottom:5px;
+        right:20%; 
+    }
+
+    /* END BOTTOM TOOLBAR */
 
 
 }
@@ -406,82 +450,116 @@ div#bottomToolbar {
   ##Screen = B/w 768px to 1024px
 */
 @media (min-width: 768px) and (max-width: 1024px) {
-  
-/* START SEARCH BAR */
-.searchpanel {
-    position: fixed;
-    z-index: 999;
-    top: 4em;
-    width: 40%;
-	left:50%;
-	transform:translate(-50%,0%);
-}
-.bottomtb {
-    position: fixed;
-    z-index: 999;
-    right: 30%;
-    left: 30%;
-    bottom: 1.3em;
-}
-/* END SEARCH BAR */
-#legendButton {
-	top:55px !important;
-}
-#graphicLegend {
-	top:55px !important;
-}
-/* START SELECT SCALE */
-.input-group[class*=col-] {
-display:none;
-}
-/* END SELECT SCALE */
-/* START INFO BTN*/
-.ol-attribution { 
-display:none;
-}
-/* END INFO BTN*/
 
-/* START BOTTOM TOOLBAR */
-.bottomtb {
-    position: fixed;
-    z-index: 999;
-    bottom: 2.6em;
-}
-div#bottomToolbar {
-	left:50%;
-	width:406px;
-	transform:translate(-50%, 0%);
-}
+    /* START SEARCH BAR */
+    .searchpanel {
+        position: fixed;
+        z-index: 999;
+        top: 4em;
+        width: 40%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+    }
 
-.btn-group>.btn {
-	position:unset;
-}
-/* END BOTTOM TOOLBAR */
-/* START DIALOGS */
-.cg_dialog_class {
-	top:50% !important;
-	left:50% !important;
-	width:90% !important;
-	height:90% !important;
-	transform:translate(-50%,-50%) !important;
-}
-.ui-dialog-buttonpane {
-	position:absolute;
-	bottom:0px;
-	width:100% !important;
-}
-.ui-dialog-content {
-	height:70% !important;
-}
-/* END DIALOGS */
-.covid-radio-group {
-    position:fixed;
-    top:55px;
-    left:50px;
-    z-index:9;
-    background-color:rgba(255,255,255,0.15);
-    border:none
-  }
+    .bottomtb {
+        position: fixed;
+        z-index: 999;
+        right: 30%;
+        left: 30%;
+        bottom: 1.3em;
+    }
+
+    /* END SEARCH BAR */
+    #legendButton {
+        top: 55px !important;
+    }
+
+    #graphicLegend {
+        top: 55px !important;
+    }
+
+    /* START SELECT SCALE */
+    .input-group[class*=col-] {
+        display: none;
+    }
+
+    /* END SELECT SCALE */
+    /* START INFO BTN*/
+    .ol-attribution {
+        display: none;
+    }
+
+    /* END INFO BTN*/
+
+    /* START BOTTOM TOOLBAR */
+    .bottomtb {
+        position: fixed;
+        z-index: 999;
+        bottom: 2.6em;
+    }
+
+    div#bottomToolbar {
+        left: 50%;
+        width: 406px;
+        transform: translate(-50%, 0%);
+    }
+
+    .btn-group>.btn {
+        position: unset;
+    }
+
+    #divEditPanel {
+        position:absolute;
+        bottom:5px;
+        left:30%; 
+     }
+ 
+     #divShowMaptips{
+         position:absolute;
+         bottom:5px;
+         right:20%; 
+     }
+     #lblCopyright {
+         font-size: x-small;
+     }
+     #mcoords {
+        font-size: x-small;
+    }
+    #lblShowMaptips {
+        font-size: x-small;
+    }
+    #lblCurrentlyEditing {
+        font-size: x-small;
+    }
+    /* END BOTTOM TOOLBAR */
+    /* START DIALOGS */
+    .cg_dialog_class {
+        top: 50% !important;
+        left: 50% !important;
+        width: 90% !important;
+        height: 90% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+
+    .ui-dialog-buttonpane {
+        position: absolute;
+        bottom: 0px;
+        width: 100% !important;
+    }
+
+    .ui-dialog-content {
+        height: 70% !important;
+    }
+
+    /* END DIALOGS */
+    .covid-radio-group {
+        position: fixed;
+        top: 55px;
+        left: 50px;
+        z-index: 9;
+        background-color: rgba(255, 255, 255, 0.15);
+        border: none
+    }
 }
 
 
@@ -492,104 +570,146 @@ div#bottomToolbar {
 */
 
 @media (min-width: 481px) and (max-width: 768px) {
-#cnavbar {
-	z-index:999;
-}	  
-/* START SEARCH BAR */
-.searchpanel {
-    position: fixed;
-    z-index: 999;
-    top: 4em;
-    width: 60%;
-	left:50%;
-	transform:translate(-50%,0%);
-}
-.bottomtb {
-    position: fixed;
-    z-index: 999;
-    right: 30%;
-    left: 30%;
-    bottom: 1.3em;
-}
-/* END SEARCH BAR */
-#legendButton {
-	top:55px !important;
-}
-#graphicLegend {
-	top:55px !important;
-}
-/* START LEFT BAR */
-.lefttb {
-	top:50%;
-	transform:translateY(-50%) !important;
-}
-button#btnZoomIn {
-	display:none;
-}
-button#btnZoomOut {
-	display:none;
-}
-button#btnZoomInBox {
-	display:none;
-}
-button#btnZoomOutBox {
-	display:none;
-}
-/* END LEFT BAR */
-/* START BOTTOM TOOLBAR */
-.bottomtb {
-    position: fixed;
-    z-index: 999;
-    bottom: 2.6em;
-}
-div#bottomToolbar {
-	left:50%;
-	width:406px;
-	transform:translate(-50%, 0%);
-}
-button#btnSelByRect {
-	display:none;
-}
+    #cnavbar {
+        z-index: 999;
+    }
 
-.btn-group>.btn {
-	position:unset;
-}
-/* END BOTTOM TOOLBAR */
-  /* START SELECT SCALE */
-.input-group[class*=col-] {
-display:none;
-}
-/* END SELECT SCALE */
-/* START INFO BTN*/
-.ol-attribution { 
-display:none;
-}
-/* END INFO BTN*/
-/* START DIALOGS */
-.cg_dialog_class {
-	top:50% !important;
-	left:50% !important;
-	width:90% !important;
-	height:90% !important;
-	transform:translate(-50%,-50%) !important;
-}
-.ui-dialog-buttonpane {
-	position:absolute;
-	bottom:0px;
-	width:100% !important;
-}
-.ui-dialog-content {
-	height:70% !important;
-}
-/* END DIALOGS */
-.covid-radio-group {
-    position:fixed;
-    top:55px;
-    left:50px;
-    z-index:9;
-    background-color:rgba(255,255,255,0.15);
-    border:none
-  }
+    /* START SEARCH BAR */
+    .searchpanel {
+        position: fixed;
+        z-index: 999;
+        top: 4em;
+        width: 60%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+    }
+
+    .bottomtb {
+        position: fixed;
+        z-index: 999;
+        right: 30%;
+        left: 30%;
+        bottom: 1.3em;
+    }
+
+    /* END SEARCH BAR */
+    #legendButton {
+        top: 55px !important;
+    }
+
+    #graphicLegend {
+        top: 55px !important;
+    }
+
+    /* START LEFT BAR */
+    .lefttb {
+        top: 50%;
+        transform: translateY(-50%) !important;
+    }
+
+    button#btnZoomIn {
+        display: none;
+    }
+
+    button#btnZoomOut {
+        display: none;
+    }
+
+    button#btnZoomInBox {
+        display: none;
+    }
+
+    button#btnZoomOutBox {
+        display: none;
+    }
+
+    /* END LEFT BAR */
+    /* START BOTTOM TOOLBAR */
+    .bottomtb {
+        position: fixed;
+        z-index: 999;
+        bottom: 2.6em;
+    }
+
+    div#bottomToolbar {
+        left: 50%;
+        width: 406px;
+        transform: translate(-50%, 0%);
+    }
+
+    button#btnSelByRect {
+        display: none;
+    }
+
+    .btn-group>.btn {
+        position: unset;
+    }
+
+    #divEditPanel {
+        position:absolute;
+        bottom:5px;
+        left:40%; 
+     }
+ 
+     #divShowMaptips{
+         position:absolute;
+         bottom:5px;
+         right:20%; 
+     }
+     #lblCopyright {
+        font-size: x-small;
+    }
+    #mcoords {
+       font-size: x-small;
+    }
+    #lblShowMaptips {
+       font-size: x-small;
+    }
+    #lblCurrentlyEditing {
+       font-size: x-small;
+    }
+
+    /* END BOTTOM TOOLBAR */
+    /* START SELECT SCALE */
+    .input-group[class*=col-] {
+        display: none;
+    }
+
+    /* END SELECT SCALE */
+    /* START INFO BTN*/
+    .ol-attribution {
+        display: none;
+    }
+
+    /* END INFO BTN*/
+    /* START DIALOGS */
+    .cg_dialog_class {
+        top: 50% !important;
+        left: 50% !important;
+        width: 90% !important;
+        height: 90% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+
+    .ui-dialog-buttonpane {
+        position: absolute;
+        bottom: 0px;
+        width: 100% !important;
+    }
+
+    .ui-dialog-content {
+        height: 70% !important;
+    }
+
+    /* END DIALOGS */
+    .covid-radio-group {
+        position: fixed;
+        top: 55px;
+        left: 50px;
+        z-index: 9;
+        background-color: rgba(255, 255, 255, 0.15);
+        border: none
+    }
 }
 
 /* 
@@ -598,142 +718,181 @@ display:none;
 */
 
 @media (min-width: 320px) and (max-width: 480px) {
-/* START TOP BAR */
-.navbar-brand {
-	width:80%;
-}
-.navbar-text {
-	font-size:15px!important;
-}
-#legendButton {
-	top:55px !important;
-}
-#graphicLegend {
-	top:55px !important;
-}
-a.navbar-brand img {
-	display:none;
-}
-/* END TOP BAR */
 
-  /* START SEARCH BAR */
-.searchpanel {
-    position: fixed;
-    z-index: 999;
-    top: 55px;
-    width: 80%;
-	left:3px;
-}
-.input-group-lg>.form-control {
-	font-size:15px;
-}
-.dropdown-menu>li>a { 
-	color:#333 !important;
-}
-/* END SEARCH BAR */
+    /* START TOP BAR */
+    .navbar-brand {
+        width: 80%;
+    }
 
-/* START LEFT BAR */
-.lefttb {
-	top:50%;
-	transform:translateY(-50%) !important;
-}
-button#btnZoomIn {
-	display:none;
-}
-button#btnZoomOut {
-	display:none;
-}
-button#btnZoomInBox {
-	display:none;
-}
-button#btnZoomOutBox {
-	display:none;
-}
-/* END LEFT BAR */
+    .navbar-text {
+        font-size: 15px !important;
+    }
 
-/* START SELECT SCALE */
-.input-group[class*=col-] {
-display:none;
-}
+    #legendButton {
+        top: 55px !important;
+    }
 
-/* END SELECT SCALE */
-/* START INFO BTN*/
-.ol-attribution { 
-display:none;
-}
-/* END INFO BTN*/
-  
-  .ui-dialog {
-	  width:320px !important;
-	  top:100px !important;
-	  left:42px !important;
-  }
-  
-  /* START BOTTOM TOOLBAR */
-.bottomtb {
-    position: fixed;
-    z-index: 999;
-    bottom: 2.6em;
-}
-div#bottomToolbar {
-	left:50%;
-	width:auto;
-	transform:translate(-50%, 0%);
-}
-button#btnSelByRect {
-	display:none;
-}
-.btn-group>.btn {
-	position:unset;
-}
-/* END BOTTOM TOOLBAR */
-/* START DIALOGS */
-.cg_dialog_class {
-	top:50% !important;
-	left:50% !important;
-	width:90% !important;
-	height:90% !important;
-	transform:translate(-50%,-50%) !important;
-}
-.ui-dialog-buttonpane {
-	position:absolute;
-	bottom:0px;
-	width:100% !important;
-}
-.ui-dialog-content {
-	height:70% !important;
-}
-/* END DIALOGS */
-/* Popup for COVID-19 Layers radio group */
-.covid-form-group {
-    margin-bottom:1px;
-}
-.covid-radio-group {
-    position:fixed;
-    top:55px;
-    right:100px;
-    z-index:9;
-    background-color:rgba(255,255,255,0.15);
-    border:none
-  }
-  .covid-radio-item {
-    background-color:rgba(0,0,0,0.5); 
-    color:white;
-    font-size:10px;
-    width:38%!important
-  }
-/* END Popup for COVID-19 Layers radio group */
+    #graphicLegend {
+        top: 55px !important;
+    }
+
+    a.navbar-brand img {
+        display: none;
+    }
+
+    /* END TOP BAR */
+
+    /* START SEARCH BAR */
+    .searchpanel {
+        position: fixed;
+        z-index: 999;
+        top: 55px;
+        width: 80%;
+        left: 3px;
+    }
+
+    .input-group-lg>.form-control {
+        font-size: 15px;
+    }
+
+    .dropdown-menu>li>a {
+        color: #333 !important;
+    }
+
+    /* END SEARCH BAR */
+
+    /* START LEFT BAR */
+    .lefttb {
+        top: 50%;
+        transform: translateY(-50%) !important;
+    }
+
+    button#btnZoomIn {
+        display: none;
+    }
+
+    button#btnZoomOut {
+        display: none;
+    }
+
+    button#btnZoomInBox {
+        display: none;
+    }
+
+    button#btnZoomOutBox {
+        display: none;
+    }
+
+    /* END LEFT BAR */
+
+    /* START SELECT SCALE */
+    .input-group[class*=col-] {
+        display: none;
+    }
+
+    /* END SELECT SCALE */
+    /* START INFO BTN*/
+    .ol-attribution {
+        display: none;
+    }
+
+    /* END INFO BTN*/
+
+    .ui-dialog {
+        width: 320px !important;
+        top: 100px !important;
+        left: 42px !important;
+    }
+
+    /* START BOTTOM TOOLBAR */
+    .bottomtb {
+        position: fixed;
+        z-index: 999;
+        bottom: 2.6em;
+    }
+
+    div#bottomToolbar {
+        left: 50%;
+        width: auto;
+        transform: translate(-50%, 0%);
+    }
+
+    button#btnSelByRect {
+        display: none;
+    }
+
+    .btn-group>.btn {
+        position: unset;
+    }
+
+    #divEditPanel {
+        position:absolute;
+        bottom:5px;
+        left:40%; 
+     }
+ 
+     #divShowMaptips{
+         position:absolute;
+         bottom:5px;
+         right:20%; 
+     }
+
+    /* END BOTTOM TOOLBAR */
+    /* START DIALOGS */
+    .cg_dialog_class {
+        top: 50% !important;
+        left: 50% !important;
+        width: 90% !important;
+        height: 90% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+
+    .ui-dialog-buttonpane {
+        position: absolute;
+        bottom: 0px;
+        width: 100% !important;
+    }
+
+    .ui-dialog-content {
+        height: 70% !important;
+    }
+
+    /* END DIALOGS */
+    /* Popup for COVID-19 Layers radio group */
+    .covid-form-group {
+        margin-bottom: 1px;
+    }
+
+    .covid-radio-group {
+        position: fixed;
+        top: 55px;
+        right: 100px;
+        z-index: 9;
+        background-color: rgba(255, 255, 255, 0.15);
+        border: none
+    }
+
+    .covid-radio-item {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        font-size: 10px;
+        width: 38% !important
+    }
+
+    /* END Popup for COVID-19 Layers radio group */
 }
 
 /* 
   ##Device = ALL
 */
 #cnavbar {
-	  z-index:99999;
-  }
-  div#modLogin {
-	  z-index:999999;
-  }
+    z-index: 99999;
+}
+
+div#modLogin {
+    z-index: 999999;
+}
+
 /*div#popup1 {
 	position:unset;
 }*/

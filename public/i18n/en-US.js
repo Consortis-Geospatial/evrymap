@@ -167,6 +167,8 @@
     "_EDITMERGE": "Merge two lines",
     "_EDITHUMP": "Click along the line to create a 'hump'",
     "_EDITSTOP": "Stop editing",
+    "_EDITSTOPBTN": "Stop editing",
+    "_EDITCURRENTEDIT": "Current edit layer",
     "_EDITSTARTTITLE": "Select Layer to edit",
     "_PREFERENCES": "Preferences",
     "_ANDOPERATOR": "All values (AND)",

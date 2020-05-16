@@ -1,4 +1,8 @@
-﻿var editLayer;
+﻿/**
+ * Methods for general editing functionality
+ * @namespace featureEdit
+ */
+var editLayer;
 var layer2split;
 var originalEditLayer = null;
 var featureEdit = (function () {
@@ -48,6 +52,12 @@ var featureEdit = (function () {
         });
     });
     return {
+        /**
+         * Checks whether the edit cookie exists and the user is already
+         * 'logged in'
+         * @function checkCookie
+         * @memberof featureEdit
+         */
         checkCookie: function () {
             if (document.cookie.split(';').filter(function (item) {
                 return item.trim().indexOf('evrymap=') === 0;
@@ -58,6 +68,11 @@ var featureEdit = (function () {
                 featureEdit.showConnected(user, enc);
             }
         },
+        /**
+         * Displays info for the connected user
+         * @function showConnected
+         * @memberof featureEdit
+         */
         showConnected: function (uname, enc) {
             $('#hidEnc').val(enc);
             mapUtils.showMessage('success', $.i18n._('_LOGINSUCCESS'), $.i18n._('_LOGINSUCCESS'));
@@ -105,9 +120,9 @@ var featureEdit = (function () {
                 '               <button class="btn btn-primary" id="btnHump" title="Κλικ πάνω στον αγωγό για τη δημιουργία καμπύλης στο σημείο" style="display: none">' +
                 '               <img src="css/images/icons8-leaving-geo-fence-26.png" style="width: 32px;filter: invert(100%);" />' +
                 '           </button>' +
-                '           <button class="btn btn-primary" id="btnStopEdits" onclick="featureEdit.stopEditing();" disabled title="Ολοκλήρωση επεξεργασίας">' +
-                '               <img src="css/images/icons8-no-edit-26.png" style="width: 32px;filter: invert(100%);" />' +
-                '           </button>' +
+                //'           <button class="btn btn-primary" id="btnStopEdits" onclick="featureEdit.stopEditing();" disabled title="Ολοκλήρωση επεξεργασίας">' +
+                //'               <img src="css/images/icons8-no-edit-26.png" style="width: 32px;filter: invert(100%);" />' +
+               // '           </button>' +
                 '               <br>' +
                 '               <br>' +
                 '           <button class="btn btn-primary" id = "btnLrmSearch" title = "Αναζήτηση Ακινήτου" onclick="featureEdit.showLrmDlg();" >' +
@@ -124,6 +139,11 @@ var featureEdit = (function () {
             $('#btnMerge').prop("title", $.i18n._('_EDITMERGE'));
             $('#btnHump').prop("title", $.i18n._('_EDITHUMP'));
             $('#btnStopEdits').prop("title", $.i18n._('_EDITSTOP'));
+        },
+        showEditingPanel: function(layerlabel) {
+            $('#lblCurrentlyEditing').html($.i18n._('_EDITCURRENTEDIT') +": " + layerlabel);
+            $('#btnStopEdits').text($.i18n._('_EDITSTOPBTN'));
+            $('#divEditPanel').show();
         },
         initAddHole: function () {
             $('#mapid').css('cursor', 'crosshair');
@@ -728,8 +748,7 @@ var featureEdit = (function () {
             //console.log(curName);
             $('#divStartEditForm').dialog({
                 autoOpen: false,
-                minHeight: 500,
-                maxHeight: 800,
+                maxHeight: 500,
                 width: 400,
                 maxWidth: 550,
                 buttons: [
@@ -754,6 +773,8 @@ var featureEdit = (function () {
                     $('#divStartEditForm').dialog("close");
                 },
                 modal: true,
+                draggable:true,
+                resizable:true,
                 title: $.i18n._('_EDITSTARTTITLE'),
                 closeOnEscape: false
             });
@@ -841,6 +862,7 @@ var featureEdit = (function () {
             if (editLayer instanceof ol.layer.Tile || editLayer instanceof ol.layer.Image) {
                 editLayer = featureEdit.convertTileToVector(editLayer, false);
             }
+            featureEdit.showEditingPanel(editLayer.get("label"));
             // Set Edit style
             editLayer.setStyle(featureEdit.setEditStyle());
             // Display Edit tools
@@ -1036,7 +1058,7 @@ var featureEdit = (function () {
             if (typeof lrmForm !== "undefined") {
                 $('#btnLrmSearch').show();
             }
-            
+            $('#divEditPanel').hide();
             $('#btnCreate').hide();
             $('#btnEdit').hide();
             $('#btnSplit').hide();
