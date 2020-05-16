@@ -47,6 +47,7 @@ const config = require('./config/config.json');
 // all global variables should be referenced via global. syntax
 // and their names should always begin with g
 global.gConfig = config;
+global.gModule = config.custommods[0].name;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
