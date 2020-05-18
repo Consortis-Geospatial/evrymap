@@ -47,7 +47,9 @@ const config = require('./config/config.json');
 // all global variables should be referenced via global. syntax
 // and their names should always begin with g
 global.gConfig = config;
-global.gModule = config.custommods[0].name;
+
+const hasNodeModules = config.custommods.find(x => x.active && x.isNodeModule);
+global.gModule = hasNodeModules ? true : false;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -98,13 +100,14 @@ app.post('/upload', function (req, res) {
 });
 app.use(bodyParser());
 // Check for any nodejs custom modules and load them. They should all exist in the ./modules folder
-var modVars = {};
-gConfig.custommods.forEach(function (mod) {
-  if (mod.isNodeModule) {
-    var modName = mod.name;
-    modVars[modName] = require('./modules/' + mod.name + '/' + mod.name)(app);
-  }
-});
+// var modVars = {};
+// gConfig.custommods.forEach(function (mod) {
+//   if (mod.isNodeModule && mod.active) {
+//     console.log('mod', mod);
+//     var modName = mod.name;
+//     modVars[modName] = require('./modules/' + mod.name + '/' + mod.name)(app);
+//   }
+// });
 
 // catch 404 and forward to error handler
 /*app.use(function(req, res, next) {

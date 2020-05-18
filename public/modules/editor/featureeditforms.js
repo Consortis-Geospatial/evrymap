@@ -5,7 +5,7 @@
  */
 var area_control = '';
 var length_control = '';
-var cusModule = $("#CusModule").val();
+const cusModule = $("#CusModule").val() == "true";
 
 var featureEditForms = (function () {
     $(document).ready(function () {
@@ -45,7 +45,7 @@ var featureEditForms = (function () {
                                     // var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
                                     var childUrl;
                                     var childField;
-                                    if (cusModule === 'landify') {
+                                    if (cusModule) {
                                       const getFirstSemicolon = val.indexOf(':');
                                       childField = val.substring(0, getFirstSemicolon);
                                       childUrl = val.substring(getFirstSemicolon + 1, val.length);
@@ -102,7 +102,7 @@ var featureEditForms = (function () {
 
                                 var childUrl;
                                 var childField;
-                                if (cusModule === 'landify') {
+                                if (cusModule) {
                                   const getFirstSemicolon = val.indexOf(':');
                                   childField = val.substring(0, getFirstSemicolon);
                                   childUrl = val.substring(getFirstSemicolon + 1, val.length);
@@ -405,7 +405,7 @@ var featureEditForms = (function () {
 
                                         var childUrl;
                                         var childField;
-                                        if (cusModule === 'landify') {
+                                        if (cusModule) {
                                           const getFirstSemicolon = val.indexOf(':');
                                           childField = val.substring(0, getFirstSemicolon);
                                           childUrl = val.substring(getFirstSemicolon + 1, val.length);
@@ -779,7 +779,7 @@ var featureEditForms = (function () {
                     if (data !== null && data !== "") {
                         // var vals = data.d.replace('{', '').replace('}', '').split(',');
                         var vals;
-                        if (cusModule === 'landify') {
+                        if (cusModule) {
                           vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
                         } else {
                           vals = data.d.replace('{', '').replace('}', '').split(',');
@@ -833,7 +833,7 @@ var featureEditForms = (function () {
 
                     if (vals !== null && vals !== "") {
                         var vals;
-                        if (cusModule === 'landify') {
+                        if (cusModule) {
                           vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
                         } else {
                           vals = data.d.replace('{', '').replace('}', '').split(',');
@@ -907,7 +907,7 @@ var featureEditForms = (function () {
                 success: function (data) {
                     // var vals = JSON.parse(data.d);
                     var vals;
-                    if (cusModule === 'landify') {
+                    if (cusModule) {
                       vals = data;
                     } else{
                       vals = JSON.parse(data.d);
@@ -960,7 +960,7 @@ var featureEditForms = (function () {
                 success: function (data) {
                     // var vals = JSON.parse(data.d);
                     var vals;
-                    if (cusModule === 'landify') {
+                    if (cusModule) {
                       vals = data;
                     } else{
                       vals = JSON.parse(data.d);

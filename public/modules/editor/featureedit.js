@@ -35,9 +35,9 @@ var featureEdit = (function () {
         $("#btnLogin").click(function(){
             user=$("#txbUsername").val();
             pass=$("#txbPassword").val();
-            let cusModule = $("#CusModule").val();
+            let cusModule = $("#CusModule").val() == "true";
             
-            if (cusModule === 'landify') {
+            if (cusModule) {
               let params = { user: user, password: pass };
               params = JSON.stringify(params);
               let url = lrmForm.getParcelUrl();
@@ -60,7 +60,6 @@ var featureEdit = (function () {
             }
             else{
               $.post(window.location.origin+window.location.pathname + "login",{user: user,password: pass}, function(data){
-                console.log('data', data);
                   if (typeof data.originalError !== "undefined") { // For MSSQL
                       // Error occured 
                       $('#hidEnc').val('');
