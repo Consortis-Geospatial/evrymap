@@ -18,6 +18,14 @@
     max-height: 15em;
 }
 
+.editbtnImg {
+   width:24px;
+   height:24px;
+   filter: invert(100%);
+}
+
+  
+
 
 .ui-button.cancelButton {
     border: 1px solid #aaaaaa

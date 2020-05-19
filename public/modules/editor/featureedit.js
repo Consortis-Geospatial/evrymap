@@ -98,28 +98,28 @@ var featureEdit = (function () {
         renderEditTools: function () {
             var str = ' <div id="editTools" style="display:none" class="righttb btn-group-vertical">' +
                 '           <button class="btn btn-primary" id = "btnStartEdit" title = "Έναρξη επεξεργασίας" onclick = "featureEdit.showStartEditForm();" >' +
-                '               <img src="css/images/icons8-edit-26.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/icons8-edit-26.png" class="editbtnImg" />' +
                 '           </button >' +
                 '           <button class="btn btn-primary" id="btnCreate" title="Δημιουργία" style="display: none">' +
-                '               <img src="css/images/icons8-sign-up-26.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/icons8-sign-up-26.png" class="editbtnImg" />' +
                 '           </button>' +
                 '           <button class="btn btn-primary" id="btnEdit" title="Επεξεργασία" style="display: none">' +
-                '               <img src="css/images/icons8-map-editing-26.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/icons8-map-editing-26.png" class="editbtnImg" />' +
                 '           </button>' +
                 '           <button class="btn btn-primary" id="btnAddHole" disabled title="Επεξεργασία" style="display: none">' +
-                '               <img src="css/images/cd-rom.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/cd-rom.png" class="editbtnImg" />' +
                 '           </button>' +
                 '           <button class="btn btn-primary" id="btnAddPart" disabled title="Επεξεργασία" style="display: none">' +
-                '               <img src="css/images/add_part.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/add_part.png" class="editbtnImg" />' +
                 '           </button>' +
                 '           <button class="btn btn-primary" id="btnSplit" title="Διαίρεση γραμμής (split)" style="display: none">' +
-                '               <img src="css/images/icons8-split-vertical-26.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/icons8-split-vertical-26.png" class="editbtnImg" />' +
                 '           </button>' +
                 '           <button class="btn btn-primary" id="btnMerge" title="Ενωση γραμμών (merge)" disabled style="display: none">' +
-                '               <img src="css/images/icons8-merge-vertical-50.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/icons8-merge-vertical-50.png" class="editbtnImg" />' +
                 '           </button>' +
                 '               <button class="btn btn-primary" id="btnHump" title="Κλικ πάνω στον αγωγό για τη δημιουργία καμπύλης στο σημείο" style="display: none">' +
-                '               <img src="css/images/icons8-leaving-geo-fence-26.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/icons8-leaving-geo-fence-26.png" class="editbtnImg" />' +
                 '           </button>' +
                 //'           <button class="btn btn-primary" id="btnStopEdits" onclick="featureEdit.stopEditing();" disabled title="Ολοκλήρωση επεξεργασίας">' +
                 //'               <img src="css/images/icons8-no-edit-26.png" style="width: 32px;filter: invert(100%);" />' +
@@ -127,7 +127,7 @@ var featureEdit = (function () {
                 '               <br>' +
                 '               <br>' +
                 '           <button class="btn btn-primary" id = "btnLrmSearch" title = "Αναζήτηση Ακινήτου" onclick="featureEdit.showLrmDlg();" >' +
-                '               <img src="css/images/icons8-pastel-glyph-64.png" style="width: 32px;filter: invert(100%);" />' +
+                '               <img src="css/images/icons8-pastel-glyph-64.png" class="editbtnImg" />' +
                 '           </button >' +
                 '       </div >';
             $('#mainparent').prepend(str);
