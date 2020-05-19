@@ -52,7 +52,8 @@ var featureEditForms = (function () {
                                     }
                                     else{
                                       childField = val.split(':')[0];
-                                      childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                      childUrl = val.split(/:(.+)/)[1];
+                                      //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
                                     }
 
                                     $('#' + childField).prop("disabled", true);
@@ -109,7 +110,8 @@ var featureEditForms = (function () {
                                 }
                                 else{
                                   childField = val.split(':')[0];
-                                  childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                  childUrl = val.split(/:(.+)/)[1];
+                                  //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
                                 }
 
                                 $('#' + childField).prop("disabled", true);
@@ -412,7 +414,8 @@ var featureEditForms = (function () {
                                         }
                                         else{
                                           childField = val.split(':')[0];
-                                          childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                          childUrl = val.split(/:(.+)/)[1];
+                                          //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
                                         }
                                         $('#' + childField).prop("disabled", true);
                                         if (typeof fldConfig.parent_field === "undefined") {
