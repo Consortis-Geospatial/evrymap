@@ -4,7 +4,8 @@ var bodyParser = require("body-parser");
 var router = express.Router();
 const config = require('../config/config.json');
 // const config = require('../config/config_sample.json');
-const crypto = require('../crypto');
+// const crypto = require('../crypto');
+const CryptoJS = require('crypto-js')
 
 // Check if we are using a C# class library for encryption
 var encDllProxy;
@@ -27,7 +28,7 @@ if (typeof config.editConnection !== "undefined") {
    } else if (editConnectionType === "POSTGRES") {
       db = require('pg');
    }
-
+   
    config.connections.forEach(function (con) {
       if (con.name === editConnection) {
          server = con.server;
@@ -85,7 +86,21 @@ function login(req, res) {
                      res.send(encString);
                   });
                } else {
-                  let encString = crypto.encrypt(flatConnectionString);
+                  const params = {
+                    user: name,
+                    password: pass
+                  };
+                  const key = CryptoJS.enc.Utf8.parse(config.authKey);
+                  const iv = CryptoJS.enc.Utf8.parse(config.authKey);
+                  const encDecType = config.encDecType || 'AES';
+                  
+                  const encString = CryptoJS[encDecType].encrypt(CryptoJS.enc.Utf8.parse(JSON.stringify(params)), key, {
+                    keySize: 128 / 8,
+                    iv,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                  }).toString();
+                  // let encString = crypto.encrypt(flatConnectionString);
                   addCookie(res, encString, editConnectionType, name);
                   res.send(encString);
                }
@@ -118,7 +133,21 @@ function login(req, res) {
                      res.send(encString);
                   });
                } else {
-                  let encString = crypto.encrypt(flatConnectionString)
+                  const params = {
+                    user: connectionString.user,
+                    password: connectionString.password
+                  };
+                  const key = CryptoJS.enc.Utf8.parse(config.authKey);
+                  const iv = CryptoJS.enc.Utf8.parse(config.authKey);
+                  const encDecType = config.encDecType || 'AES';
+                  
+                  const encString = CryptoJS[encDecType].encrypt(CryptoJS.enc.Utf8.parse(JSON.stringify(params)), key, {
+                    keySize: 128 / 8,
+                    iv,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                  }).toString();
+                  // let encString = crypto.encrypt(flatConnectionString)
                   addCookie(res, encString, editConnectionType, name);
                   res.send(encString);
                }

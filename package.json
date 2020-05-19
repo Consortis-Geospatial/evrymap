@@ -25,6 +25,7 @@
     "bootstrap-colorpicker": "^3.2.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
+    "crypto-js": "^4.0.0",
     "debug": "~2.6.9",
     "dotenv": "^8.0.0",
     "edge-js": "^12.3.1",

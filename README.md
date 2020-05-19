@@ -81,6 +81,7 @@ The main app configuration is controlled in `$root_folder/config/config.json` wh
 "authDllTypeName" :"<DLL namespace e.g. Consortis.CryptoAsync.EncryptDecrypt>",
 "authDllMethod" : "Encyrption/Decryption method e.g.EncDec",
 "authKey":"<MD5 key>",
+"encDecType": "<Type of encryption with Crypto-js only for NodeJs e.g AES>",
 "custommods":[
 			],
 "connections": [
