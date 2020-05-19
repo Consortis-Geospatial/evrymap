@@ -5,7 +5,7 @@ var router = express.Router();
 const config = require('../config/config.json');
 // const config = require('../config/config_sample.json');
 // const crypto = require('../crypto');
-const CryptoJS = require('crypto-js')
+const CryptoJS = require('crypto-js');
 
 // Check if we are using a C# class library for encryption
 var encDllProxy;
