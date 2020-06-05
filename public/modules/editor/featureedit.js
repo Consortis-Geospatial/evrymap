@@ -21,6 +21,9 @@ var featureEdit = (function () {
             $('#modLogin').modal({
                 keyboard: false
             });
+            // Close all open dialogs
+            $(".ui-dialog-content").dialog("close");
+            // Open login dialog
             $('#modLogin').modal('show');
         });
         featureEdit.renderEditTools();
