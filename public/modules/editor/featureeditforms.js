@@ -98,9 +98,6 @@ var featureEditForms = (function () {
                     } else if (fldConfig.control === "typeahead") {
                         if (typeof fldConfig.child_fields !== "undefined") {
                             $.each(fldConfig.child_fields, function (key, val) {
-                                // var childField = val.split(':')[0];
-                                // var childUrl = val.split(':')[1] + ':' + val.split(':')[2];
-
                                 var childUrl;
                                 var childField;
                                 if (cusModule) {
@@ -671,6 +668,12 @@ var featureEditForms = (function () {
                         // Get the label for the hidden value field
                         let lbl = acData.find(x => x.value === $('#hidVal_' + fldName).val()).label;
                         $('#' + fldName).val(lbl);
+                    } else if (mode=="NEW") {
+                        if (typeof fldConfig.default !== "undefined") {
+                            $('#' + fldName).val(acData.find(x => x.value === fldConfig.default).label);
+                            $('#hidVal_' + fldName).val(fldConfig.default);
+                            $('#hidVal_' + fldName).change();
+                        }
                     }
                 }
 
