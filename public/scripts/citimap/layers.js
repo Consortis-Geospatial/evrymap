@@ -419,6 +419,7 @@ var mapUtils = (function () {
                             tmplyr.set('edit_geomcol', val.edit_geomcol);
                             tmplyr.set('allow_edit_geom', val.allow_edit_geom);
                             tmplyr.set('edit_geomtype', val.edit_geomtype);
+                            tmplyr.set('allowNoGeometry', (typeof val.allowNoGeometry === "undefined" || val.allowNoGeometry=== false) ? false : true );
                             tmplyr.set('edit_snapping_layers', val.edit_snapping_layers);
                             tmplyr.set('edit_fields', val.edit_fields);
                             tmplyr.set('edit_service_url', val.edit_service_url);
@@ -510,6 +511,7 @@ var mapUtils = (function () {
                             tmpvector.set('edit_geomcol', val.edit_geomcol);
                             tmpvector.set('allow_edit_geom', val.allow_edit_geom);
                             tmpvector.set('edit_geomtype', val.edit_geomtype);
+                            tmpvector.set('allowNoGeometry', (typeof val.allowNoGeometry === "undefined" || val.allowNoGeometry=== false) ? false : true );
                             tmpvector.set('edit_snapping_layers', val.edit_snapping_layers);
                             tmpvector.set('edit_fields', val.edit_fields);
                             tmpvector.set('edit_service_url', val.edit_service_url);

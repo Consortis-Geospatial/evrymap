@@ -103,6 +103,9 @@ var featureEdit = (function () {
                 '           <button class="btn btn-primary" id = "btnStartEdit" title = "Έναρξη επεξεργασίας" onclick = "featureEdit.showStartEditForm();" >' +
                 '               <img src="css/images/icons8-edit-26.png" class="editbtnImg" />' +
                 '           </button >' +
+                '           <button class="btn btn-primary" id="btnEmpty" title="Νο γεομετρυ" style="display: none">' +
+                '               <img src="css/images/empty-box.png" class="editbtnImg" />' +
+                '           </button>' +
                 '           <button class="btn btn-primary" id="btnCreate" title="Δημιουργία" style="display: none">' +
                 '               <img src="css/images/icons8-sign-up-26.png" class="editbtnImg" />' +
                 '           </button>' +
@@ -135,6 +138,7 @@ var featureEdit = (function () {
                 '       </div >';
             $('#mainparent').prepend(str);
             $('#btnStartEdit').prop("title", $.i18n._('_EDITSTART'));
+            $('#btnEmpty').prop("title", $.i18n._('_CREATENOGEOM'));
             $('#btnCreate').prop("title", $.i18n._('_EDITCREATE'));
             $('#btnEdit').prop("title", $.i18n._('_EDIT'));
             $('#btnAddHole').prop("title", $.i18n._('_EDITADDHOLE'));
@@ -239,6 +243,7 @@ var featureEdit = (function () {
             featureEdit.unselectEditTools();
             $('#mapid').css('cursor', 'crosshair');
             $('#btnCreate').removeClass("active");
+            $('#btnEmpty').removeClass("active");
             $('#btnAddPart').addClass("active");
             $mymap = $('#mapid').data('map');
             mapUtils.resetMapInteractions($mymap);
@@ -354,6 +359,7 @@ var featureEdit = (function () {
             featureEdit.unselectEditTools();
             $('#mapid').css('cursor', 'crosshair');
             $('#btnCreate').addClass("active");
+            $('#btnEmpty').removeClass("active");
             $mymap = $('#mapid').data('map');
             mapUtils.resetMapInteractions($mymap);
             //Clear edit and map interactions
@@ -370,18 +376,7 @@ var featureEdit = (function () {
                 type: editLayer.get("edit_geomtype"),
                 style: new ol.style.Style({
                     image:
-                        //Start of the circle style
-                        //new ol.style.Circle({
-                        //    fill: new ol.style.Fill({
-                        //        color: 'green'
-                        //    }),
-                        //    stroke: new ol.style.Stroke({
-                        //        width: 3,
-                        //        color: 'red'
-                        //    }),
-                        //    radius: 8
-                        //}),
-                        //Start of the star style
+                       //Start of the star style
                         new ol.style.RegularShape({
                             fill: new ol.style.Fill({
                                 color: 'blue'
@@ -394,10 +389,6 @@ var featureEdit = (function () {
                         color: 'blue',
                         width: 3
                     })
-                    //,fill: new ol.style.Fill({
-                    //    color: 'blue',
-                    //    opacity:
-                    //})
                 })
             });
 
@@ -935,6 +926,12 @@ var featureEdit = (function () {
                 $('#btnEdit').show();
                 $('#btnStartEdit').hide();
                 var tmpLyr2Edit = legendUtilities.getLayerByName(lyrNameToEdit);
+                if (tmpLyr2Edit.get("allowNoGeometry") === true) {
+                    $('#btnEmpty').show();
+                    $('#btnEmpty').unbind('click').bind('click', function () { featureEditForms.prepareNewEditForm(); });
+                } else {
+                    $('#btnEmpty').hide();
+                }
                 if (typeof tmpLyr2Edit.get("edit_geomtype") !== "undefined" && (tmpLyr2Edit.get("edit_geomtype") === "LineString" || tmpLyr2Edit.get("edit_geomtype") === "MultiLineString")
                     && typeof tmpLyr2Edit.get("edit_split_layer") !== "undefined" && tmpLyr2Edit.get("edit_split_layer").trim() !== "") {
                     $('#btnSplit').show();
@@ -1018,6 +1015,7 @@ var featureEdit = (function () {
         unselectEditTools: function () {
             $('#btnStartEdit').removeClass("active");
             $('#btnCreate').removeClass("active");
+            $('#btnEmpty').removeClass("active");
             $('#btnEdit').removeClass("active");
             $('#btnSplit').removeClass("active");
             $('#btnMerge').removeClass("active");
@@ -1064,6 +1062,7 @@ var featureEdit = (function () {
             }
             $('#divEditPanel').hide();
             $('#btnCreate').hide();
+            $('#btnEmpty').hide();
             $('#btnEdit').hide();
             $('#btnSplit').hide();
             $('#btnMerge').hide();

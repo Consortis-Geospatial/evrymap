@@ -19,10 +19,11 @@ var featureEditForms = (function () {
          * @memberof featureEditForms
          */
         prepareNewEditForm: function (e) {
-            e.feature.setProperties({
-                'tmp_id': -1
-            });
-
+            if (typeof e !== "undefined") { // If we create a feature with no geometry
+                e.feature.setProperties({
+                    'tmp_id': -1
+                });
+            }
             featureEditForms.generateEditForm(editLayer);
             if (editLayer instanceof ol.layer.Vector && (editLayer.get('edit_pk') !== undefined && editLayer.get('edit_fields') !== undefined)) {
                 var editFlds = editLayer.get('edit_fields');
@@ -46,23 +47,22 @@ var featureEditForms = (function () {
                                     var childUrl;
                                     var childField;
                                     if (cusModule) {
-                                      const getFirstSemicolon = val.indexOf(':');
-                                      childField = val.substring(0, getFirstSemicolon);
-                                      childUrl = val.substring(getFirstSemicolon + 1, val.length);
-                                    }
-                                    else{
-                                      childField = val.split(':')[0];
-                                      childUrl = val.split(/:(.+)/)[1];
-                                      //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                        const getFirstSemicolon = val.indexOf(':');
+                                        childField = val.substring(0, getFirstSemicolon);
+                                        childUrl = val.substring(getFirstSemicolon + 1, val.length);
+                                    } else {
+                                        childField = val.split(':')[0];
+                                        childUrl = val.split(/:(.+)/)[1];
+                                        //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
                                     }
 
                                     $('#' + childField).prop("disabled", true);
-                                   
+
                                     $('#' + ctrl_id).on('change', function () {
                                         $('#' + childField).prop("disabled", false);
                                         if (typeof fldConfig.parent_field === "undefined") {
                                             featureEditForms.popChildAttrList(childField, childUrl, $('#' + ctrl_id).val());
-                                            
+
                                         } else {
                                             var grandparentvalue;
                                             if (featureEditForms.isFieldTypeAhead(editLayer, fldConfig.parent_field)) {
@@ -72,7 +72,7 @@ var featureEditForms = (function () {
                                             }
                                             featureEditForms.popGrandChildAttrList(childField, childUrl, $('#' + ctrl_id).val(), grandparentvalue);
                                         }
-                                        
+
                                         featureEditForms.validateEditForm();
                                     });
                                 });
@@ -101,14 +101,13 @@ var featureEditForms = (function () {
                                 var childUrl;
                                 var childField;
                                 if (cusModule) {
-                                  const getFirstSemicolon = val.indexOf(':');
-                                  childField = val.substring(0, getFirstSemicolon);
-                                  childUrl = val.substring(getFirstSemicolon + 1, val.length);
-                                }
-                                else{
-                                  childField = val.split(':')[0];
-                                  childUrl = val.split(/:(.+)/)[1];
-                                  //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                    const getFirstSemicolon = val.indexOf(':');
+                                    childField = val.substring(0, getFirstSemicolon);
+                                    childUrl = val.substring(getFirstSemicolon + 1, val.length);
+                                } else {
+                                    childField = val.split(':')[0];
+                                    childUrl = val.split(/:(.+)/)[1];
+                                    //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
                                 }
 
                                 $('#' + childField).prop("disabled", true);
@@ -155,17 +154,25 @@ var featureEditForms = (function () {
                         if (typeof fldConfig.calc !== "undefined") {
                             if (fldConfig.calc === "AREA") {
                                 area_control = ctrl_id;
-                                $('#' + ctrl_id).val((measureUtilities.formatAreaInM(e.feature.getGeometry())).toString().replace('.', $.i18n._('_DECIMALSEPARATOR')));
+                                if (typeof e !== "undefined") {
+                                    $('#' + ctrl_id).val((measureUtilities.formatAreaInM(e.feature.getGeometry())).toString().replace('.', $.i18n._('_DECIMALSEPARATOR')));
+                                } else {
+                                    $('#' + ctrl_id).val("0");
+                                }
                             } else if (fldConfig.calc === "LENGTH") {
                                 length_control = ctrl_id;
-                                $('#' + ctrl_id).val((measureUtilities.formatLengthInM(e.feature.getGeometry())).toString().replace('.', $.i18n._('_DECIMALSEPARATOR')));
+                                if (typeof e !== "undefined") {
+                                    $('#' + ctrl_id).val((measureUtilities.formatLengthInM(e.feature.getGeometry())).toString().replace('.', $.i18n._('_DECIMALSEPARATOR')));
+                                } else {
+                                    $('#' + ctrl_id).val("0");
+                                }
                             }
                         }
                     }
                     // Set default value if defined
                     if (typeof fldConfig.default !== "undefined") {
                         if (fldConfig.type.split(':')[0] === "boolean") {
-                            if (fldConfig.default === true || fldConfig.default.toUpperCase()=== "TRUE" || fldConfig.default.toUpperCase()==="T" || fldConfig.default==="1" || fldConfig.default===1) {
+                            if (fldConfig.default === true || fldConfig.default.toUpperCase() === "TRUE" || fldConfig.default.toUpperCase() === "T" || fldConfig.default === "1" || fldConfig.default === 1) {
                                 $('#' + ctrl_id).prop("checked", true);
                             } else {
                                 $('#' + ctrl_id).prop("checked", false);
@@ -179,50 +186,56 @@ var featureEditForms = (function () {
                 mapUtils.showMessage('danger', $.i18n._('_CANNOTEDIT'), $.i18n._('_ERROROCCUREDTITLE'));
                 return false;
             }
-            var format = new ol.format.WKT();
-            var wktGeom = format.writeGeometry(e.feature.getGeometry());
-            $('#hidGeom').val(wktGeom);
-            featureEditForms.openEditForm("NEW", editLayer.get("name"), editLayer.get("label"));
-            // Add modify interaction
-            var modifyNewIntrAct = new ol.interaction.Modify({
-                features: new ol.Collection([e.feature]),
-                style: new ol.style.Style({
-                    image:
-                        //Start of the star style
-                        new ol.style.RegularShape({
-                            fill: new ol.style.Fill({
-                                color: 'blue'
+            if (typeof e !== "undefined") { // In case we create a feature with no geometry
+                var format = new ol.format.WKT();
+                var wktGeom = format.writeGeometry(e.feature.getGeometry());
+                $('#hidGeom').val(wktGeom);
+                // Add modify interaction
+                var modifyNewIntrAct = new ol.interaction.Modify({
+                    features: new ol.Collection([e.feature]),
+                    style: new ol.style.Style({
+                        image:
+                            //Start of the star style
+                            new ol.style.RegularShape({
+                                fill: new ol.style.Fill({
+                                    color: 'blue'
+                                }),
+                                points: 4,
+                                radius1: 10,
+                                radius2: 1
                             }),
-                            points: 4,
-                            radius1: 10,
-                            radius2: 1
+                        stroke: new ol.style.Stroke({
+                            color: 'blue',
+                            width: 5
                         }),
-                    stroke: new ol.style.Stroke({
-                        color: 'blue',
-                        width: 5
-                    }),
-                    fill: new ol.style.Fill({
-                        color: 'green'
+                        fill: new ol.style.Fill({
+                            color: 'green'
+                        })
                     })
-                })
-            });
-            modifyNewIntrAct.on("modifyend", featureEditForms.onModifyGeometry);
-            mymap.addInteraction(modifyNewIntrAct);
+                });
+                modifyNewIntrAct.on("modifyend", featureEditForms.onModifyGeometry);
+                mymap.addInteraction(modifyNewIntrAct);
+                // If its a polygon layer enable the Add Hole button
+                if (typeof editLayer.get("edit_geomtype") !== "undefined" && editLayer.get("edit_geomtype") === "Polygon") {
+                    $('#btnAddHole').prop('disabled', false);
+                    $('#btnAddHole').unbind('click').bind('click', function () {
+                        featureEdit.initAddHole();
+                    });
+                }
+                if (typeof editLayer.get("edit_geomtype") !== "undefined" && editLayer.get("edit_geomtype") === "MultiPolygon") {
+                    $('#btnAddPart').prop('disabled', false);
+                    $('#btnAddPart').unbind('click').bind('click', function () {
+                        featureEdit.initAddPart(e.feature);
+                    });
+                }
+            } else {
+                $('#hidGeom').val(editLayer.get("edit_geomtype").toUpperCase() + " EMPTY");
+            }
+            //Open the form in new mode
+            featureEditForms.openEditForm("NEW", editLayer.get("name"), editLayer.get("label"));
+                
             // Disable edit button so user won't try to edit an un-committed feature
             $('#btnEdit').prop('disabled', true);
-            // If its a polygon layer enable the Add Hole button
-            if (typeof editLayer.get("edit_geomtype") !== "undefined" && editLayer.get("edit_geomtype") === "Polygon") {
-                $('#btnAddHole').prop('disabled', false);
-                $('#btnAddHole').unbind('click').bind('click', function () {
-                    featureEdit.initAddHole();
-                });
-            }
-            if (typeof editLayer.get("edit_geomtype") !== "undefined" && editLayer.get("edit_geomtype") === "MultiPolygon") {
-                $('#btnAddPart').prop('disabled', false);
-                $('#btnAddPart').unbind('click').bind('click', function () {
-                    featureEdit.initAddPart(e.feature);
-                });
-            }
         },
         /**
          * Determines if the input text field is of typeahead
@@ -253,7 +266,7 @@ var featureEditForms = (function () {
             // Get identify fields for the layer
             var identifyFlds = el.get("identify_fields").split(',');
             // Start creating the table html
-            var str = '<p>' + $.i18n._('_MULTIFEATSFOUND4EDIT') +'</p>';
+            var str = '<p>' + $.i18n._('_MULTIFEATSFOUND4EDIT') + '</p>';
             str = str + '<br /><table class="table table-striped table-bordered dt-responsive"  id="tblSelFeatDialog"><thead><tr>';
             // Create header row from the first feature
             $.each(feats.getArray()[0].getProperties(), function (key, val) {
@@ -290,7 +303,7 @@ var featureEditForms = (function () {
             });
             str = str + '</tbody></table>';
             $('#modSelFeatBody').append(str);
-            
+
             var tblSelFeatDialog = featureEditForms.initSelFeatureTable();
 
             $('#tblSelFeatDialog tbody').on('click', 'tr', function () {
@@ -303,24 +316,26 @@ var featureEditForms = (function () {
                     $('#btnSelOne').prop('disabled', false);
                 }
             });
-            $('#btnSelOne').on('click', function() {
+            $('#btnSelOne').on('click', function () {
                 var tblSelFeatDialog = featureEditForms.initSelFeatureTable();
-                var r=tblSelFeatDialog.row('.info').index();
-                var selFeature= feats.getArray()[r];
+                var r = tblSelFeatDialog.row('.info').index();
+                var selFeature = feats.getArray()[r];
                 console.log(r);
                 $('#modSelFeatDialog').modal('hide');
                 featureEditForms.prepareEditForm(selFeature);
-                
+
             });
             $('#modSelFeatDialog').modal('show');
-            $('.modal-dialog').draggable({ handle: ".modal-header"});
-            
+            $('.modal-dialog').draggable({
+                handle: ".modal-header"
+            });
+
         },
         /**
          * Initializes the Select Feature table when multiple features found at the click location
          * @memberof featureEditForms
          */
-        initSelFeatureTable: function() {
+        initSelFeatureTable: function () {
             var langDt = '';
             if (typeof lang !== "undefined") {
                 langDt = lang.split('.')[0] + '-datatables.json'; // lang variable must be already defined
@@ -349,8 +364,8 @@ var featureEditForms = (function () {
                 '    <div class="modal-body" id="modSelFeatBody" style="overflow-x:auto">' +
                 '    </div>' +
                 '    <div class="modal-footer">' +
-                '      <button type="button" id="btnSelOneCancel" class="btn btn-default" data-dismiss="modal">' + $.i18n._('_CLOSE')  + '</button>' +
-                '      <button type="button" id="btnSelOne" class="btn btn-active" data-dismiss="modal" disabled>' + $.i18n._('_SELECT')  + '</button>' +
+                '      <button type="button" id="btnSelOneCancel" class="btn btn-default" data-dismiss="modal">' + $.i18n._('_CLOSE') + '</button>' +
+                '      <button type="button" id="btnSelOne" class="btn btn-active" data-dismiss="modal" disabled>' + $.i18n._('_SELECT') + '</button>' +
                 '    </div>' +
                 '  </div><!-- /.modal-content -->' +
                 '</div><!-- /.modal-dialog -->' +
@@ -359,15 +374,17 @@ var featureEditForms = (function () {
 
         },
         prepareEditForm: function (f) {
-            if (typeof f === "undefined") {return false;}
+            if (typeof f === "undefined") {
+                return false;
+            }
             // Change selected style
             //f.setStyle(mapUtils.setSelectedStyle(f));
             if (editLayer instanceof ol.layer.Vector && (editLayer.get('edit_pk') !== undefined && editLayer.get('edit_fields') !== undefined)) {
                 featureEditForms.generateEditForm(editLayer);
                 var editFlds = editLayer.get('edit_fields');
-                var pkfield=editLayer.get('edit_pk');
-                if (pkfield.split(':').length===2) {
-                    pkfield=pkfield.split(':')[0];
+                var pkfield = editLayer.get('edit_pk');
+                if (pkfield.split(':').length === 2) {
+                    pkfield = pkfield.split(':')[0];
                 }
                 var pkVal = f.get(pkfield);
                 $('#hidPk').val(pkVal);
@@ -405,14 +422,13 @@ var featureEditForms = (function () {
                                         var childUrl;
                                         var childField;
                                         if (cusModule) {
-                                          const getFirstSemicolon = val.indexOf(':');
-                                          childField = val.substring(0, getFirstSemicolon);
-                                          childUrl = val.substring(getFirstSemicolon + 1, val.length);
-                                        }
-                                        else{
-                                          childField = val.split(':')[0];
-                                          childUrl = val.split(/:(.+)/)[1];
-                                          //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
+                                            const getFirstSemicolon = val.indexOf(':');
+                                            childField = val.substring(0, getFirstSemicolon);
+                                            childUrl = val.substring(getFirstSemicolon + 1, val.length);
+                                        } else {
+                                            childField = val.split(':')[0];
+                                            childUrl = val.split(/:(.+)/)[1];
+                                            //childUrl = val.split(':')[1] + ':' + val.split(':')[2];
                                         }
                                         $('#' + childField).prop("disabled", true);
                                         if (typeof fldConfig.parent_field === "undefined") {
@@ -668,7 +684,7 @@ var featureEditForms = (function () {
                         // Get the label for the hidden value field
                         let lbl = acData.find(x => x.value === $('#hidVal_' + fldName).val()).label;
                         $('#' + fldName).val(lbl);
-                    } else if (mode=="NEW") {
+                    } else if (mode == "NEW") {
                         if (typeof fldConfig.default !== "undefined") {
                             $('#' + fldName).val(acData.find(x => x.value === fldConfig.default).label);
                             $('#hidVal_' + fldName).val(fldConfig.default);
@@ -786,9 +802,9 @@ var featureEditForms = (function () {
                         // var vals = data.d.replace('{', '').replace('}', '').split(',');
                         var vals;
                         if (cusModule) {
-                          vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
+                            vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
                         } else {
-                          vals = data.d.replace('{', '').replace('}', '').split(',');
+                            vals = data.d.replace('{', '').replace('}', '').split(',');
                         }
                         $.each(vals, function (i, valueObj) {
                             item = {};
@@ -822,7 +838,7 @@ var featureEditForms = (function () {
                 "enc": enc
             };
             if (typeof lut_table !== "undefined") {
-                params.lut_table=lut_table;
+                params.lut_table = lut_table;
             }
             params = JSON.stringify(params);
             $.ajax({
@@ -840,9 +856,9 @@ var featureEditForms = (function () {
                     if (vals !== null && vals !== "") {
                         var vals;
                         if (cusModule) {
-                          vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
+                            vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
                         } else {
-                          vals = data.d.replace('{', '').replace('}', '').split(',');
+                            vals = data.d.replace('{', '').replace('}', '').split(',');
                         }
                         // var vals = data.d.replace('{', '').replace('}', '').split(',');
                         if (type === "dropdown") {
@@ -866,22 +882,22 @@ var featureEditForms = (function () {
                     }
                 },
                 error: function (response) {
-                    var msg="";
+                    var msg = "";
                     if (typeof response.responseJSON !== "undefined") {
                         msg = response.responseJSON.Message;
                     } else {
                         msg = response.statusText;
                     }
-                    mapUtils.showMessage('danger', msg, $.i18n._('_ERROR') + ": " + url +"(" +ctrl +")");
+                    mapUtils.showMessage('danger', msg, $.i18n._('_ERROR') + ": " + url + "(" + ctrl + ")");
                 },
                 failure: function (response) {
-                    var msg="";
+                    var msg = "";
                     if (typeof response.responseJSON !== "undefined") {
                         msg = response.responseJSON.Message;
                     } else {
                         msg = response.statusText;
                     }
-                    mapUtils.showMessage('danger', msg, $.i18n._('_ERROR') + ": " + url +"(" +ctrl +")");
+                    mapUtils.showMessage('danger', msg, $.i18n._('_ERROR') + ": " + url + "(" + ctrl + ")");
                 },
                 complete: function (response) {
                     $(".wait").hide();
@@ -914,9 +930,9 @@ var featureEditForms = (function () {
                     // var vals = JSON.parse(data.d);
                     var vals;
                     if (cusModule) {
-                      vals = data;
-                    } else{
-                      vals = JSON.parse(data.d);
+                        vals = data;
+                    } else {
+                        vals = JSON.parse(data.d);
                     }
 
                     if (vals !== null) {
@@ -926,7 +942,7 @@ var featureEditForms = (function () {
                             ddl.append($("<option></option>").val(key).html(valueObj));
                         });
                         $('#' + ctrl).change();
-                        
+
                     }
                 },
                 error: function (response) {
@@ -967,9 +983,9 @@ var featureEditForms = (function () {
                     // var vals = JSON.parse(data.d);
                     var vals;
                     if (cusModule) {
-                      vals = data;
-                    } else{
-                      vals = JSON.parse(data.d);
+                        vals = data;
+                    } else {
+                        vals = JSON.parse(data.d);
                     }
 
                     if (vals !== null) {
@@ -1011,22 +1027,22 @@ var featureEditForms = (function () {
                 params["table_name"] = editLayer.get('table_name');
                 // Get the primary key value. For updates this should be in the hidPK hidden field
                 // For new items, if the pk is user-defined it would be in the relevant control
-                var pk_value="";
-                var pk_fieldName=editLayer.get('edit_pk');
-                var pk_fieldType="integer";
-                if (editLayer.get('edit_pk').split(':').length==2) {
-                    pk_fieldType=editLayer.get('edit_pk').split(':')[1];
-                    pk_fieldName=editLayer.get('edit_pk').split(':')[0];
+                var pk_value = "";
+                var pk_fieldName = editLayer.get('edit_pk');
+                var pk_fieldType = "integer";
+                if (editLayer.get('edit_pk').split(':').length == 2) {
+                    pk_fieldType = editLayer.get('edit_pk').split(':')[1];
+                    pk_fieldName = editLayer.get('edit_pk').split(':')[0];
                 }
-                if (mode === "UPDATE" || mode=="DELETE") {
-                    pk_value=$("#hidPk").val();
-                } else if (mode=="NEW") {
-                    pk_value=$("#" +pk_fieldName).val();
+                if (mode === "UPDATE" || mode == "DELETE") {
+                    pk_value = $("#hidPk").val();
+                } else if (mode == "NEW") {
+                    pk_value = $("#" + pk_fieldName).val();
                     if (typeof pk_value === "undefined") {
-                        pk_value="";
+                        pk_value = "";
                     }
                 }
-                params["pk_fieldval"] = pk_fieldName + ":" + pk_value +":" + pk_fieldType;
+                params["pk_fieldval"] = pk_fieldName + ":" + pk_value + ":" + pk_fieldType;
                 var editFlds = editLayer.get('edit_fields');
                 var isvalid = true;
                 $.each(editFlds, function (i, fldConfig) {
@@ -1035,7 +1051,7 @@ var featureEditForms = (function () {
                         return false;
                     }
                     if (fldConfig.control === "dropdown" || fldConfig.control === "text") {
-                        var fldval='';
+                        var fldval = '';
                         if ($("#" + fldConfig.name.split(':')[0]).val() !== null) { //Would be null for an unitialized dropdown
                             fldval = $("#" + fldConfig.name.split(':')[0]).val().replace(",", ".");
                         }
