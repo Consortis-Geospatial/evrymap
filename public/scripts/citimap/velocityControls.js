@@ -16,7 +16,8 @@ var velocityColorScaleArray = [
 var velocityControls = (function() {
     var velocityLyr = {};
     $(document).ready(function () {
-        layers = mapPortal.readConfig("layers");
+        //layers = mapPortal.readConfig("layers");
+        layers=cfg.layers;
         $.each(layers, function (key, lyr) {
             if (lyr.type === "Velocity" && typeof lyr.timeSettings !== "undefined") {
                 velocityLyr = lyr;

@@ -63,7 +63,8 @@ var searchUtilities = (function () {
                             if (paramString === "") {
                                 mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
                             } else {
-                                let mapSettings = mapPortal.readConfig("map");
+                                //let mapSettings = mapPortal.readConfig("map");
+                                var mapSettings=cfg.map;
                                 let mappath = '';
                                 if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
                                     mappath = '/' + val.mapfile.split('\\')[val.mapfile.split('\\').length - 1].split('.')[0] + '/';
@@ -645,7 +646,8 @@ $(document).ready(function () {
     $('#modSearchResults').on('hidden.bs.modal', function () {
         searchUtilities.clearSearchTabs();
     });
-    var searchSettings = mapPortal.readConfig("search");
+    //var searchSettings = mapPortal.readConfig("search");
+    var searchSettings=cfg.search;
     if (typeof searchSettings !== "undefined") {
         var search_url = searchSettings.customSearchService;
         var search_fn = searchSettings.customInitSearchFn;

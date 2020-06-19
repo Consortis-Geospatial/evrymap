@@ -5,6 +5,7 @@
     $('body').i18n();
 };
 var projDef;
+var cfg;
 var mapPortal = (function (configfile) {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("config") !== null) {
@@ -32,7 +33,9 @@ var mapPortal = (function (configfile) {
             $("#lnkUserGuide").prop("href", userGuide);
             $("#lnkUserGuide").prop("target", "_blank");
             // Set the app layout if defined
-            var layout = mapPortal.readConfig("layout");
+            //var layout = mapPortal.readConfig("layout");
+            cfg= mapPortal.readConfig(null);
+            var layout=cfg.layout;
             if (typeof layout !== "undefined") {
                 showprint = layout.print;
                 showheader = layout.header;
@@ -46,7 +49,8 @@ var mapPortal = (function (configfile) {
                 //if (!showlegendcontrol)
             }
             //Read mapsettings from config
-            var mapSettings = mapPortal.readConfig("map");
+            //var mapSettings = mapPortal.readConfig("map");
+            var mapSettings=cfg.map;
             mapserver = mapSettings.mapserver;
             if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
                 mapservexe = '';
@@ -116,7 +120,12 @@ var mapPortal = (function (configfile) {
                 async: false,
                 dataType: 'json',
                 success: function (data) {
-                    ret = data[prop];
+                    if (prop === null || typeof prop=== "undefined") {
+                        ret=data;
+                    } else {
+                        ret = data[prop];
+                    }
+                    
                 },
                 error: function (response) {
                     alert(response.responseText);

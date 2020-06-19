@@ -16,7 +16,8 @@ var zoom2XY = (function () {
             var xydiv = document.createElement('div');
             xydiv.setAttribute('id', 'dlgXY');
             var prjName;
-            if (typeof mapPortal.readConfig("map")["projectionName"] === "undefined") {
+            //if (typeof mapPortal.readConfig("map")["projectionName"] === "undefined") {
+            if (typeof cfg.map.projectionName === "undefined") {
                 prjName = mymap.getView().getProjection().getCode();
             } else {
                 prjName = mapPortal.readConfig("map")["projectionName"];

@@ -3,7 +3,8 @@
     var animationId = null;
     $(document).ready(function () {
         let tlayers = [];
-        layers = mapPortal.readConfig("layers");
+        //layers = mapPortal.readConfig("layers");
+        layers=cfg.layers;
         $.each(layers, function (key, lyr) {
             if (lyr.type === "WMS" && typeof lyr.timeSettings !== "undefined") {
                 tlayers.push(lyr);

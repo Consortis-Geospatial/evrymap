@@ -5,12 +5,14 @@
  * 3. Sets the initial map interactions
  * @namespace mapUtils
  */
+
 var mapUtils = (function () {
     var infoOptions = [];
     var infoTitle = [];
     var searchFields = {};
     var identifyFields = {};
     var velocityLayer;
+    
     return {
         /**
          * initlayers: Reads the config file and sets up map and layers
@@ -22,10 +24,13 @@ var mapUtils = (function () {
          */
         initlayers: function (projcode, projdescr, mapextent) {
             var layers;
+            
             oslayers = [];
             groups = {};
 
-            layers = mapPortal.readConfig("layers");
+            //layers = mapPortal.readConfig("layers");
+            
+            layers=cfg.layers;
 
             mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields);
             mapUtils.initContextMenu();
@@ -315,7 +320,8 @@ var mapUtils = (function () {
                 // WMS Layers
                 } else if (val.type === "WMS") {
                     var wmsUrl = '';
-                    let mapSettings = mapPortal.readConfig("map");
+                    //let mapSettings = mapPortal.readConfig("map");
+                    let mapSettings = cfg.map;
                     var tmplyr;
                     mapserver = mapSettings.mapserver;
                     if (typeof val.mapfile !== "undefined") {
@@ -445,8 +451,8 @@ var mapUtils = (function () {
                     oslayers.push(tmplyr);
                 } else if (val.type === "GeoJSON") {
                     let wfsUrl = '';
-                    let mapSettings = mapPortal.readConfig("map");
-
+                    //let mapSettings = mapPortal.readConfig("map");
+                    let mapSettings = cfg.map;
                     mapserver = mapSettings.mapserver;
                     if (mapSettings.useWrappedMS !== "undefined" && mapSettings.useWrappedMS === true) {
                         wfsUrl = window.location.protocol + '//' + mapservUrl + '/' + val.mapfile.split('\\')[val.mapfile.split('\\').length - 1].split('.')[0];

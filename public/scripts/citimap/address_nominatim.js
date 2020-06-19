@@ -15,7 +15,8 @@ var geocodeUtilities = (function () {
             
             let search_string = $('#searchfield').val();
             var search_params = '?format=json';
-            let mapsettings = mapPortal.readConfig("map");
+            //let mapsettings = mapPortal.readConfig("map");
+            mapsettings=cfg.map;
             if (typeof mapsettings.address_country !== "undefined") {
                 search_params = '?format=json&countrycodes=' + mapsettings.address_country;
             }
