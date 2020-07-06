@@ -884,7 +884,7 @@ var featureEditForms = (function () {
                 error: function (response) {
                     var msg = "";
                     if (typeof response.responseJSON !== "undefined") {
-                        msg = response.responseJSON.Message;
+                        msg = response.responseJSON.message ? response.responseJSON.message : response.responseJSON.Message;
                     } else {
                         msg = response.statusText;
                     }
@@ -893,7 +893,7 @@ var featureEditForms = (function () {
                 failure: function (response) {
                     var msg = "";
                     if (typeof response.responseJSON !== "undefined") {
-                        msg = response.responseJSON.Message;
+                        msg = response.responseJSON.message ? response.responseJSON.message : response.responseJSON.Message;
                     } else {
                         msg = response.statusText;
                     }
@@ -1109,7 +1109,7 @@ var featureEditForms = (function () {
                     error: function (response) {
                         $('#divAttrsForm').dialog("close");
                         console.log(response.responseJSON + ":\n");
-                        var msg = response.responseJSON.Message;
+                        var msg = response.responseJSON.message ? response.responseJSON.message : response.responseJSON.Message;
                         mapUtils.showMessage('danger', msg, $.i18n._('_SAVEERROR') + editLayer.get("name"));
                     },
                     failure: function (response) {

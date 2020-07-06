@@ -68,7 +68,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.post('/login', function (req, res) {
-  //console.log('login');
   usersRouter.login(req, res);
 });
 var cookieParser = require('cookie-parser');

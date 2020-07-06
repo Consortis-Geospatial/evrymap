@@ -77,11 +77,11 @@ var featureEditAdvanced = (function () {
                 },
                 error: function (response) {
                     mapUtils.showMessage('danger', response.statusText, $.i18n._('_ERROROCCUREDTITLE'));
-                    console.log(response.responseJSON.Message + ":\n" + response.responseJSON.StackTrace);
+                    console.log( response.responseJSON.message ? response.responseJSON.message : response.responseJSON.Message + ":\n" + response.responseJSON.StackTrace);
                 },
                 failure: function (response) {
                     mapUtils.showMessage('danger', response.statusText, $.i18n._('_ERROROCCUREDTITLE'));
-                    console.log(response.responseJSON.Message + ":\n" + response.responseJSON.StackTrace);
+                    console.log(response.responseJSON.message + ":\n" + response.responseJSON.StackTrace);
                 },
                 complete: function (response) {
                     $(".wait").hide();

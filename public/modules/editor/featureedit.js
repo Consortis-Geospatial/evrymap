@@ -477,7 +477,7 @@ var featureEdit = (function () {
                         },
                         error: function (response) {
                             console.log(response.responseText);
-                            //var msg = response.responseJSON.Message;
+                            //var msg = response.responseJSON.message;
                             mapUtils.showMessage('danger', $.i18n._('_CHECKLOGERROR'), $.i18n._('_MERGEDBERROR') + editLayer.get("label"));
                         },
                         failure: function (response) {
@@ -1130,8 +1130,8 @@ var featureEdit = (function () {
                     mapUtils.showMessage('success', $.i18n._('_SUCCESSMSGSPLIT'), $.i18n._('_SUCCESSTITLE'));
                 },
                 error: function (response) {
-                    console.log(response.responseJSON.Message + ":\n" + response.responseJSON.StackTrace);
-                    var msg = response.responseJSON.Message;
+                    var msg = response.responseJSON.message ? response.responseJSON.message : response.responseJSON.Message;
+                    console.log(msg + ":\n" + response.responseJSON.StackTrace);
                     mapUtils.showMessage('danger', msg, $.i18n._('_SPLITERROR') + editLayer.get("label"));
                 },
                 failure: function (response) {
