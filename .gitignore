@@ -18,8 +18,10 @@ public/config/layerconfig-tmede_new.json
 public/config/layerconfig-tmede-local.json
 public/config/layerconfig-tmede.json
 public/config/layerconfig-water-morpheas_w_e-pol.json
+public/config/layerconfig.json
 proxy/arcgis-proxy-node.log
 proxy/citimap-proxy-node.log
 proxy/citimap-proxy-node.log
 /public/modules/maptheyajs
 /public/modules/cpfjs
+.env

@@ -33,9 +33,6 @@ app.use(fileUpload());
   } 
 });*/
 
-// sets port 8080 to default or unless otherwise specified in the environment
-app.set('port', process.env.PORT || 8080);
-
 //Read config
 // config variables
 const config = require('./config/config.json');
