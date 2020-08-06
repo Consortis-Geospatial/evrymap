@@ -193,5 +193,6 @@
     "_MULTIFEATSFOUNDTITLE": "Multiple features found",
     "_MULTIFEATSFOUND4EDIT": "Multiple features found at this location. Select the one you want to edit from the table below and press the [Select] button",
     "_SHOWMAPTIPS" : "Show Map Tips",
-    "_CREATENOGEOM" : "Create feature with no geometry"
+    "_CREATENOGEOM" : "Create feature with no geometry",
+    "_FILEUPLOADED" : "File uploaded succesfully"
 };

@@ -25,3 +25,4 @@ proxy/citimap-proxy-node.log
 /public/modules/maptheyajs
 /public/modules/cpfjs
 .env
+public/config/lrmsearchconfig.json
