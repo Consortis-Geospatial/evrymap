@@ -176,7 +176,7 @@ var searchAdvanced = (function (mymap) {
                 type: "POST",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
-                    var vals = JSON.parse(data.d);
+                    var vals = typeof data !== 'object' ? JSON.parse(data.d) : data;
                     retVal = vals;
                 },
                 error: function (response) {
