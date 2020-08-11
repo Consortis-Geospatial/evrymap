@@ -1,6 +1,6 @@
 {
   "name": "evrymap",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A NodeJS based map portal. Brought to you by Consortis Geospatial",
   "private": true,
   "license": "MIT",

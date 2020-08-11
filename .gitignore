@@ -4,10 +4,6 @@ node_modules/
 /public/config/layerconfig-vt.json
 /config/config.json
 /package-lock.json
-/proxy/citimap-proxy-node.log
-/proxy/package-lock.json
-/proxy/proxy.sqlite
-/proxy/arcgis-proxy-node.log
 /.vscode/launch.json
 public/config/layerconfig-delta.json
 public/config/layerconfig-delta.json
@@ -19,9 +15,6 @@ public/config/layerconfig-tmede-local.json
 public/config/layerconfig-tmede.json
 public/config/layerconfig-water-morpheas_w_e-pol.json
 public/config/layerconfig.json
-proxy/arcgis-proxy-node.log
-proxy/citimap-proxy-node.log
-proxy/citimap-proxy-node.log
 /public/modules/maptheyajs
 /public/modules/cpfjs
 .env

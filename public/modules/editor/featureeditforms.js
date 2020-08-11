@@ -557,6 +557,7 @@ var featureEditForms = (function () {
             }
         },
         generateEditForm: function (lyr) {
+            
             if (lyr instanceof ol.layer.Vector && (lyr.get('edit_pk') !== undefined && lyr.get('edit_fields') !== undefined)) {
                 var pk = lyr.get('edit_pk');
                 var editFlds = lyr.get('edit_fields');
@@ -566,6 +567,7 @@ var featureEditForms = (function () {
                 html = html + '     <input id="hidGeom" type="hidden" value="" />';
                 var c = 0;
                 $.each(editFlds, function (i, fldConfig) {
+                    
                     if (c === 0) {
                         html = html + '<div class="row">';
                     }
@@ -576,10 +578,15 @@ var featureEditForms = (function () {
                     var fldctrl = fldConfig.control;
                     var fldreq = fldConfig.required;
                     var fldro = fldConfig.readonly;
-
+                    
                     var is_required = '';
                     var is_readonly = '';
                     var field_type = "string";
+                    
+                    var fldPattern = fldConfig.pattern;
+                    let htmlMaxLength = fldlength  ? " maxlength="+ fldlength + " " : "";
+                    let htmlPattern = fldPattern !== undefined ? " pattern=" +  fldPattern : "";
+
                     if (typeof fldlength === "undefined" || isNaN(fldlength)) {
                         fldlength = "10";
                     }
@@ -620,13 +627,13 @@ var featureEditForms = (function () {
                                 html = html + '<span id="fdb_' + fldName + '"></span></div>';
                             } else {
                                 if (field_type === "string") {
-                                    html = html + '<input type="text" class="form-control input" maxlength=' + fldlength + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)">';
+                                    html = html + '<input type="text" class="form-control input" maxlength=' + fldlength   + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)">';
                                     html = html + '<span id="fdb_' + fldName + '"></span></div>';
                                 } else if (field_type === "integer") {
-                                    html = html + '<input type="number" pattern="\\d+" class="form-control input"' + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)">';
+                                    html = html + '<input type="number" pattern="\\d+" class="form-control input"' + htmlMaxLength  + is_readonly + ' id="' + fldName + '" ' + is_required + ' onblur="featureEditForms.validateFldOnBlur(this.id)">';
                                     html = html + '<span id="fdb_' + fldName + '"></span></div>';
                                 } else if (field_type === "number") {
-                                    html = html + '<input type="text" pattern="[0-9]+([,][0-9]{1,2})?" class="form-control input"' + is_readonly + ' id="' + fldName + '" ' + is_required +
+                                    html = html + '<input type="text" pattern="[0-9]+([,][0-9]{1,2})?" class="form-control input"' + htmlMaxLength  + is_readonly + ' id="' + fldName + '" ' + is_required +
                                         'pattern="^\d+(,\d+)*$" onblur="featureEditForms.validateFldOnBlur(this.id)">';
                                     html = html + '<span id="fdb_' + fldName + '"></span></div>';
                                 } else if (field_type === "date") {
@@ -1189,6 +1196,7 @@ var featureEditForms = (function () {
             }
         },
         validateField: function (fldConfig) {
+            
             var isValid = true;
             var fldval = $("#" + fldConfig.name.split(':')[0]).val();
             if (fldConfig.control === "dropdown" || fldConfig.control === "text" || fldConfig.control === "typeahead") {
@@ -1196,6 +1204,7 @@ var featureEditForms = (function () {
                     if (fldval === "#" || fldval === null || fldval.trim() === "") {
                         isValid = false;
                     } else {
+
                         if (fldConfig.type.split(':')[0] === "integer") {
                             var nInt = parseInt(fldval);
                             if (isNaN(nInt)) {
@@ -1213,6 +1222,16 @@ var featureEditForms = (function () {
                             //    isValid = false;
                             //}
                         }
+                        else if (fldConfig.type.split(':')[0] === "string") {
+                            
+                            if(fldConfig.pattern !== undefined )
+                            {
+                                isValid = new RegExp(fldConfig.pattern).test(fldval);
+                            }
+                            
+                        }
+
+
                     }
                 } else {
                     if (fldConfig.control === "text" && fldConfig.readonly !== true && fldval.trim() !== "") {
@@ -1230,6 +1249,15 @@ var featureEditForms = (function () {
                                 isValid = /^\d+(.\d+)*$/.test(fldval);
                             }
                         }
+                        else if (fldConfig.type.split(':')[0] === "string") {
+                            
+                            if(fldConfig.pattern !== undefined )
+                            {
+                                isValid = new RegExp(fldConfig.pattern).test(fldval);
+                            }
+                        
+                        }
+                        
                     }
                 }
             }
