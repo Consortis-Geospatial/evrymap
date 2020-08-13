@@ -207,10 +207,16 @@ var searchUtilities = (function () {
                             click: function () {
                                 $(this).dialog("close");
                                 searchUtilities.clearSearchTabs();
+                                if($('#dlgSearchAdv').parent().attr('data-opened') === 'true') {
+                                    $('#dlgSearchAdv').parent().css('display', 'block');
+                                }
                             }
                         }],
                         close: function () {
                             searchUtilities.clearSearchTabs();
+                            if($('#dlgSearchAdv').parent().attr('data-opened') === 'true') {
+                                $('#dlgSearchAdv').parent().css('display', 'block');
+                            }
                         },
                         closeOnEscape: false,
                         open: function (event) { // Add classes manually because of jqueryui classes overlapping

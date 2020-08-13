@@ -335,6 +335,7 @@ var featureEdit = (function () {
         },
         showLrmDlg: function () {
             $('#dlgLrmSearch').dialog('open');
+            $('#dlgLrmSearch').parent().attr('data-opened', true);
             $('#btnLrmSearch').addClass("active");
         },
         initDrawing: function () {

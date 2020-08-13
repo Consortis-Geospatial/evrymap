@@ -350,6 +350,7 @@ var searchAdvanced = (function (mymap) {
                         searchUtilities.renderQueryResultsAsTable(data, searchLyr.get("label"), searchLyr.get("name"), searchLyr.get("search_fields").split(','), searchLyr.get("identify_fields").split(','));
                         //Always show the first tab as active
                         $('#searchResultsUl a').first().tab('show');
+                        $('#dlgSearchAdv').parent().css('display', 'none');
                     }
                 },
                 complete: function (response) {
@@ -402,8 +403,8 @@ var searchAdvanced = (function (mymap) {
                         text: $.i18n._("_CLOSE"),
                         class: "btn btn-default",
                         click: function () {
-
-                            $("#dlgSearchAdv").dialog("close");
+                            $(this).parent().attr('data-opened', false);
+                            $(this).dialog("close");
                         }
                     }
                 ],
@@ -422,6 +423,7 @@ var searchAdvanced = (function (mymap) {
                     if ($('#chkSS').length > 0) {
                         $('#chkSS').bootstrapToggle('off');
                         $("#selSelectedFeatures").empty();
+                        $(this).parent().attr('data-opened', false);
                     }
                 }
 
@@ -478,7 +480,7 @@ var searchAdvanced = (function (mymap) {
         addSearchOption: function (mymap) {
             searchAdvanced.createDialog();
             searchAdvanced.setSearchAdvDialog(mymap);
-            var str = '<li><a id="btnWMSearch" href="#" onclick=" $(\'#dlgSearchAdv\').dialog(\'open\');">' + $.i18n._("_ADVANCEDSEARCH") + '</a></li>';
+            var str = '<li><a id="btnWMSearch" href="#" onclick="$(\'#dlgSearchAdv\').dialog(\'open\');$(\'#dlgSearchAdv\').parent().attr(\'data-opened\', true);">' + $.i18n._("_ADVANCEDSEARCH") + '</a></li>';
             $('#searchOpt').append(str);
         }
     };
