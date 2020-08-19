@@ -233,9 +233,13 @@ var featureEditForms = (function () {
             }
             //Open the form in new mode
             featureEditForms.openEditForm("NEW", editLayer.get("name"), editLayer.get("label"));
-                
+            
             // Disable edit button so user won't try to edit an un-committed feature
             $('#btnEdit').prop('disabled', true);
+
+            if ($('#ota_code').val() !== '#') {
+                $('#ota_code').change();
+            }
         },
         /**
          * Determines if the input text field is of typeahead
