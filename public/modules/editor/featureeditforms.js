@@ -724,6 +724,24 @@ var featureEditForms = (function () {
                         click: function () {
                             if (mode === "NEW") {
                                 featureEditForms.saveEditForm('NEW');
+                                if ($('#property-details-add').val()) {
+                                    featureEdit.stopEditing();
+                                    const noGeometryKadik = $('#property-details-add').val();
+                                    if (noGeometryKadik) {
+                                        switch (noGeometryKadik) {
+                                            case 'v_parcels_spatial':
+                                                lrmForm.fillMainFormParcel($('#bld_kadik').val());
+                                                break;
+                                                
+                                            case 'v_buildings_spatial':
+                                                lrmForm.fillMainFormParcel($('#lrm_kadik').val());
+                                                break;
+                                        
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                }
                             } else {
                                 featureEditForms.saveEditForm('UPDATE');
                             }
@@ -759,7 +777,12 @@ var featureEditForms = (function () {
                             // Enable edit button in case it was disabled
                             $('#btnEdit').prop('disabled', false);
                             if (mode === "NEW") {
-                                featureEdit.initDrawing();
+                                if ($('#property-details-add').val()) {
+                                    featureEdit.stopEditing();
+                                }
+                                else {
+                                    featureEdit.initDrawing();
+                                }
                             }
                         }
                     }
@@ -769,6 +792,9 @@ var featureEditForms = (function () {
                     length_control = '';
                     featureEdit.cancelFeatureNew(lyrname);
                     featureEdit.removeSelection();
+                    if ($('#property-details-add').val()) {
+                        featureEdit.stopEditing();
+                    }
                 },
                 title: lyrlabel,
                 closeOnEscape: false
@@ -1080,6 +1106,21 @@ var featureEditForms = (function () {
                 params["projcode"] = projcode.split(':')[1];
                 params["mode"] = mode;
                 params["enc"] = enc;
+                const noGeometryKadik = $('#property-details-add').val();
+                if (noGeometryKadik) {
+                    switch (noGeometryKadik) {
+                        case 'v_parcels_spatial':
+                            params["kadik_parcel"] = $('#bld_kadik').val();
+                            break;
+                            
+                        case 'v_buildings_spatial':
+                            params["kadik_parcel"] = $('#lrm_kadik').val();
+                            break;
+                    
+                        default:
+                            break;
+                    }
+                }
                 params = JSON.stringify(params);
                 //console.log(params);
                 $.ajax({
@@ -1093,7 +1134,9 @@ var featureEditForms = (function () {
                     },
                     success: function (data) {
                         var s = data.d;
-                        featureEdit.refreshVectorLayer(editLayer.get("name"));
+                        if (!noGeometryKadik){
+                            featureEdit.refreshVectorLayer(editLayer.get("name"));
+                        }
                         area_control = '';
                         length_control = '';
                         $('#divAttrsForm').dialog("close");
@@ -1128,7 +1171,9 @@ var featureEditForms = (function () {
                         featureEdit.setEditTools();
                         if (mode === "NEW") {
                             $('#btnCreate').removeClass("active").addClass("active");
-                            featureEdit.initDrawing();
+                            if (!noGeometryKadik){
+                                featureEdit.initDrawing();
+                            }
                         } else if (mode === "UPDATE") {
                             $('#btnEdit').removeClass("active").addClass("active");
                             featureEdit.initModify();
