@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Functions for controlling the layers and the map
  * 1. Adding the various layer types reading the *layerconfig.json
  * 2. Creating the map toolbars and tools
@@ -538,7 +538,7 @@ var mapUtils = (function () {
                         tmpvector.set('editable', false);
                     }
                     // End Check if layer is editable
-
+                    
                     if (typeof val.group !== "undefined") {
                         groups[grp].push(tmpvector);
                     } else {
@@ -818,21 +818,66 @@ var mapUtils = (function () {
                             }
                             if (window.location.host === $('#hidMS').val().split('/')[0]) {
                                 wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                    'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
+                                'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
                             } else {
                                 wfsurl = proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                    'bbox=' + x.join(',') + "," + mymap.getView().getProjection().getCode();
+                                'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
                             }
                         } else {
                             wfs_url = wfsurl;
                         }
                         return wfsurl;
                     },
-                    strategy: ol.loadingstrategy.bbox,
-                    crossOrigin: 'anonymous',
-                    minResolution: 0,
-                    maxResolution: 500 // 500 resolution will display vector layers at a scale of 1: 2,500,000
+                    loader: function (x) {
+                        if(geoJsonLayer.getSource().getUrl()(x)) {
+                            
+                            $.ajax({
+                                url: geoJsonLayer.getSource().getUrl()(x),
+                                async: true,
+                                dataType: 'json',
+                                
+                                success: function (data) {
+                                    if (data.features.length === 0) {
+                                        return null;
+                                    }
+                                    // Add the layer name in the returned data so we know which layer
+                                    
+                                    // Populate the edit layer
+                                    var geojson = new ol.format.GeoJSON();                                
+                                    let feats =  geojson.readFeatures(data) ;
+                                    
+                                    feats.forEach(function (f) {
+                                        f.setId( f.getProperties()[editLayer.get("edit_pk")]);
+                                        //it checks if id is set in addFeature , if they exist they are not loaded again
+                                        editLayer.getSource().addFeature(f);
+                                    
+                                    });
+                                    
+                                },
+                                complete: function (response) {
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    console.log("WFS BBOX Vector Layer request error: " + textStatus );
+                                    //console.log(mapUtils.xmlToJson(jqXHR.responseText));
+                                },
+                                failure: function (jqXHR, _textStatus, errorThrown) {
+                                    console.log("WFS BBOX Vector Layer request failure: " + _textStatus );
+                                }
+                            }); 
+                        }
+                    },
+                    strategy: function(x) {  
+                        var bbox = x.join(',');
+                        if (bbox != this.get('bbox')) {
+                            this.set('bbox', bbox);
+                            geoJsonLayer.getSource().refresh();   //reloads the features, Checks for ID in loader!! 
+                        }
+                        return [x];
+                    },
+                    crossOrigin: 'anonymous'
                 }),
+                minResolution: 0,
+                maxResolution: 500, // 500 resolution will display vector layers at a scale of 1: 2,500,000
                 style: new ol.style.Style({
                     fill: fill,
                     stroke: new ol.style.Stroke({

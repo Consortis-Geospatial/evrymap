@@ -559,6 +559,7 @@ var featureEdit = (function () {
                     return;
                 }
             }
+            
             featureEdit.unselectEditTools();
             $('#mapid').css('cursor', 'crosshair');
             $mymap = $('#mapid').data('map');
@@ -583,7 +584,7 @@ var featureEdit = (function () {
                 this.modifyIntrAct.on("modifyend", featureEditForms.onModifyGeometry);
                 $mymap.addInteraction(this.modifyIntrAct);
             }
-            //console.log("added modify interaction for " + layername);
+            // console.log("added modify interaction for " + layername);
             if (typeof editLayer.get("edit_snapping_layers") !== "undefined") {
                 $.each(editLayer.get("edit_snapping_layers"), function (i, snap_layer) {
                     featureEdit.initSnapping(snap_layer);
@@ -633,13 +634,13 @@ var featureEdit = (function () {
                 }
             });
             if (type === "MODIFY") {
-                //$mymap.getInteractions().forEach(function (interaction) {
-                //    if (interaction instanceof ol.interaction.Select) {
-                //        //console.log("has select interaction");
-                //        interaction.setActive(false);
-                //        sel = interaction;
-                //    }
-                //});
+                $mymap.getInteractions().forEach(function (interaction) {
+                   if (interaction instanceof ol.interaction.Select) {
+                       //console.log("has select interaction");
+                       interaction.setActive(false);
+                       sel = interaction;
+                   }
+                });
                 $mymap.getInteractions().forEach(function (interaction) {
                     if (interaction instanceof ol.interaction.Modify) {
                         //console.log("has modify interaction");
@@ -855,9 +856,11 @@ var featureEdit = (function () {
             $("#hidEditLayer").val(editLayerName);
             editLayer = legendUtilities.getLayerByName(editLayerName);
             // Convert to vector layer if required
+            
             if (editLayer instanceof ol.layer.Tile || editLayer instanceof ol.layer.Image) {
                 editLayer = featureEdit.convertTileToVector(editLayer, false);
             }
+
             featureEdit.showEditingPanel(editLayer.get("label"));
             // Set Edit style
             editLayer.setStyle(featureEdit.setEditStyle());
@@ -866,6 +869,7 @@ var featureEdit = (function () {
             //Set Edit tool as default
             $('#btnEdit').removeClass("active").addClass("active");
             featureEdit.initModify();
+            
         },
         /**
          * 
@@ -958,6 +962,7 @@ var featureEdit = (function () {
                     //$('#btnAddHole').unbind('click').bind('click', function () { featureEdit.initAddHole(); });
                 }
             }
+            
         },
         setEditSelectInteraction: function (editLayer) {
             $mymap = $('#mapid').data('map');
@@ -980,9 +985,12 @@ var featureEdit = (function () {
                     } else { return false; }
                 }
             });
+
             $mymap.addInteraction(selectIntrAct);
             selectIntrAct.on("select", function (e) {
+
                 var selFets = selectIntrAct.getFeatures().getLength();
+
                 if ($("#editTools").is(":visible") && $("#btnMerge").is(":visible")) {
                     if (selFets === 2) {
                         $("#btnMerge").prop('disabled', false);
@@ -996,17 +1004,20 @@ var featureEdit = (function () {
                     // Also, if you have selected a feature before, then edit this feature and reshape
                     // it, it will show the old selected feature from the selection layer which will
                     // be confusing to the user.
+                    
                     legendUtilities.getLayerByName("selection").getSource().clear();
                     if (selFets > 1) {
                         console.log("Number of selected features: " + selFets);
                         // More that 1 feature selected. Prompt user to select one.
+                        
                         featureEditForms.selectFeatureToEdit(selectIntrAct.getFeatures());
                     } else {
                         if (e.selected.length === 0) {
                             return;
                         }
-                        
+                    
                         var f = e.selected[0]; // Get the feature
+                        
                         featureEditForms.prepareEditForm(f);
                     }
                 }
@@ -1090,13 +1101,10 @@ var featureEdit = (function () {
             $('#mapid').css('cursor', 'default');
         },
         refreshVectorLayer: function (layername) {
+           
             var lyr = legendUtilities.getLayerByName(layername);
-            lyr.setSource(new ol.source.Vector({
-                format: lyr.getSource().getFormat(),
-                url: lyr.getSource().getUrl(),
-                strategy: ol.loadingstrategy.bbox,
-                crossOrigin: 'anonymous'
-            }));
+            lyr.getSource().clear(); // clears all features!! keeps the reference
+            
         },
         doSplit: function (e) {
             if (typeof layer2split.get('edit_split_url') === "undefined") {
