@@ -1329,7 +1329,7 @@ var mapUtils = (function () {
                                             layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "," + mymap.getView().getProjection().getCode() + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
 
                                     } else {
-                                        intersectsUrl = window.location.protocol + "//" + window.location.host + "/proxy/" + layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0& &REQUEST=GetFeature&TYPENAME=" +
+                                        intersectsUrl = proxyUrl + layer.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0& &REQUEST=GetFeature&TYPENAME=" +
                                             layer.get("name") + "&BBOX=" + extent[0] + "," + extent[1] + ", " + extent[2] + "," + extent[3] + "," + mymap.getView().getProjection().getCode() + "&OUTPUTFORMAT=" + layer.get("feature_info_format");
                                     }
                                     //"<Intersects><PropertyName>Geometry</PropertyName>" +
