@@ -1987,7 +1987,7 @@ var mapUtils = (function () {
         addWind(timeIso) {
             // var timeIso = new Date().toISOString();
             var searchLimit = velocityControls.getVelocitySettings().timeSettings.days;
-            var velocityUrl = `${velocityControls.getVelocitySettings().serverLocation}:${velocityControls.getVelocitySettings().serverPort}`;
+            var velocityUrl = `${velocityControls.getVelocitySettings().serverURL}`;
 
             $.ajax({
                 url: `${velocityUrl}/nearest?timeIso=${timeIso}&searchLimit=${searchLimit}`,
