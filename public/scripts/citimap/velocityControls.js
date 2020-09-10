@@ -15,16 +15,6 @@ var velocityColorScaleArray = [
 
 var velocityControls = (function() {
     var velocityLyr = {};
-    $(document).ready(function () {
-        //layers = mapPortal.readConfig("layers");
-        layers=cfg.layers;
-        $.each(layers, function (key, lyr) {
-            if (lyr.type === "Velocity" && typeof lyr.timeSettings !== "undefined") {
-                velocityLyr = lyr;
-                return false;
-            }
-        });
-    });
     return {
         renderTool: function () {
             var selectElement = document.createElement('div');
@@ -137,6 +127,13 @@ var velocityControls = (function() {
             // $("#velocitySelId select").append('<option value="' + refDate + '">' + fullDate + '</option>');
         },
         getVelocitySettings: function() {
+            layers=cfg.layers;
+            $.each(layers, function (key, lyr) {
+                if (lyr.type === "Velocity" && typeof lyr.timeSettings !== "undefined") {
+                    velocityLyr = lyr;
+                    return false;
+                }
+            });
             return velocityLyr;
         },
         velocityLayerIsLoaded() {

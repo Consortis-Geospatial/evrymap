@@ -1143,6 +1143,8 @@ app.VelocityViewControl = function (opt_options) {
     var clickStatus = false;
     var options = opt_options || {};
     var element = document.createElement('button');
+    const newBottomToolbarWidth = parseInt($('div#bottomToolbar').css('width').replace('px', '')) + parseInt($('div #bottomToolbar button:last-child').css('width').replace('px', ''));
+    $('div#bottomToolbar').css('width', `${newBottomToolbarWidth}px`);
     element.innerHTML = '<img src="css/images/windsock-white.png" style="width: 20px;" />';
     element.className = 'btn btn-primary bottomtb';
     // element.setAttribute('title', $.i18n._('_LAYERS'));

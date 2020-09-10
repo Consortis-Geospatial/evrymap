@@ -237,9 +237,8 @@ var featureEditForms = (function () {
             // Disable edit button so user won't try to edit an un-committed feature
             $('#btnEdit').prop('disabled', true);
 
-            if ($('#ota_code').val() !== '#') {
-                $('#ota_code').change();
-            }
+            $('#ota_code').change();
+            $("#enotita_code").change();
         },
         /**
          * Determines if the input text field is of typeahead
