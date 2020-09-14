@@ -1225,12 +1225,16 @@ var featureEditForms = (function () {
         validateEditForm: function () {
             if (editLayer instanceof ol.layer.Vector && (editLayer.get('edit_pk') !== undefined && editLayer.get('edit_fields') !== undefined)) {
                 var editFlds = editLayer.get('edit_fields');
+
+                tempValid = true; 
                 $.each(editFlds, function (i, fldConfig) {
                     isvalid = featureEditForms.validateField(fldConfig);
-                    if (!isvalid) {
-                        return false;
+                    if(!isvalid) {
+                        tempValid=false;
                     }
+                    
                 });
+                isvalid = tempValid;
                 if (!isvalid) {
                     $('#btnEditFormSave').button("disable");
                     return false;
@@ -1276,7 +1280,7 @@ var featureEditForms = (function () {
                             {
                                 isValid = new RegExp(fldConfig.pattern).test(fldval);
                             }
-                            
+                            else isValid = true;
                         }
 
 
@@ -1303,7 +1307,7 @@ var featureEditForms = (function () {
                             {
                                 isValid = new RegExp(fldConfig.pattern).test(fldval);
                             }
-                        
+                            else isValid = true;
                         }
                         
                     }
