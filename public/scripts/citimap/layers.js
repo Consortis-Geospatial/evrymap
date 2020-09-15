@@ -504,6 +504,9 @@ var mapUtils = (function () {
                     } else {
                         tmpvector.set('has_relation', false);
                     }
+                    if (typeof val.edit_pk !== "undefined") {
+                        tmpvector.set('edit_pk', val.edit_pk);
+                    }
                     if (typeof val.custom_record_action !== "undefined") {
                         tmpvector.set('custom_record_action', val.custom_record_action);
                     }
@@ -513,7 +516,7 @@ var mapUtils = (function () {
                         tmpvector.set('editable', val.editable);
                         if (val.editable === true && typeof val.edit_pk !== "undefined" && typeof val.edit_fields !== "undefined" &&
                             typeof val.edit_service_url !== "undefined" && typeof val.edit_geomcol !== "undefined" && typeof val.edit_geomtype !== "undefined") {
-                            tmpvector.set('edit_pk', val.edit_pk);
+                            // tmpvector.set('edit_pk', val.edit_pk);
                             tmpvector.set('edit_geomcol', val.edit_geomcol);
                             tmpvector.set('allow_edit_geom', val.allow_edit_geom);
                             tmpvector.set('edit_geomtype', val.edit_geomtype);
@@ -847,10 +850,26 @@ var mapUtils = (function () {
                                     let feats =  geojson.readFeatures(data) ;
                                     
                                     feats.forEach(function (f) {
-                                        f.setId( f.getProperties()[editLayer.get("edit_pk")]);
-                                        //it checks if id is set in addFeature , if they exist they are not loaded again
-                                        editLayer.getSource().addFeature(f);
-                                    
+                                       //it checks if id is set in addFeature , if they exist they are not loaded again
+
+                                        //editMode landify
+                                        if (typeof editLayer !=="undefined")
+                                        {
+                                            if(data.name +"_EDIT" === editLayer.get("name"))
+                                            {
+                                                f.setId( f.getProperties()[editLayer.get("edit_pk")]);
+                                            }
+                                            editLayer.getSource().addFeature(f);
+                                        }
+                                        else {
+                                            //every other geojson layer
+                                            if(legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
+                                                console.log(legendUtilities.getLayerByName(data.name).get("edit_pk"), f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
+                                                f.setId( f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
+
+                                                legendUtilities.getLayerByName(data.name).getSource().addFeature(f);
+                                            }
+                                        }
                                     });
                                     
                                 },
