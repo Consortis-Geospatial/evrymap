@@ -26,7 +26,7 @@ var searchAdvanced = (function (mymap) {
                 '        <input type="checkbox" data-toggle="toggle" id="chkSS" value="">' +
                 '    </div>' +
                 '</div>' +
-                '<div class="row" id="divSearchFields">' +
+                '<div class="" id="divSearchFields">' +
                 '</div>' +
                 '</div>';
             $(dlgSearchAdv).append(divhtml);
@@ -43,7 +43,7 @@ var searchAdvanced = (function (mymap) {
             var fldCount = $('.query_field').length;
             var curCount = fldCount + 1;
             var totalfldCount = srchFields.split(',').length;
-            var str = '<div class="query_field" id="query_field' + curCount + '">';
+            var str = '<div class="query_field row" id="query_field' + curCount + '">';
             if (fldCount === 0) {
                 str = str + '<div class="col-lg-12">';
                 str = str + '       <select class="form-control" id="cboJoinType" disabled>';
@@ -196,6 +196,7 @@ var searchAdvanced = (function (mymap) {
          * @memberof searchAdvanced
          */
         doAdvancedSearch: function () {
+
             var qryString = '';
             var c = 0;
             $('.query_field').each(function (i, divqryrow) {
@@ -206,10 +207,10 @@ var searchAdvanced = (function (mymap) {
                     return false;
                 }
                 if (op === "=") {
-                    qryString = qryString + "<PropertyIsEqualTo matchCase=false>";
+                    qryString = qryString + "<PropertyIsEqualTo matchCase='false'>";
                     qryString = qryString + "<PropertyName>" + fldname + "</PropertyName><Literal>" + v + "</Literal></PropertyIsEqualTo>";
                 } else if (op === "<>") {
-                    qryString = qryString + "<PropertyIsNotEqualTo matchCase=false>";
+                    qryString = qryString + "<PropertyIsNotEqualTo matchCase='false'>";
                     qryString = qryString + "<PropertyName>" + fldname + "</PropertyName><Literal>" + v + "</Literal></PropertyIsNotEqualTo>";
                 } else if (op === ">") {
                     qryString = qryString + "<PropertyIsGreaterThan>";
@@ -224,145 +225,158 @@ var searchAdvanced = (function (mymap) {
                     qryString = qryString + "<PropertyIsLessOrEqualTo>";
                     qryString = qryString + "<PropertyName>" + fldname + "</PropertyName><Literal>" + v + "</Literal></PropertyIsLessOrEqualTo>";
                 } else if (op === "LIKE") {
-                    qryString = qryString + "<PropertyIsLike wildcard='*' singleChar='.' escape='!' matchCase=false>";
+                    qryString = qryString + "<PropertyIsLike wildcard='*' singleChar='.' escape='!' matchCase='false'>";
                     qryString = qryString + "<PropertyName>" + fldname + "</PropertyName><Literal>*" + v + "*</Literal></PropertyIsLike>";
                 } else if (op === "STARTSWITH") {
-                    qryString = qryString + "<PropertyIsLike wildcard='*' singleChar='.' escape='!' matchCase=false>";
+                    qryString = qryString + "<PropertyIsLike wildcard='*' singleChar='.' escape='!' matchCase='false'>";
                     qryString = qryString + "<PropertyName>" + fldname + "</PropertyName><Literal>" + v + "*</Literal></PropertyIsLike>";
                 } else if (op === "ENDSWITH") {
-                    qryString = qryString + "<PropertyIsLike wildcard='*' singleChar='.' escape='!' matchCase=false>";
+                    qryString = qryString + "<PropertyIsLike wildcard='*' singleChar='.' escape='!' matchCase='false'>";
                     qryString = qryString + "<PropertyName>" + fldname + "</PropertyName><Literal>*" + v + "</Literal></PropertyIsLike>";
                 }
 
                 c++;
             });
 
-            //console.log(qryString);
+           //spatial query
+           
+
+            var sQueryString = '';
+            hasSpatialCriteria=false;
+            
+            if ($('#chkSS').length > 0 && $('#chkSS').prop("checked") &&( $("#selSelectedFeatures").val() !== "-1" || $("#selSpatialOps").val() !== "-1"))  {
+                
+                hasSpatialCriteria = true;
+                var slname = $("#selSelectedFeatures").val().split(':')[0];
+                var fcount = parseInt($("#selSelectedFeatures").val().split(':')[2]);
+                if (fcount > 1) {
+                    sQueryString = sQueryString + '<OR>';
+                }
+                
+                // TODO: We only use the default msGeometry as the spatial column
+                // TODO: which means this will only work for layer from mapserver
+                // TODO: We should issue a DescribeFeatureType request first to be
+                // TODO: safe
+                
+                var squery = spatialSearch.getSelectedGeomAsGML(slname);
+                //createElement to get children
+                squeryElement = document.createElement('div');
+                squeryElement.innerHTML = squery;
+                squeryChildren = squeryElement.children;
+                for (let i=0;i<squeryChildren.length;i++)
+                {
+                    sQueryString = sQueryString + '<' + $("#selSpatialOps").val() + '>' + '<PropertyName>msGeometry</PropertyName>' + squeryChildren[i].outerHTML ;
+
+                    if ($("#selSpatialOps").val() === "DWITHIN") { // Within Distance operator so need to add the distance and units
+                        if ($("#txbDWithin").val().trim() === "") {
+                            // TODO: Display correct warning
+                            mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
+                            return false;
+                        } else {
+                            sQueryString = sQueryString + '<Distance units=\'' + $('#txbDWithinUnits').text() + '\'>' + $("#txbDWithin").val() + '</Distance></' + $("#selSpatialOps").val() + '>';
+                        }
+                    } else {
+                        sQueryString = sQueryString + '</' + $("#selSpatialOps").val() + '>';
+                    }
+                }
+                if (fcount > 1) {
+                    sQueryString = sQueryString + '</OR>';
+                }
+
+
+            }
+            
             if (qryString === "") {
                 // No attribute criteria. Check spatial criteria
-                if ($('#chkSS').length > 0) {
-                    if (!$('#chkSS').prop("checked") || $("#selSelectedFeatures").val() === "-1" || $("#selSpatialOps").val() === "-1") {
-                        mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
-                    } else {
-                        var sQueryString = '';
-                        var slname = $("#selSelectedFeatures").val().split(':')[0];
-                        var fcount = parseInt($("#selSelectedFeatures").val().split(':')[2]);
-                        if (fcount > 1) {
-                            sQueryString = +sQueryString + '<AND>';
-                        }
-                        sQueryString = sQueryString + '<' + $("#selSpatialOps").val() + '>';
-                        // TODO: We only use the default msGeometry as the spatial column
-                        // TODO: which means this will only work for layer from mapserver
-                        // TODO: We should issue a DescribeFeatureType request first to be
-                        // TODO: safe
-                        sQueryString = sQueryString + '<PropertyName>msGeometry</PropertyName>';
-                        var squery = spatialSearch.getSelectedGeomAsGML(slname);
-                        sQueryString = sQueryString + squery;
-                        if ($("#selSpatialOps").val() === "DWITHIN") { // Within Distance operator so need to add the distance and units
-                            if ($("#txbDWithin").val().trim() === "") {
-                                // TODO: Display correct warning
-                                mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
-                                return false;
-                            } else {
-                                sQueryString = sQueryString + '<Distance units=\'' + $('#txbDWithinUnits').text() + '\'>' + $("#txbDWithin").val() + '</Distance></' + $("#selSpatialOps").val() + '>';
-                            }
-                        } else {
-                            sQueryString = sQueryString + '</' + $("#selSpatialOps").val() + '>';
-                        }
-                        if (fcount > 1) {
-                            sQueryString = +sQueryString + '</AND>';
-                        }
-                        //console.log(sQueryString);
-                        // generate a GetFeature request
-                        var searchLyr = legendUtilities.getLayerByName($("#selSearchLayer").val().split("|")[0]);
-                        var searchUrl;
-                        if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                            searchUrl = searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + sQueryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
+                if (hasSpatialCriteria) {
+                    // generate a GetFeature request
+                    var searchLyr = legendUtilities.getLayerByName($("#selSearchLayer").val().split("|")[0]);
 
-                        } else {
-                            searchUrl = searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + sQueryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
-                        }
-                        //console.log(searchUrl);
-                        searchAdvanced.getWFSFeatureResults(searchUrl, searchLyr);
-                    }
-                } else {
+                    searchUrlPost = searchLyr.get("tag")[1];
+
+                    searchBody =  '<?xml version="1.0" encoding="UTF-8"?> <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="geojson"> <wfs:Query typeName="sf:' + searchLyr.get("name") + '">' 
+                                + '<Filter>' + sQueryString + '</Filter>' + '    </wfs:Query></wfs:GetFeature>';
+
+                    searchAdvanced.getWFSFeatureResultsPost(searchUrlPost, searchLyr , searchBody );
+                }
+                else {
                     mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
+                
                 }
+                
             } else { // Attribute criteria set
-                hasSpatialCriteria=false;
-                if ($('#chkSS').length > 0 && $('#chkSS').prop("checked") && $("#selSelectedFeatures").val() !== "-1" || $("#selSpatialOps").val() !== "-1") {
-                    qryString = qryString + '<' + $("#selSpatialOps").val() + '>';
-                    qryString = qryString + '<PropertyName>msGeometry</PropertyName>';
-                    var slname1 = $("#selSelectedFeatures").val().split(':')[0];
-                    var squery1 = spatialSearch.getSelectedGeomAsGML(slname1);
-                    qryString = qryString + squery1;
-                    hasSpatialCriteria=true;
-                }
-                if (c > 1 || hasSpatialCriteria) { // More than one attribute criteria  or spatial criteria set. Add <AND> or <OR> operator to the query
+               if ($('#chkSS').length > 0 && $('#chkSS').prop("checked") &&( $("#selSelectedFeatures").val() === "-1" || $("#selSpatialOps").val() === "-1"))
+               {
+                mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
+            
+               }
+               else
+                {
+                    // More than one attribute criteria  or spatial criteria set. Add <AND> or <OR> operator to the query
+                    
+                    if (hasSpatialCriteria)
+                        qryString =  '<AND>' + qryString ;
+                    if (c>1)
+                        qryString =  "<" + $("#cboJoinType").val() + ">" + qryString + "</" + $("#cboJoinType").val() + ">";
+                    
+
                     if (hasSpatialCriteria) {
-                        if ($("#selSpatialOps").val() === "DWITHIN") { // Within Distance operator so need to add the distance and units
-                            if ($("#txbDWithin").val().trim() === "") {
-                                // TODO: Display correct warning
-                                mapUtils.showMessage('warning', $.i18n._('_NOSEARCHFIELDS'), $.i18n._('_ERRORWARNING'));
-                                return false;
-                            } else {
-                                qryString = "<" + $("#cboJoinType").val() + ">" + qryString + '<Distance units=\'' + $('#txbDWithinUnits').text() + '\'>' + $("#txbDWithin").val() + '</Distance></' + $("#selSpatialOps").val() + '></' + $("#cboJoinType").val() + '>';
-                            }
-                        } else {
-                            qryString = "<" + $("#cboJoinType").val() + ">" + qryString + "</" + $("#selSpatialOps").val() + "></" + $("#cboJoinType").val() + ">";
-                        }
-                    } else {
-                        qryString = "<" + $("#cboJoinType").val() + ">" + qryString + "</" + $("#cboJoinType").val() + ">";
-                    }
+                        qryString += sQueryString;
+                        qryString = qryString + '</AND>';
+                    } 
+            
+                    // generate a GetFeature request
+                    var searchLyr = legendUtilities.getLayerByName($("#selSearchLayer").val().split("|")[0]);
+                    var searchUrl;
+                    
+                    searchUrl = searchLyr.get("tag")[1] ;
+                    
+                    searchBody =  '<?xml version="1.0" encoding="UTF-8"?> <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="geojson"> <wfs:Query typeName="sf:' + searchLyr.get("name") + '">' 
+                                        + '<Filter>' + qryString + '</Filter>' + '    </wfs:Query></wfs:GetFeature>';
+                                        
+                    searchAdvanced.getWFSFeatureResultsPost(searchUrl, searchLyr , searchBody);
                 }
-                // generate a GetFeature request
-                var searchLyr = legendUtilities.getLayerByName($("#selSearchLayer").val().split("|")[0]);
-                var searchUrl;
-                if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                    searchUrl = searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + qryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
-
-                } else {
-                    searchUrl = proxyUrl + searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + searchLyr.get("name") + "&Filter=<Filter>" + qryString + "</Filter>&OUTPUTFORMAT=GEOJSON";
-                }
-                //console.log(searchUrl);
-                searchAdvanced.getWFSFeatureResults(searchUrl, searchLyr);
-
             }
         },
         /**
-         * Executes the WFS GetFeature request
-         * @param {string} url The GetFeature url
-         * @param {object} searchLyr The layer object
-         * @function doAdvancedSearch
-         * @memberof searchAdvanced
-         */
-        getWFSFeatureResults: function (url, searchLyr) {
-            var found = false;
-            $.ajax({
-                url: url,
-                dataType: 'json',
-                beforeSend: function () {
-                    $(".wait").show();
-                },
-                success: function (data) {
-                    if (data.features.length > 0) {
-                        found = true;
-                        searchUtilities.renderQueryResultsAsTable(data, searchLyr.get("label"), searchLyr.get("name"), searchLyr.get("search_fields").split(','), searchLyr.get("identify_fields").split(','));
-                        //Always show the first tab as active
-                        $('#searchResultsUl a').first().tab('show');
-                        $('#dlgSearchAdv').parent().css('display', 'none');
-                    }
-                },
-                complete: function (response) {
-                    $(".wait").hide();
-                    if (!found) {
-                        mapUtils.showMessage('warning', $.i18n._('_NOSEARCHRESULTS'), $.i18n._('_ERRORWARNING'));
-                    }
-                },
-                async: true
-            });
+        * Executes the WFS GetFeature POST request
+        * @param {string} url The GetFeature url
+        * @param {object} searchLyr The layer object
+        * @param {object} searchBody The body to send. a string that contains an XML.
+        * @function doAdvancedSearch
+        * @memberof searchAdvanced
+        */
+       getWFSFeatureResultsPost: function (url, searchLyr, searchBody) {
+           var found = false;
+           $.ajax({
+               type: 'POST',
+               url: url,
+               data: searchBody,
+               contentType: "application/xml",
+               dataType: 'json',
+               beforeSend: function () {
+                   $(".wait").show();
+               },
+               success: function (data) {
+                   if (data.features.length > 0) {
+                       found = true;
+                       searchUtilities.renderQueryResultsAsTable(data, searchLyr.get("label"), searchLyr.get("name"), searchLyr.get("search_fields").split(','), searchLyr.get("identify_fields").split(','));
+                       //Always show the first tab as active
+                       $('#searchResultsUl a').first().tab('show');
+                       $('#dlgSearchAdv').parent().css('display', 'none');
+                   }
+               },
+               complete: function (response) {
+                   $(".wait").hide();
+                   if (!found) {
+                       mapUtils.showMessage('warning', $.i18n._('_NOSEARCHRESULTS'), $.i18n._('_ERRORWARNING'));
 
-        },
+                   }
+               },
+               async: true
+           });
+
+       },
         /**
          * Removes a search field
          * @param {string} fldid The control id to remove
