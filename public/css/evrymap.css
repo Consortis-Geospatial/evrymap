@@ -180,9 +180,8 @@ div#fixBootstrapSliderPluginStyles div.slider.slider-horizontal .slider-track .s
 
 .wms-t-control {
     position: absolute;
-    left: 4%;
-    top: 4em;
-    width: 30%
+    left:6%; top:4em;
+    width:700px;
 }
 
 /* END WMS-T layers controls */
@@ -384,6 +383,14 @@ tr.shown td.details-control {
 */
 @media (min-width: 1025px) {
 
+    /* WMS - T layer */
+    .wms-t-control {
+        position: absolute;
+        left:4%; top:4em;
+        width:700px;
+        padding-left: 20px;
+    }
+    
     /* START SEARCH BAR */
     .searchpanel {
         position: fixed;
@@ -450,6 +457,14 @@ tr.shown td.details-control {
   ##Screen = B/w 768px to 1024px
 */
 @media (min-width: 768px) and (max-width: 1024px) {
+    
+    /* WMS - T layer */
+    .wms-t-control {
+        position: absolute;
+        left:25%;
+        top:8em;
+        width:50%;
+    }
 
     /* START SEARCH BAR */
     .searchpanel {
@@ -572,6 +587,14 @@ tr.shown td.details-control {
 @media (min-width: 481px) and (max-width: 768px) {
     #cnavbar {
         z-index: 999;
+    }
+
+    /* WMS - T layer */
+    .wms-t-control {
+        position: absolute;
+        left:25%;
+        top:8em;
+        width:40%;
     }
 
     /* START SEARCH BAR */
@@ -719,6 +742,14 @@ tr.shown td.details-control {
 
 @media (min-width: 320px) and (max-width: 480px) {
 
+    /* WMS - T layer */
+    .wms-t-control {
+        position: absolute;
+        left:25%;
+        top:8em;
+        width:50%;
+    }
+    
     /* START TOP BAR */
     .navbar-brand {
         width: 80%;

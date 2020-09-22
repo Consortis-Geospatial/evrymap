@@ -33,6 +33,90 @@
         $('#btnStopWms').off('click').on('click', function () { WMSTUtils.stop(); });
     });
     return {
+        /**
+         * addDays: add days to a date and return a string YYYY-MM-DD
+         * @param {string} year starting year
+         * @param {string} month starting month
+         * @param {string} day starting day
+         * @param {string} days days to add
+         */
+        addDays: function (year, month, day, days, sep) {
+            let v_date = new Date(year+"-"+month+"-"+day);
+            v_date.setDate(v_date.getDate() + days);
+
+            let v_month = (v_date.getMonth()+1);
+            if(v_month<10)
+                v_month= "0"+v_month;
+            let v_day = v_date.getDate();
+            if(v_day<10)              
+                v_day= "0"+v_day;   
+
+            v_date = v_date.getFullYear() + sep + v_month + sep + v_day;
+ 
+            return v_date;
+        },
+        /**
+         * dateformat: change format of date from YYYY-MM-DD to what was defined
+         * @param {string} date the date to change
+         * @param {string} sep separator
+         * @param {string} dict dictionary with YEAR, MONTH, DAY properties
+         */
+        dateformat: function (date, sep, dict)
+        {
+            let year = date.split(sep)[0];
+            let month = date.split(sep)[1];
+            let day = date.split(sep)[2];
+
+            let result='';
+            if(dict["YEAR"]===0) 
+                result += year;
+            if(dict["MONTH"]===0) 
+                result += month;
+            if(dict["DAY"]===0) 
+                result += day;
+            if(dict["YEAR"]===1) 
+                result += sep + year;
+            if(dict["MONTH"]===1) 
+                result += sep + month;
+            if(dict["DAY"]===1) 
+                result += sep + day;
+            if(dict["YEAR"]===2) 
+                result += sep + year;
+            if(dict["MONTH"]===2) 
+                result += sep + month;
+            if(dict["DAY"]===2) 
+                result += sep + day;
+            
+            return result;
+        },
+        /**
+         * monthValueToDate: converts slider value to date
+         * @param {string} sliderValue slider value
+         * @param {string} minYear starting year
+         * @param {string} minMonth starting month
+         * @param {string} minDay starting day
+         * @param {string} sep separator
+         */
+        monthValueToDate: function (sliderValue, minYear, minMonth,minDay, sep ) {
+            sliderValue = +sliderValue + +minMonth;
+                        
+            v_year= +minYear;
+
+            let yearsDiff =  Math.trunc ((+sliderValue-1)/12); //-1 for month
+            if (sliderValue > sliderValue - 12 * yearsDiff ) {
+                sliderValue = sliderValue - 12 * yearsDiff;
+                v_year = v_year + yearsDiff;
+            }
+            
+            if (sliderValue <= 9) {
+                v_month = '0' + sliderValue.toString();
+            } else {
+                v_month = sliderValue.toString();
+            }
+            
+            let v_date = v_year + sep + v_month + sep + minDay; 
+            return v_date;
+        },
         resetWmsTLayers: function () {
             $.each(layers, function (key, lyr) {
                 if (lyr.type === "WMS" && typeof lyr.timeSettings !== "undefined") {
@@ -51,15 +135,15 @@
             str = '';
             str = str + '<div class="wms-t-control">';
             str = str + '<div class="row">';
-            str = str + '   <div class="col-lg-6">';
+            str = str + '   <div class="col-lg-6 col-md-6 col-sm-12" style="margin-bottom:15px;">';
             str = str + '       <div class="input-group"> <span class="input-group-addon">Layer</span>';
             str = str + '          <select class="form-control" id="wmsTLayers" ></select>';
             str = str + '           <span class="input-group-btn"><button id="btnPlayWms" style="display:none" class="btn btn-success" type="button"><span class="glyphicon glyphicon-play-circle"></span></button></span>';
             str = str + '           <span class="input-group-btn"><button id="btnStopWms" style="display:none" class="btn btn-danger" type="button" disabled><span class="glyphicon glyphicon-pause"></span></button></span>';
             str = str + '       </div>';
             str = str + '   </div>';
-            str = str + '   <div class="col-lg-6" id="fixBootstrapSliderPluginStyles">';
-            str = str + '       <div id="wmsTSlider"></div>';
+            str = str + '   <div class="col-lg-6 col-md-6 col-sm-12" id="fixBootstrapSliderPluginStyles">';
+            str = str + '       <div id="wmsTSlider" style="width:80%; "></div>';
             str = str + '   </div>';
             str = str + '</div>';
             str = str + '</div>';
@@ -85,7 +169,7 @@
             let min = arrval[4];
             let max = arrval[5];
             let step = arrval[6];
-            let mins, maxs;
+            let mins, maxs, miny, maxy , mind, maxd;
             let tics = [];
             let darr = format.split(sep);
             let dict = [];
@@ -116,37 +200,48 @@
             dict["DAY"] = d;
             dict.sort();
             //console.log(dict);
+            if (format.indexOf('MM') !== -1) {
+                mins = min.substr(format.indexOf('MM'), 2);
+                maxs = max.substr(format.indexOf('MM'), 2);
+            } else if (format.indexOf('mm') !== -1) {
+                mins = min.substr(format.indexOf('mm'), 2);
+                maxs = max.substr(format.indexOf('mm'), 2);
+            } else { return; }
+
+            if (format.indexOf('YYYY') !== -1) {
+                miny = min.substr(format.indexOf('YYYY'), 4);
+                maxy = max.substr(format.indexOf('YYYY'), 4);
+            } else if (format.indexOf('yyyy') !== -1) {
+                miny = min.substr(format.indexOf('yyyy'), 4);
+                maxy = max.substr(format.indexOf('yyyy'), 4);
+            } else { return; }
+
+            if (format.indexOf('DD') !== -1) {
+                mind = min.substr(format.indexOf('DD'), 2);
+                maxd = max.substr(format.indexOf('DD'), 2);
+            } else if (format.indexOf('dd') !== -1) {
+                mind = min.substr(format.indexOf('dd'), 2);
+                maxd = max.substr(format.indexOf('dd'), 2);
+            } else { return; }
+
             if (unit === "MONTH") {
-                if (format.indexOf('MM') !== -1) {
-                    mins = min.substr(format.indexOf('MM'), 2);
-                    maxs = max.substr(format.indexOf('MM'), 2);
-                } else if (format.indexOf('MON') !== -1) {
-                    mins = min.substr(format.indexOf('MON'), 3);
-                    maxs = max.substr(format.indexOf('MON'), 3);
-                } else { return; }
+                
                 //Find the date components from the format
+
+                let monthsDiff = (+maxy - +miny)*12;
+                monthsDiff -= +mins;
+                monthsDiff += +maxs;
 
                 $("#wmsTSlider").bootstrapSlider({
                     formatter: function (value) {
-                        let v_month = '';
-                        let v_date = '';
-                        if (value <= 9) {
-                            v_month = '0' + value.toString();
-                        } else {
-                            v_month = value.toString();
-                        }
-                        // Year can only be 0 or 2
-                        //if (dict.YEAR === 0) {
-                        v_date = min.split(sep)[0] + sep + v_month + sep + min.split(sep)[2]; //YYYY-MM-DD
-                        //} else {
-                        //    v_date = min.split(sep)[0] + sep + v_month + sep + min.split(sep)[2]; //YYYY-MM-DD
-                        //}
-
+                        
+                        let v_date = WMSTUtils.monthValueToDate(value, miny, mins, mind, sep );
+                        v_date = WMSTUtils.dateformat(v_date, sep, dict);
                         return v_date;
                     },
-                    value: parseInt(mins),
-                    min: parseInt(mins),
-                    max: parseInt(maxs),
+                    value: 0,
+                    min: 0,
+                    max: monthsDiff,
                     step: parseInt(step),
                     tooltip: 'always',
                     tooltip_position: 'bottom'//,
@@ -158,21 +253,58 @@
                 $('#wmsTSlider').bootstrapSlider().on('change', function (e) {
                     var v = e.value.newValue;
                     var b = e.value.oldValue;
-                    //console.log(v);
                     let v_date = '';
-                    let v_month = '';
-                    if (v <= 9) {
-                        v_month = '0' + v.toString();
-                    } else {
-                        v_month = v.toString();
-                    }
-                    v_date = min.split(sep)[0] + sep + v_month + sep + min.split(sep)[2];
-                    //console.log(v_date);
+
+                    v_date = WMSTUtils.monthValueToDate(v, miny, mins, mind, '-');
                     let timeLayer = legendUtilities.getLayerByName(timeLayerName);
                     timeLayer.getSource().updateParams({ 'TIME': v_date });
                 });
-            } else {
-                // for now only support months
+            } else if(unit === "DAY") {
+                
+                //Find the date components from the format
+
+                //in milliseconds, plus 1 day because maximum has to be considered as a day also
+                let daysDiff = new Date(maxy,maxs,maxd) - new Date(miny,mins,mind) + 1*24*60*60*1000; 
+                daysDiff = daysDiff/1000; //seconds
+                daysDiff = daysDiff/60  //minutes
+                daysDiff = daysDiff/60  //hours
+                daysDiff = daysDiff/24  //days
+                daysDiff = Math.round(daysDiff);
+
+                $("#wmsTSlider").bootstrapSlider({
+                    formatter: function (value) {
+                        
+                        v_date = WMSTUtils.addDays(+miny, +mins, +mind, value, sep);
+                        
+                        v_date = WMSTUtils.dateformat(v_date, sep, dict);
+
+                        return v_date;
+                    },
+                    value: 0,
+                    min: 0,
+                    max: daysDiff,
+                    step: parseInt(step),
+                    tooltip: 'always',
+                    tooltip_position: 'bottom'//,
+
+                });
+                $('#wmsTSlider').bootstrapSlider().on('change', function (e) {
+                    var v = e.value.newValue;
+                    var b = e.value.oldValue;
+                    
+                    let v_date = '';
+                    
+                   
+                    
+                    v_date = WMSTUtils.addDays(+miny, +mins, +mind, v, '-');
+                    
+                    let timeLayer = legendUtilities.getLayerByName(timeLayerName);
+                    timeLayer.getSource().updateParams({ 'TIME': v_date });
+                });
+            
+            }
+            else {
+                // for now only support months and days
                 return;
             }
         },
