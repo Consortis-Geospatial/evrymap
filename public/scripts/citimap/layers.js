@@ -761,19 +761,35 @@ var mapUtils = (function () {
         },
         initContextMenu: function () {
             mymap.getLayers().forEach(function (layer, i) {
+                
                 if (typeof layer.get("contextMenu") !== "undefined") {
                     var contextmenu = new ContextMenu({
                         width: 170,
                         defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
-                        items: layer.get("contextMenu")
+                        items: []
                     });
                     contextmenu.on('beforeopen', function (evt) {
+                        contextmenu.close();
                         var feature = mymap.forEachFeatureAtPixel(evt.pixel, function (ft, l) {
                             return ft;
                         });
 
+                        let found=false;
                         if (feature) { // open only on features
-                            contextmenu.enable();
+                             layer.getSource().getFeatures().forEach(function(feat){ if(feat === feature) {
+                                found=true;        
+                             } } )
+                            
+                            if(found)
+                            {
+                                contextmenu.enable();
+                                contextmenu.clear();
+                                contextmenu.extend(layer.get("contextMenu"));                             
+                                mymap.addControl(contextmenu);
+                            }
+                            else {
+                                contextmenu.disable();
+                            }
                         } else {
                             contextmenu.disable();
                         }
@@ -853,22 +869,24 @@ var mapUtils = (function () {
                                        //it checks if id is set in addFeature , if they exist they are not loaded again
 
                                         //editMode landify
-                                        if (typeof editLayer !=="undefined")
+                                        if( (typeof editLayer !=="undefined") && (legendUtilities.getLayerByName(data.name).get("editable")==true) )
                                         {
                                             if(data.name +"_EDIT" === editLayer.get("name"))
                                             {
                                                 f.setId( f.getProperties()[editLayer.get("edit_pk")]);
+                                                editLayer.getSource().addFeature(f);
                                             }
-                                            editLayer.getSource().addFeature(f);
+                                            
                                         }
                                         else {
                                             //every other geojson layer
                                             if(legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
-                                                console.log(legendUtilities.getLayerByName(data.name).get("edit_pk"), f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
+                                                //console.log(legendUtilities.getLayerByName(data.name).get("edit_pk"), f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
                                                 f.setId( f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
 
-                                                legendUtilities.getLayerByName(data.name).getSource().addFeature(f);
+                                                
                                             }
+                                            legendUtilities.getLayerByName(data.name).getSource().addFeature(f);
                                         }
                                     });
                                     
@@ -876,7 +894,7 @@ var mapUtils = (function () {
                                 complete: function (response) {
                                 },
                                 error: function (jqXHR, textStatus, errorThrown) {
-                                    console.log("WFS BBOX Vector Layer request error: " + textStatus );
+                                    console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error "+errorThrown + "/ " );
                                     //console.log(mapUtils.xmlToJson(jqXHR.responseText));
                                 },
                                 failure: function (jqXHR, _textStatus, errorThrown) {
@@ -1765,8 +1783,8 @@ var mapUtils = (function () {
             });
             mymap.addInteraction(hover);
             var style = mapUtils.setDefaultFeatureStyle;
-            var container = document.getElementById('popup1');
-            $('#popup1').popover('destroy');
+            // var container = document.getElementById('popup1');
+            // $('#popup1').popover('destroy');
             var content = document.getElementById('popup-content');
             var closer = document.getElementById('popup-closer');
             var popupOverlay;
@@ -1775,7 +1793,7 @@ var mapUtils = (function () {
                 if (!$('#chkShowMaptips').prop('checked')) {
                     return false;
                 }
-                $('#popup1').show();
+                // $('#popup1').show();
                 let l = e.layer;
                 let f = e.feature;
                 if (l !== null && typeof l.get("tag") !== "undefined" && l.get("tag")[0] === "GeoJSON" && l.get("allowHover")) {
@@ -2008,6 +2026,9 @@ var mapUtils = (function () {
             var searchLimit = velocityControls.getVelocitySettings().timeSettings.days;
             var velocityUrl = `${velocityControls.getVelocitySettings().serverLocation}`;
 
+            $('#legendButton').hide();
+            $('.wms-t-control').hide();
+
             $.ajax({
                 url: `${velocityUrl}/nearest?timeIso=${timeIso}&searchLimit=${searchLimit}`,
                 async: true,
@@ -2045,6 +2066,9 @@ var mapUtils = (function () {
         },
         removeWind() {
             velocityLayer.removeFromMap();
+            $('#legendButton').show();
+            $('.wms-t-control').show();
+            
         }
     };
 })();

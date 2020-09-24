@@ -20,7 +20,7 @@ var velocityControls = (function() {
             var selectElement = document.createElement('div');
             selectElement.setAttribute("id", "velocitySelId");
             // selectElement.setAttribute("style", "position: absolute;left:4%; top:4em;width:30%");
-            selectElement.innerHTML = '<div style="width:100%"><span style="width:50%; padding-right:10px; display:none;">aaaa</span><select style="width:50%"></select></div>';
+            selectElement.innerHTML = '<div style="width:100%"><span style="width:50%; padding-right:10px; display:none;">aaaa</span><select class="form-control" style="width:50%"></select></div>';
             selectElement.addEventListener("change", function() {
                 mapUtils.removeWind();
                 mapUtils.addWind($("#velocitySelId select").val());
