@@ -377,7 +377,8 @@ var legendUtilities = (function () {
             }
             //console.log(layer.get("name"));
             if (typeof layer.get("group") !== "undefined" && layer.get("group") !== "") {
-                var grpName = layer.get("group").replace(' ', '_'); //Replace spaces with underscores so to create a valid id for jquery
+                var grpName = layer.get("group").replace(/ /g, '_'); //Replace spaces with underscores so to create a valid id for jquery
+                
                 if (!legendUtilities.legendGroupExists(grpName)) {
                     legendUtilities.createLegendGroup(grpName, layer.get("groupLegendImg"));
                 }
@@ -482,7 +483,7 @@ var legendUtilities = (function () {
                 '<i id="icon' + grpName + '" class="glyphicon glyphicon-eye-open text-success" aria-hidden="true" style="cursor:pointer" title="' + $.i18n._("_TOGGLEVISIBLE") + '" onclick="legendUtilities.toggleGroupLayerVisibility(this.id)"></i>' +
                 '<span id="spanGroupSelect' + grpName + '" style="color:orange;padding-right:2px" title="' + $.i18n._("_TOGGLESELECTABLE") + '"><i id="chkSelect' + grpName + '" class="glyphicon glyphicon-flash" style="cursor: pointer" onclick="legendUtilities.toggleGroupLayerSelect(this.id)";></i></span>' +
                 '</strong > ' +
-                '<span id="lbl' + grpName + '">' + grpName + '</span></strong>';
+                '<span id="lbl' + grpName + '">' + grpName.replace(/_/g,' ') + '</span></strong>';
             if (typeof grpImg !== "undefined" && grpImg.trim() !== "" && !legendUtilities.legendGroupImageExists(grpName)){
                 grphtml= grphtml + legendUtilities.createLegendGroupImage(grpName, grpImg);
             }
