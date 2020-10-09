@@ -12,7 +12,15 @@ body {
 .dl-horizontal dt {
     white-space: normal;
 }
-
+/* fixes max-height:200px from datatables minified css */
+.dataTables_scrollBody {
+    max-height: none!important;
+}
+/* fixes ui dialogs right margin, give some pixels for table render*/
+.ui-dialog-content {
+    width: 100%!important;
+}
+/* autocomplete scrollbar */
 .ui-autocomplete {
     position: absolute;
     cursor: default;
@@ -27,6 +35,8 @@ body {
     /* add padding to account for vertical scrollbar */
     padding-right: 20px;
 } 
+
+
 /* Set width on the form input elements since they're 100% wide by default */
 /*input,
 select,
@@ -572,6 +582,7 @@ tr.shown td.details-control {
 
     .ui-dialog-content {
         height: 70% !important;
+        
     }
 
     /* END DIALOGS */
