@@ -876,15 +876,18 @@ var mapUtils = (function () {
                                                 f.setId( f.getProperties()[editLayer.get("edit_pk")]);
                                                 editLayer.getSource().addFeature(f);
                                             }
-                                            
+                                            else {
+                                                if(legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
+                                                    //console.log(legendUtilities.getLayerByName(data.name).get("edit_pk"), f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
+                                                    f.setId( f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
+                                                }
+                                                legendUtilities.getLayerByName(data.name + "_SNAPPING_EDIT").getSource().addFeature(f);
+                                            }
                                         }
                                         else {
                                             //every other geojson layer
                                             if(legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
-                                                //console.log(legendUtilities.getLayerByName(data.name).get("edit_pk"), f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
                                                 f.setId( f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
-
-                                                
                                             }
                                             legendUtilities.getLayerByName(data.name).getSource().addFeature(f);
                                         }
@@ -895,7 +898,6 @@ var mapUtils = (function () {
                                 },
                                 error: function (jqXHR, textStatus, errorThrown) {
                                     console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error "+errorThrown + "/ " );
-                                    //console.log(mapUtils.xmlToJson(jqXHR.responseText));
                                 },
                                 failure: function (jqXHR, _textStatus, errorThrown) {
                                     console.log("WFS BBOX Vector Layer request failure: " + _textStatus );
