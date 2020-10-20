@@ -108,6 +108,7 @@ var searchUtilities = (function () {
             }, 1000);
         },
         performSearchById: function (searchVal, searchLyrName, searchFld, zoomto) {
+            
             if (searchVal === "") {
                 mapUtils.showMessage('warning', $.i18n._('_NOSEARCHSTRING'), $.i18n._('_ERRORWARNING'));
                 return;
@@ -143,7 +144,7 @@ var searchUtilities = (function () {
                 } else {
                     searchUrl = proxyUrl + searchLyr.get("tag")[1] + "&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=" + tableName + "&Filter=<Filter>" + paramString + "</Filter>&OUTPUTFORMAT=GEOJSON";
                 }
-                setTimeout(function () {
+                
                     $.ajax({
                         beforeSend: function () {
                             $(".wait").show();
@@ -152,7 +153,7 @@ var searchUtilities = (function () {
                         dataType: 'json',
                         success: function (data) {
                             if (data.features.length > 0) {
-                                found = true;
+                                
                                 if (typeof zoomto === "undefined") {
                                     searchUtilities.renderQueryResultsAsTable(data, searchLyr.get('label'), searchLyr.get('name'), search_fields.split(','), identify_fields.split(','));
                                     //Always show the first tab as active
@@ -165,26 +166,28 @@ var searchUtilities = (function () {
                                     }
                                 }
                             }
+                            else {
+                                try {
+                                    $('#modSearchResults').dialog('close');
+                                } catch (e) {
+                                    return;
+                                }
+                
+                                 mapUtils.showMessage('warning', $.i18n._('_NOSEARCHRESULTS'), $.i18n._('_ERRORWARNING'));
+                            }
                         },
                         complete: function (response) {
                             $(".wait").hide();
                         },
+                        
                         async: true // Non-asynchronous since we are in a loop
                     });
-                }, 5000);
+               
             }
 
             //});
-            $(".wait").hide();
-            if (!found) {
-                try {
-                    $('#modSearchResults').dialog('close');
-                } catch (e) {
-                    return;
-                }
-
-                mapUtils.showMessage('warning', $.i18n._('_NOSEARCHRESULTS'), $.i18n._('_ERRORWARNING'));
-            }
+            // $(".wait").hide();
+            
         },
         renderQueryResultsAsTable: function (jsonObj, lyrlabel, lyrname, arrSearchFields, identifyFields) {
             var tblid = lyrname;
