@@ -146,8 +146,8 @@
                     pageMargins: [margin, margin, margin, 20],
                     footer: {
                         columns: [
-                            { text: 'Αυτόματη δημιουργία από το citiMap', style: 'FooterStyle', margin: [9, 0, 0, 9] },
-                            { text: 'Consortis © 2018-2019', style: 'FooterStyle', alignment: 'right', margin: [0, 0, 9, 9] }
+                            { text: 'Αυτόματη δημιουργία από το EVRYMAP', style: 'FooterStyle', margin: [9, 0, 0, 9] },
+                            { text: 'Consortis © 2018-' + new Date().getFullYear(), style: 'FooterStyle', alignment: 'right', margin: [0, 0, 9, 9] }
                         ]
                     },
                     content: [
