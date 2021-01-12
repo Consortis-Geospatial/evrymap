@@ -660,7 +660,9 @@ var mapUtils = (function () {
                     }
                    
                     if(val.cluster) {
-                       
+                        if (typeof projDef[val.projection] !== "undefined" && val.projection != "EPSG:4326" && val.projection != "EPSG:3857") {
+                            proj4.defs(val.projection,projDef[val.projection]);
+                        }
                           tmpvector = mapUtils.createVectorClusterLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS , val);
                         
                     }
