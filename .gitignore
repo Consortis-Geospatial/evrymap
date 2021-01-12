@@ -19,3 +19,6 @@ public/config/layerconfig.json
 /public/modules/cpfjs
 .env
 public/config/lrmsearchconfig.json
+config/configKokko.json
+public/config/layerconfig-projects60.json
+public/sample_data/projects60.map

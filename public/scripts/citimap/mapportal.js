@@ -18,10 +18,21 @@ var mapPortal = (function (configfile) {
         if (urlParams.get("action") !== null) {
             let action = urlParams.get("action");
             if (action === "featurezoom") {
-                if (urlParams.get("layer") !== null && urlParams.get("field") !== null && urlParams.get("value") !== null) {
-                    searchUtilities.performSearchById(urlParams.get("value"), urlParams.get("layer"), urlParams.get("field"), true);
-
-                }
+                setTimeout(
+                    function() 
+                    {
+                        if (urlParams.get("layer") !== null && urlParams.get("field") !== null && urlParams.get("value") !== null) {
+                           
+                            if (!(legendUtilities.getLayerByName(urlParams.get("layer")) instanceof ol.layer.AnimatedCluster) )
+                                searchUtilities.performSearchById(urlParams.get("value"), urlParams.get("layer"), urlParams.get("field"), true);    
+                            else {
+                                searchUtilities.zoomToCluster( urlParams.get("layer"),urlParams.get("field"), urlParams.get("value"));   
+                            }
+                            
+                        
+                        }
+                    }, 2000
+                );
             }
         }
     });

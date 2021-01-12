@@ -107,6 +107,47 @@ var searchUtilities = (function () {
                 }
             }, 1000);
         },
+        zoomToCluster(mylayer,myfield, myvalue) {
+            let clusterfeatureArray = legendUtilities.getLayerByName(mylayer).getSource().getFeatures();
+           
+            
+            let clusterfeature;
+            let clusterelement;
+            
+            for(let i=0; i<clusterfeatureArray.length; i++)
+            {
+
+                
+                let clusterelements = clusterfeatureArray[i].getProperties()["features"];
+
+                for (let j =0; j < clusterelements.length; j++)
+                {
+                    
+                    if (clusterelements[j].get(myfield)== myvalue)
+                    {
+                       
+                        clusterfeature = clusterfeatureArray[i];
+                        clusterelement = clusterelements[j];
+
+                        break;
+                    }
+                }
+            }
+            
+            if(clusterelement !=null)
+            {
+                           
+              let geom = JSON.stringify(clusterelement.getGeometry().getCoordinates());
+               
+                let geomtype = clusterelement.getGeometry().getType();
+                searchUtilities.zoomToFeature(geomtype, geom, mylayer);
+                
+                // mymap.getView().setCenter(clusterelement.getGeometry().getCoordinates());
+                // mymap.getView().setZoom(Number(preferences.getPointZoom()));
+
+            }
+        }
+        ,
         performSearchById: function (searchVal, searchLyrName, searchFld, zoomto) {
             
             if (searchVal === "") {
@@ -347,7 +388,7 @@ var searchUtilities = (function () {
                         } else if (val === "t" || val === "true" || val === true) {
                             afeature.properties[key] = $.i18n._('_YES');
                         }
-                        if (val.startsWith("http://") || val.startsWith("https://")) {
+                        if ((""+val).startsWith("http://") || (""+val).startsWith("https://")) {
                             afeature.properties[key]='<a href="'+val + '" target="_blank">'+ val +'</a>';
                         }
                     });

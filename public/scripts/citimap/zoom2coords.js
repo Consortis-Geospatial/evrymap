@@ -11,6 +11,9 @@ var zoom2XY = (function () {
          * @memberof zoom2XY
          */
         createDialog: function () {
+            proj4.defs("EPSG:2100","+proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=-199.87,74.79,246.62,0,0,0,0 +units=m +no_defs");
+            ol.proj.get('EPSG:2100').setExtent([104022.946289, 3850785.500488, 1007956.563293, 4624047.765686]);
+
             $.i18n.load(uiStrings);
             var $mymap = $('#mapid').data('map');
             var xydiv = document.createElement('div');
@@ -28,6 +31,7 @@ var zoom2XY = (function () {
                 '        <label for="sel1">' + $.i18n._("_CS") + '</label>' +
                 '        <select class="form-control" id="sel1" onchange="zoom2XY.otfCoorTransform();">' +
                 '            <option value="' + mymap.getView().getProjection().getCode().split(':')[1] + '">' + prjName + '</option>' +
+                '            <option value="2100">EPSG:2100</option>' +
                 '            <option value="4326">GPS</option>' +
                 '            <option value="3857">Google</option>' +
                 '        </select>' +
