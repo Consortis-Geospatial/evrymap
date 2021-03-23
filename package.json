@@ -32,7 +32,7 @@
     "ejs": ">=2.5.5",
     "eslint-config-defaults": "^9.0.0",
     "express": "^4.16.4",
-    "express-fileupload": "^1.1.6",
+    "express-fileupload": "^1.1.9",
     "http-errors": "~1.6.3",
     "http-proxy-middleware": "^0.19.1",
     "jquery-file-upload-middleware": "^0.1.8",
