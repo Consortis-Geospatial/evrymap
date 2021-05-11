@@ -34,8 +34,33 @@ var mapPortal = (function (configfile) {
                     }, 2000
                 );
             }
+            if (action === "editPin")
+            {
+                let x = urlParams.get("x");
+                let y = urlParams.get("y");
+                let epsg = urlParams.get("epsg");
+                let showModify = urlParams.get("showModify");
+                if(showModify == "true")
+                showModify = true;
+                else if (showModify == "false")
+                showModify = false;
+
+                
+                setTimeout(
+                    function() 
+                    {
+                        
+                        zoom2XY.createEditableClusterPin(x,y,epsg, showModify );
+                    },2000
+                );
+                    
+                
+            }
         }
+        
     });
+
+    
     return {
         config: function () {
             // Set User dropdown options

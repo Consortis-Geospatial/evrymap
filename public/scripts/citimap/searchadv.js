@@ -148,6 +148,7 @@ var searchAdvanced = (function (mymap) {
                     }
                 });
             } else {
+                $('#valdiv_' + suffix).empty();
                 $('#valdiv_' + suffix).append('<input type="text" class="form-control fieldval">');
             }
         },

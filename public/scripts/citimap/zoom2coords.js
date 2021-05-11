@@ -3,6 +3,8 @@
  * @namespace zoom2XY
  */
 var zoom2XY = (function () {
+    var editPinIconFeature;
+    var modifyEditPin;
     return {
         /**
          * Creates the HTML for the Zoom to Coordinates dialog
@@ -152,6 +154,7 @@ var zoom2XY = (function () {
          * @memberof zoom2XY 
          */
         addPin: function (pinFeature) {
+            
             $mymap = $('#mapid').data('map');
             var pinlayer;
             foundpin = false;
@@ -186,9 +189,150 @@ var zoom2XY = (function () {
             }
             // If no pin exists in this position add feature
             if (!pinExists) {
-                //console.log('added pin');
+                
                 pinlayer.getSource().addFeature(pinFeature);
             }
+        },
+        /**
+         * Create editable pin in layer 'editPinLayer' for clusters
+         * @param {string} x x-coordinate
+         * @param {string} y y-coordinate
+         * @param {string} epsg epsg of coordinates
+         * @param {string} showModify if the modify interaction is created
+         * @function createEditableClusterPin
+         * @memberof zoom2XY 
+         */
+        createEditableClusterPin : function(x, y , epsg ,showModify = false) {
+            //let coordinate = [2553793, 4962046];
+            let coordinate = [parseFloat(x), parseFloat(y)];
+            let coortype = epsg;
+            let $mymap = $('#mapid').data('map');
+            
+            $mymap.getLayers().forEach(function (layer, i) {
+                if (typeof layer.get('name') !== undefined) {
+                    
+                    if (layer.get('cluster') !== undefined && layer.get('cluster') === true ) {
+                       layer.setVisible(false);
+                    }
+                }
+            });
+
+            pinName="";
+            let otfCoor = ol.proj.transform(coordinate, 'EPSG:' + coortype, $mymap.getView().getProjection().getCode());
+            
+            editPinIconFeature = zoom2XY.createPinFeature(otfCoor, pinName);
+
+            // If pin has name, add it to local storage
+            if (pinName !== "") {
+               // userUtils.addNamedPin($mymap, pinName, coordinate);
+            }
+            
+            //zoom2XY.addPin(iconFeature);
+
+
+            $mymap = $('#mapid').data('map');
+            var pinlayer;
+            foundpin = false;
+            $mymap.getLayers().forEach(function (lyr, i) {
+                if (lyr.get('name') === 'editPinLayer') {
+                    pinlayer = lyr;
+                    foundpin = true;
+                    return false;
+                }
+            });
+
+            if (!foundpin) {
+                var pinSource = new ol.source.Vector({});
+                pinlayer = new ol.layer.Vector({
+                    name: 'editPinLayer',
+                    source: pinSource
+                });
+                pinlayer.set("name","editPinLayer");
+                $mymap.addLayer(pinlayer);
+
+                
+                //legendUtilities.getLayerByName("editPinLayer").setVisible(showModify);
+            }
+            // Check if there is a pin already in this position
+            var newX = editPinIconFeature.getGeometry().getCoordinates()[0].toFixed(3);
+            var newY = editPinIconFeature.getGeometry().getCoordinates()[1].toFixed(3);
+            var pinExists = false;
+            // Loop through existing features in the pinlayer and check each XY coordinate with the input feature
+            for (var featureCount = 0; featureCount < pinlayer.getSource().getFeatures().length; featureCount++) {
+                var tmpX = pinlayer.getSource().getFeatures()[featureCount].getGeometry().getCoordinates()[0].toFixed(3);
+                var tmpY = pinlayer.getSource().getFeatures()[featureCount].getGeometry().getCoordinates()[1].toFixed(3);
+                if (newX === tmpX && newY === tmpY) {
+                    pinExists = true;
+                    return false;
+                }
+            }
+            // If no pin exists in this position add feature
+            if (!pinExists) {
+                
+                pinlayer.getSource().addFeature(editPinIconFeature);
+            }
+
+
+
+            $mymap.getView().setCenter(ol.proj.transform(coordinate, 'EPSG:' + coortype, $mymap.getView().getProjection().getCode()));
+            mymap.getView().setZoom(Number(preferences.getPointZoom()));
+            let message = {Cmd: "loaded"};
+            window.parent.postMessage( JSON.stringify(message), "*");
+            
+            if(showModify) {
+            
+                zoom2XY.addEditPinModify(coortype);
+            
+            }
+        },
+        /**
+         * Create modify interaction in editable pin in layer 'editPinLayer' for clusters
+         * @param {string} epsg epsg of pin
+         * @function addEditPinModify
+         * @memberof zoom2XY 
+         */
+        addEditPinModify: function(epsg) {
+            var target = document.getElementById('mapid');
+            modifyEditPin = new ol.interaction.Modify({
+                    hitDetection: legendUtilities.getLayerByName('editPinLayer'),
+                    source: legendUtilities.getLayerByName('editPinLayer').getSource(),
+                    
+                  });
+                  modifyEditPin.on(['modifystart', 'modifyend'], function (evt) {
+                    target.style.cursor = evt.type === 'modifystart' ? 'grabbing' : 'auto';
+    
+                    if(evt.type == 'modifyend')
+                    {
+                        let x_coord = editPinIconFeature.getGeometry().getCoordinates()[0].toFixed(3);
+                        let y_coord = editPinIconFeature.getGeometry().getCoordinates()[1].toFixed(3);
+                        let prevCoorType = $mymap.getView().getProjection().getCode();
+                        let new_coords = ol.proj.transform([x_coord,y_coord], prevCoorType, 'EPSG:' + epsg);
+                        let message = {
+                            Cmd: "editXY",
+                            value: {
+                                x: new_coords[0].toFixed(3) ,
+                                y: new_coords[1].toFixed(3)
+                            }
+
+                        };
+                        window.parent.postMessage( JSON.stringify(message), "*");
+                        
+                        
+                    }
+                    
+                  });
+    
+                $mymap = $('#mapid').data('map');
+                $mymap.addInteraction(modifyEditPin);
+        },
+        /**
+         * Remove modify interaction in editable pin in layer 'editPinLayer' for clusters
+         * @function removeEditPinModify
+         * @memberof zoom2XY 
+         */
+        removeEditPinModify: function() {
+            $mymap = $('#mapid').data('map');
+            $mymap.removeInteraction(modifyEditPin);
         },
         /**
          * Makes the coordinate transormations inside the

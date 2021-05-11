@@ -25,11 +25,13 @@ However, its much more than a map portal where you can just define a few layers 
  - [Search Object](#search-object)
  - [The projdef.json file](#the-projdefjson-file)
  
+ [Loading Cluster Layer](#loading-cluster-layer)
  [Loading Custom Modules](#loading-custom-modules)
- 
+
+
  [Creating web services for the built-in Editor module](#creating-web-services-for-the-built-in-editor-module)
  
-
+ 
 
  
 # Installation
@@ -458,6 +460,91 @@ This file contains the projection definition in proj4js format for any layer SRI
     }
    You can find the proj4js format for other SRIDs in https://spatialreference.org/
 
+# Loading a Cluster Layer
+
+## support for one animated cluster layer for points
+- **clusterOptions**  In order for the layer to register as a cluster you have to place a "clusterOptions" attribute that is an Object in the layer specification of the layerconfig file.
+The features of thecluster layer have a context menu with left click per feature with the searchFields shown.
+
+the clusterOptions object in layerconfig file has 5 attributes.
+
+- **service_url** : an endpoint string to get the data and geometry
+- **async** : boolean.
+       if true the cluster works with bbox strategy but loads all points.(better for low amount of points).
+       if false the cluster works with all strategy and loads the points only on start.(better for a larget amount of points).
+
+The rest attributes are for use if the application works in an iframe with a parent application.
+
+- **firstFieldMessage** : boolean. takes the first search field that and makes it clickable. if clicked sends a message in the parent application 
+with the feature clicked.
+```
+{
+   Cmd:"selectId",
+   value: { ... data of feature }
+}
+```
+- **bottomLink** : string. Places the string as a clickable link in the bottom of context menu and sends a message in the parent application.
+```
+{
+     Cmd:"bottomLink",
+     value: {... data of feature }
+}
+```
+- **linkField** : string. e.g. docs. A field name that has to be returned in the service url for each feature. it is an array of type
+{link: string,
+text: string} [] 
+with the purpose of showing custom feature menu entries per feature. Shows clickable links with the text field as a text. If clicked sends a message in the parent application with the link field added . 
+```
+{
+      Cmd:"linkId",
+      value: {file: "link1" , ... data of feature }
+}
+```
+E.g.a feature that is returned by the service_url  
+```
+{
+  id: 1,
+  geom: geometry,
+  docs: [{link:"mydocument" , text: "this is a document"}]
+}
+```
+All the messages have to be parsed first ( JSON.parse ) and then handled by the parent application.
+
+Example of clusterOptions in a layer in layerConfig:
+```
+"layers": [
+{
+	"name": "clusters",
+	"type": "GeoJSON",
+	"clusterOptions": {
+        	"service_url": "http://localhost:3100/api/v1/permits/clusters",
+        	"async": false,  
+        	"firstFieldMessage": true,
+        	"linkField": "docs",
+        	"bottomLink": "Navigate to"
+     	}
+}
+]
+```
+## a mode that shows a pin and hides the cluster layer
+For use if application works in an iframe.
+enabled only if the following params are sent in url. (action, x,y, epsg, showModify)
+e.g ?action="editPin"&x="1234"&y="1234"&epsg="3857"&showModify=true
+
+x,y: coordinates
+epsg: projection of coordinates
+
+messages are accepted with a cmd attribute of "editPin" that enables modify of the pin Or "hidePin" for removing the modify of the pin.
+if pin is moved, it sends a message in the parent application with the coordinates of the pin. 
+```
+{
+     Cmd: "editXY",
+     value: {
+	x: number ,
+	y: number
+     }
+}
+```
 # Loading Custom Modules
 EVRYMAP allows you to extend its functionality by creating custom modules. This modules can be simple JS/jQuery functions and/or NodeJS modules. Modules are defined in the $evrymap_root/config/config.json file in the "modules" array.
 Example:

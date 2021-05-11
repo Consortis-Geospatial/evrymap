@@ -805,7 +805,7 @@ tr.shown td.details-control {
         font-size: 15px;
     }
 
-    .dropdown-menu>li>a {
+    #searchOpt.dropdown-menu>li>a {
         color: #333 !important;
     }
 

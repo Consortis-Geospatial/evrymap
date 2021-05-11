@@ -97,7 +97,7 @@ var geocodeUtilities = (function () {
                     data: "lat",
                     width: "10px",
                     render: function (data, type, row, meta) {
-                        var newP = new ol.geom.Point(ol.proj.transform([row.lon, row.lat], 'EPSG:4326', $map.getView().getProjection().getCode()));
+                        var newP = new ol.geom.Point(ol.proj.transform([parseFloat(row.lon), parseFloat(row.lat)], 'EPSG:4326', $map.getView().getProjection().getCode()));
                         var x = newP.getCoordinates()[0];
                         var y = newP.getCoordinates()[1];
                         str = "<a href='#' title='" + $.i18n._('_ZOOMTO') +"' onclick=\"geocodeUtilities.zoomToAddress(" + x + "," + y + ",'" + row.display_name + "')\"><i class=\"glyphicon glyphicon-globe text-success\"></i></a>";
