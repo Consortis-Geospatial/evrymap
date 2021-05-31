@@ -100,7 +100,11 @@ var mapPortal = (function (configfile) {
             projcode = mapSettings.projcode;
             projdescr = mapSettings.projdescr;
             destprojcode = mapSettings.destprojcode;
+            
             xyzoomlevel = mapSettings.xyzoomlevel;
+            if (typeof xyzoomlevel === "undefined") {
+                xyzoomlevel = "13";
+            }
             if (typeof destprojcode === "undefined") {
                 destprojcode = projcode;
             }
