@@ -133,7 +133,7 @@ var mapPortal = (function (configfile) {
             $('#hidJConfig').val(configfile);
             $('.modal-dialog').draggable();
 
-            mapUtils.initlayers(projcode, projdescr, mapextent);
+            mapUtils.initlayers(projcode, projdescr, mapextent , xyzoomlevel);
 
             //if (window.location.pathname.includes("urban_docs")) {
             //    $('#liHome').removeClass('active'); $('#liUrban').addClass('active');

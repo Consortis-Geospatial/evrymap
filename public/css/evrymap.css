@@ -191,6 +191,10 @@ textarea {
     font-weight: 400;
 }
 
+a.navbar-brand img {
+    height: 40px;
+}
+
 /* WMS-T layers controls */
 div#fixBootstrapSliderPluginStyles div.slider.slider-horizontal .slider-track .slider-handle {
     height: 30px !important;

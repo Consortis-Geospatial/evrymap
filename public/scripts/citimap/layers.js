@@ -16,8 +16,9 @@ var mapUtils = (function () {
     var clusterLayer2;
     var styleCache = {};
     
-    
-
+    var openResults = true;
+    var closeBbox = false;
+    var element;
     return {
         clusterStyle: function (featureCl, resolution){
             
@@ -72,7 +73,7 @@ var mapUtils = (function () {
          * @function initlayers
          * @memberof mapUtils
          */
-        initlayers: function (projcode, projdescr, mapextent) {
+        initlayers: function (projcode, projdescr, mapextent , xyzoomlevel) {
             var layers;
             
             oslayers = [];
@@ -82,7 +83,7 @@ var mapUtils = (function () {
             
             layers=cfg.layers;
 
-            mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields);
+            mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields , xyzoomlevel);
             
             
             
@@ -296,7 +297,7 @@ var mapUtils = (function () {
          * @function createMap
          * @memberof mapUtils
          */
-        createMap: function (layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields) {
+        createMap: function (layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields , xyzoomlevel) {
             // Set source and destination projections
             if (typeof projDef === "undefined") { //Projection definitions is not set
                 proj4.defs(
@@ -343,7 +344,7 @@ var mapUtils = (function () {
             // when using the identify or select by rectangle buttons
             var vectorSourceSel = new ol.source.Vector();
             // Read the settings for the selected style from Preferences
-            preferences.createDialog();
+            preferences.createDialog(xyzoomlevel);
             // Create the selection layer
             var vectorSel = new ol.layer.Vector({
                 source: vectorSourceSel,
@@ -520,6 +521,7 @@ var mapUtils = (function () {
                         wfsUrl = window.location.protocol + '//' + mapservUrl + '?map=' + val.mapfile;
                     }
                    
+                    
                     if(val.clusterOptions) {
                         if (typeof projDef[val.projection] !== "undefined" && val.projection != "EPSG:4326" && val.projection != "EPSG:3857") {
                             proj4.defs(val.projection,projDef[val.projection]);
@@ -530,6 +532,18 @@ var mapUtils = (function () {
                           tmpvector.set('bottomLink', val.clusterOptions.bottomLink); 
                           tmpvector.set('firstFieldMessage', val.clusterOptions.firstFieldMessage);   
                           tmpvector.set('cluster', true); 
+                          if(val.clusterOptions.hasOwnProperty('openResults')) {
+                            tmpvector.set('openResults', val.clusterOptions.openResults);
+                            openResults = val.clusterOptions.openResults;
+                          }
+                          else {
+                            openResults = true;
+                          }
+                          if(val.clusterOptions.hasOwnProperty('closeBbox')) {
+                            tmpvector.set('closeBbox', val.clusterOptions.closeBbox);
+                            closeBbox = val.clusterOptions.closeBbox;
+                          }
+                          
                     }
                     else
                         tmpvector = mapUtils.createVectorJsonLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS);
@@ -555,9 +569,10 @@ var mapUtils = (function () {
                     }
                     if (typeof val.allowHover !== "undefined") {
                         tmpvector.set('allowHover', val.allowHover);
-                    } else {
-                        tmpvector.set('allowHover', false);
-                    }
+                    } 
+                    // else {
+                    //     tmpvector.set('allowHover', false);
+                    // }
                     if (typeof val.contextMenu !== "undefined") {
                         tmpvector.set('contextMenu', val.contextMenu);
                     }
@@ -753,9 +768,12 @@ var mapUtils = (function () {
             if (typeof lyrConfig.url !== "undefined" && lyrConfig.url.trim() !== "") {
                 url = lyrConfig.url;
             }
+            //if you could attributions attribute it adds automatically an osm attribution but it doesn't open in new page
             var osm =
                 new ol.layer.Tile({
                     source: new ol.source.OSM({
+                        attributions: ['<a target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ' +
+                        'contributors.'],
                         crossOrigin: 'anonymous',
                         url: url
                     })
@@ -1391,7 +1409,10 @@ var mapUtils = (function () {
                 $(rb).addClass("active");
                 mapUtils.setIdentifySelectInteraction();
                 //mapUtils.selectCluster();
-                $map.on('singleclick', mapUtils.mapClickEvent);
+                //  $map.on('singleclick', mapUtils.mapClickEvent);
+
+                if(!openResults)
+                    mapUtils.selectCluster();
             }
         },
         resetMapInteractions: function (map) {
@@ -1416,7 +1437,8 @@ var mapUtils = (function () {
                     map.removeInteraction(interaction);
                     $("#btnSelByRect").removeClass("active");
                 }
-                if (interaction instanceof ol.interaction.Select && !(interaction instanceof ol.interaction.SelectCluster)) {
+                
+                if (interaction instanceof ol.interaction.Select && (interaction instanceof ol.interaction.SelectCluster)) {    
                     map.removeInteraction(interaction);
                     interaction.un('click');
                 }
@@ -1434,7 +1456,7 @@ var mapUtils = (function () {
             // Reset the identify and  select by rectangle interactions
             $("#info1").removeClass("active");
             $("#btnSelByRect").removeClass("active");
-            map.un('singleclick', mapUtils.mapClickEvent);
+            // map.un('singleclick', mapUtils.mapClickEvent);
 
             mapUtils.selectCluster();
             
@@ -1468,11 +1490,12 @@ var mapUtils = (function () {
             // interaction for Georeferenced Photos layer
             //$mymapFI.on('pointermove', mapUtils.mapMouseHoverEvent);
             mapUtils.mapMouseHoverEvent();
-            // $mymapFI.on('singleclick', mapUtils.mapClickEvent);
+            $mymapFI.on('singleclick', mapUtils.mapClickEvent);
             //Set select interaction for identify
             mapUtils.setIdentifySelectInteraction();
             //Create the select by rectangle tool
-            mapUtils.selByRectangleTool();
+            if(!closeBbox)
+                mapUtils.selByRectangleTool();
 
             mapUtils.selectCluster();
         },
@@ -2027,16 +2050,10 @@ var mapUtils = (function () {
         mapClickEvent: function (evt) {
             var $map = $('#mapid').data('map');
             var coordinate;
-            var element;
+            // var element;
             var cpElement;
             var featItem;
-            var popup = new ol.Overlay({
-                element: document.getElementById('popup'),
-                positioning: 'center-center',
-                autopan: true,
-                stopEvent: true,
-                offset: [0, -23]
-            });
+            
 
             var cppopup = new ol.Overlay({
                 element: document.getElementById('cpPopup'),
@@ -2047,13 +2064,12 @@ var mapUtils = (function () {
 
             // Clear any selections
             var selLyr = searchUtilities.getSelectionLayer($map);
-            $map.addOverlay(popup);
+            
             $map.addOverlay(cppopup);
+            
             $(element).popover('destroy');
             $(cpElement).popover('destroy');
-            coordinate = evt.coordinate;
             
-            popup.setPosition(coordinate);
             var fGeoJSON = new ol.format.GeoJSON();
             var popTemplate = '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>';
 
@@ -2062,48 +2078,59 @@ var mapUtils = (function () {
             var editPinItem = null;
             $map.getLayers().forEach(function (layer) {
                  
-                    
                 if (layer.get('name') === 'pinLayer' && layer.getSource().getFeatures().length > 0) {
                     pinItem = mapUtils.getClickResults($map, layer, evt);
                 }
 
+            });
+            if (pinItem !== null && pinItem.length > 0) {
                 
-                if (pinItem !== null && pinItem.length > 0) {
-                    $(element).popover('destroy');
-                    
+                setTimeout(function () {
+                    var popup = new ol.Overlay({
+                        element: document.getElementById('popup'),
+                        positioning: 'center-center',
+                        autopan: true,
+                        stopEvent: true,
+                        offset: [0, -23]
+                    });
+                    $map.addOverlay(popup);
                     element = popup.getElement();
                     
                     
                     var coordinates = pinItem[0].getGeometry().getCoordinates();
                     popup.setPosition(coordinates);
-                    setTimeout(function () {
-                        $(element).popover({
-                            placement: 'top',
-                            html: true,
-                            template: popTemplate,
-                            content: '<div class="row"><div class="col-lg-12">' +
-                                '<label id="popuplabel">Χ: ' + Number(pinItem[0].get('xcoor')).toFixed(3) + '&nbsp;Υ: ' + Number(pinItem[0].get('ycoor')).toFixed(3) + '</label>' +
-                                '<input type="hidden" id="popupx" value="' + pinItem[0].get('xcoor') + '"/>' +
-                                '<input type="hidden" id="popupy" value="' + pinItem[0].get('ycoor') + '"/>' +
-                                '</div></div>' +
-                                '<div class="row"><div class="col-lg-12">' +
-                                '<button class="btn btn-sm pull-right" onclick="zoom2XY.deleteCertainPinPoint();">Διαγραφή Σημείου</button>' +
-                                '</div></div>',
-                            title: (function () {
-                                if (pinItem[0].get('name') === "" || typeof pinItem[0].get('name') === "undefined") {
-                                    return 'Εστίαση σε Συν/νες';
-                                } else {
-                                    return pinItem[0].get('name');
-                                }
-                            })
-                        });
-                        $(element).popover('show');
-                    }, 200);
-                    return false;
-                }
-            });
-            if (pinItem !== null ) {
+                    coordinate = evt.coordinate;
                 
+                    popup.setPosition(coordinate);
+                    $(element).popover({
+                        placement: 'top',
+                        html: true,
+                        template: popTemplate,
+                        content: '<div class="row"><div class="col-lg-12">' +
+                            '<label id="popuplabel">Χ: ' + Number(pinItem[0].get('xcoor')).toFixed(3) + '&nbsp;Υ: ' + Number(pinItem[0].get('ycoor')).toFixed(3) + '</label>' +
+                            '<input type="hidden" id="popupx" value="' + pinItem[0].get('xcoor') + '"/>' +
+                            '<input type="hidden" id="popupy" value="' + pinItem[0].get('ycoor') + '"/>' +
+                            '</div></div>' +
+                            '<div class="row"><div class="col-lg-12">' +
+                            '<button class="btn btn-sm pull-right" onclick="zoom2XY.deleteCertainPinPoint();">Διαγραφή Σημείου</button>' +
+                            '</div></div>',
+                        title: (function () {
+                            if (pinItem[0].get('name') === "" || typeof pinItem[0].get('name') === "undefined") {
+                                return 'Εστίαση σε Συν/νες';
+                            } else {
+                                return pinItem[0].get('name');
+                            }
+                        })
+                    });
+                    
+                    $(element).popover('show');
+                }, 200);
+                return false;
+            }
+            if (pinItem !== null ) {
+
+                
+                // $(element).popover('destroy');
                 return;
             }
             
@@ -2129,9 +2156,9 @@ var mapUtils = (function () {
                         $('#searchResultsUl a').first().tab('show');
                     }
                 }
-                else if (layer.get('cluster') == true )
+                else if((layer.get('cluster') == true )&& $('#info1').hasClass('active'))
                 {
-                            
+                    if(openResults) {
                             let featItems = [];
                             let feature = mymap.forEachFeatureAtPixel(evt.pixel,
                                 function (feature, lyr) {
@@ -2160,7 +2187,7 @@ var mapUtils = (function () {
                                 searchUtilities.renderQueryResultsAsTable(fGeoJSON.writeFeaturesObject(featItems), layer.get('label'), layer.get('name'), arrSearch_fields, arrIdentify_fields);
                                 $('#searchResultsUl a').first().tab('show');
                             }
-                   
+                    }
                 }
                 else { // Not vector layer
                     if ($('#info1').hasClass('active') && layer.getVisible() && $('#info1').hasClass('active') && layer.get('name') !== 'measure_layer') {
@@ -2478,7 +2505,7 @@ var mapUtils = (function () {
                     if(lyr == null)
                     return;
 
-                    console.log(feature, lyr, layer);
+                    // console.log(feature, lyr, layer);
                     if (lyr.get("name") === layer.get("name")) {
                         featItems.push(feature);
                     }

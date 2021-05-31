@@ -310,8 +310,8 @@ var zoom2XY = (function () {
                         let message = {
                             Cmd: "editXY",
                             value: {
-                                x: new_coords[0].toFixed(3) ,
-                                y: new_coords[1].toFixed(3)
+                                x: parseFloat('' + new_coords[0]).toFixed(3) ,
+                                y: parseFloat('' + new_coords[1]).toFixed(3)
                             }
 
                         };
@@ -477,6 +477,8 @@ var zoom2XY = (function () {
                     return false;
                 }
             });
+            element = document.getElementById('popup');
+            $(element).popover('destroy');
         },
         deleteCertainPinPoint: function () {
             var centerPointSource;

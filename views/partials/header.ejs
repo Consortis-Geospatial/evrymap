@@ -34,6 +34,7 @@
     /* END Media Query */
 </style>
 <!-- <div style="position:absolute;top:0px;height:50px;width:100%;background-color:rgb(35, 35, 35, 0.5);"> -->
+<%if (gConfig.loadheader == true || !gConfig.hasOwnProperty('loadheader') ) { %>
 <nav class="navbar" id="cnavbar">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -76,3 +77,4 @@
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
 </nav>
+<% } %>

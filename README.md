@@ -26,6 +26,7 @@ However, its much more than a map portal where you can just define a few layers 
  - [The projdef.json file](#the-projdefjson-file)
  
  [Loading Cluster Layer](#loading-cluster-layer)
+
  [Loading Custom Modules](#loading-custom-modules)
 
 
@@ -121,6 +122,9 @@ where:
 -  **editConnectionType** Database type (currently only "MSSQL" or "POSTGRES") values are supported. Applies only if loadeditmod is set to true
 
 -  **editConnection** The database connection to use. Should be one of the connection objects defined in the `"connections"` list e.g. "`SampleConnection"`
+
+-  **loadheader** boolean. Defaults to true. If false, it hides the header.
+
 ```
 "connections": [
 	{
@@ -460,7 +464,7 @@ This file contains the projection definition in proj4js format for any layer SRI
     }
    You can find the proj4js format for other SRIDs in https://spatialreference.org/
 
-# Loading a Cluster Layer
+# Loading Cluster Layer
 
 ## support for one animated cluster layer for points
 - **clusterOptions**  In order for the layer to register as a cluster you have to place a "clusterOptions" attribute that is an Object in the layer specification of the layerconfig file.
@@ -500,6 +504,9 @@ with the purpose of showing custom feature menu entries per feature. Shows click
       value: {file: "link1" , ... data of feature }
 }
 ```
+- **openResults** : boolean. Defaults to true. If false it changes the identify cluster interaction to the select interaction
+- **closeBbox** : boolean. Defaults to false. If true it hides the bbox tool in bottom toolbar
+
 E.g.a feature that is returned by the service_url  
 ```
 {
@@ -521,7 +528,9 @@ Example of clusterOptions in a layer in layerConfig:
         	"async": false,  
         	"firstFieldMessage": true,
         	"linkField": "docs",
-        	"bottomLink": "Navigate to"
+        	"bottomLink": "Navigate to",
+          "openResults": false,
+          "closeBbox: true
      	}
 }
 ]

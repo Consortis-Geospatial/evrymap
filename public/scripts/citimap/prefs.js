@@ -9,7 +9,7 @@ var preferences = (function () {
          * @function createDialog
          * @memberof preferences
          */
-        createDialog: function () {
+        createDialog: function (xyzoomlevel) {
             $.i18n.load(uiStrings);
             var divhtml = '<div class="modal fade" tabindex="-1" role="dialog" id="modPrefsDialog" data-backdrop="static">' +
                 '<div class="modal-dialog" role="document">' +
@@ -52,7 +52,7 @@ var preferences = (function () {
                 '                   <div class="col-lg-4"' +
                 '                       <label for="divPointZoom">' + $.i18n._("_PREFSPOINTZOOM") + '</label>' +
                 '                       <div id="divPointZoom" class="input-group colorpicker-component">' +
-                '                           <input type="number" id="txbPointZoom" min="1" max="28" value="13" class="form-control" />' +
+                '                           <input type="number" id="txbPointZoom" min="1" max="28" value=' +xyzoomlevel + ' class="form-control" />' +
                 '                       </div>' +
                 '                   </div>' +
                 '               </div>' +

@@ -19,7 +19,8 @@
  
 
 function ReceiveMessage(evt) {
-    if (document.location.origin !== evt.origin && !evt.origin.startsWith("chrome-extension")) { //So we don't get messages if we are running in standalone mode and not through an iframe 
+    //document.location.origin !== evt.origin && 
+    if (!evt.origin.startsWith("chrome-extension")) { //So we don't get messages if we are running in standalone mode and not through an iframe 
         //alert(message);
         //console.log("Receive message from parent: " + evt.data);
         
