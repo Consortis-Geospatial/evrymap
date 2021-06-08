@@ -649,6 +649,27 @@ var searchUtilities = (function () {
         },
         createSearchControl: function () {
             $.i18n.load(uiStrings);
+            map = $('#mapid').data('map');
+            let searchFieldString= '';
+            let searchfieldArray = [];
+            map.getLayers().forEach(function (layer, i) {
+                var lyrName = layer.get('name');
+                var lyrLabel = layer.get('label');
+                var flds = layer.get("search_fields");
+                if(layer.get('cluster'))
+                {
+                    if(flds != null) {
+                        let fldsSplit = flds.split(',') ;
+                        if(fldsSplit.length > 0 )
+                        {
+                            fldsSplit.forEach((x)=> {let fld = x.split(':'); if(fld.length>1) {searchfieldArray.push(fld[1])}} );
+                            searchFieldString= searchfieldArray.join(',');
+                            searchFieldString += ' ή ' + $.i18n._('_ADDRESS');
+                        }
+                    }
+                }
+                
+            });
             var str = '<div class="searchpanel"><div class="input-group input-group-lg">' +
                 '    <div class="input-group-btn" id="grpBtnSearch">' +
                 '        <div class="btn-group">' +
@@ -660,7 +681,7 @@ var searchUtilities = (function () {
                 '            </ul>' +
                 '        </div>' +
                 '    </div>' +
-                '<input id="searchfield" class="form-control mr-sm-2" type="text" />' +
+                '<input id="searchfield" placeholder="'+ searchFieldString  +'" class="form-control mr-sm-2" type="text" />' +
                 '</div></div>';
             $('#mainparent').prepend(str);
         },

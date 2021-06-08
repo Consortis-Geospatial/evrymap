@@ -435,8 +435,8 @@ var zoom2XY = (function () {
                 var newCenter = ol.proj.transform(changedCenter, $osmap.getView().getProjection().getCode(), 'EPSG:' + $('#sel1').val());
                 //Ensure that the newCenter array always contains strings
                 newCenter = newCenter.map(String);
-                $('#xinput').val(newCenter[0].replace('.', ','));
-                $('#yinput').val(newCenter[1].replace('.', ','));
+                $('#xinput').val(newCenter[0].replace('.', $.i18n._("_DECIMALSEPARATOR")));
+                $('#yinput').val(newCenter[1].replace('.', $.i18n._("_DECIMALSEPARATOR")));
                 $("#dlgXY").dialog("open");
             });
         },
