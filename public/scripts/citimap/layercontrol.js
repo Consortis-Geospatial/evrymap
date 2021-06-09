@@ -339,7 +339,13 @@ var legendUtilities = (function () {
                             imgH = layer.get('legend_wh').split(":")[1];
                         }
                         $.each(legimgstring.split(','), function (index, item) {
-                            htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" />' + item.split(':')[1] + '<span></p>';
+                            let descr = item.search(':');
+                            if(descr != -1)
+                            {
+                                descr = item.split(':')[1];
+                            }
+                            else descr = "";
+                            htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" />' + descr + '<span></p>';
                             $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" /></li>');
                         });
                     }
@@ -601,7 +607,7 @@ var legendUtilities = (function () {
                                     }
                                     $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img src="' + layer.get('legendImg') + '"' + imgStyle +'  /></li>');
                                 } else if (layer.get('tag')[0] === "GeoJSON" || layer.get('tag')[0] === "KML" || layer.get('tag')[0] === "XML") {
-                                    $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img style="width:20px; height:20px; margin-right:3px" src="' + layer.get('legendImg') + '" /></li>');
+                                    $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + layer.get('label') + '</h5><img style="width:20px; height:20px; margin-right:3px" src="' + layer.get('legendImg').split(':')[0] + '" /></li>');
                                 } else if (layer.get('tag')[0] === "ESRIRESTTILE") {
                                     esriUtils.drawEsriRestLegend(layer.get('tag')[1], lyrName, layer.get('label'));
                                 }
