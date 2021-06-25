@@ -181,7 +181,7 @@ var legendUtilities = (function () {
             });
             //Empty the layer collection
             var layersToRemove = [];
-            map.getLayers().forEach(function (layer2remove, i) {
+            legendLayerList.forEach(function (layer2remove, i) {
                 //console.log('Name: ' + layer.get('name'));
                 layersToRemove.push(layer2remove);
             });
@@ -189,10 +189,28 @@ var legendUtilities = (function () {
             for (var i = 0; i < len; i++) {
                 map.removeLayer(layersToRemove[i]);
             }
+            //pinLayers have to be on Top
+            var restLayers = [];
+            map.getLayers().forEach(function (layer2remove, i) {
+                restLayers.push(layer2remove);
+            });
+            var len2 = restLayers.length;
+            for (var i = 0; i < len2; i++) {
+                map.removeLayer(restLayers[i]);
+            }
 
             for (var j = legendLayerList.length - 1; j >= 0; --j) {
                 //for (var j = 0; j <= legendLayerList.length - 1; j++) {
                 var layer = legendLayerList[j];
+                if (typeof layer !== "undefined") {
+                    map.addLayer(layer);
+                }
+                //layers.setAt(i, layer);
+            }
+
+            for (var j = 0; j < restLayers.length ; j++) {
+                //for (var j = 0; j <= legendLayerList.length - 1; j++) {
+                var layer = restLayers[j];
                 if (typeof layer !== "undefined") {
                     map.addLayer(layer);
                 }
