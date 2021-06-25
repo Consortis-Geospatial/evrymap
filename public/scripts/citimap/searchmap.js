@@ -663,7 +663,7 @@ var searchUtilities = (function () {
                         if(fldsSplit.length > 0 )
                         {
                             fldsSplit.forEach((x)=> {let fld = x.split(':'); if(fld.length>1) {searchfieldArray.push(fld[1])}} );
-                            searchFieldString= searchfieldArray.join(',');
+                            searchFieldString= searchfieldArray.join(' ή ');
                             // searchFieldString += ' ή ' + $.i18n._('_ADDRESS');
                         }
                     }
