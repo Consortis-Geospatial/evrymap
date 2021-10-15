@@ -414,10 +414,17 @@ tr.shown td.details-control {
     }
     
     /* START SEARCH BAR */
-    .searchpanel {
+    #mainparent.has-header .searchpanel {
         position: fixed;
         z-index: 999;
         top: 4em;
+        width: 30%;
+        right: 4.5%;
+    }
+    #mainparent.no-header .searchpanel {
+        position: fixed;
+        z-index: 999;
+        top: 1em;
         width: 30%;
         right: 4.5%;
     }
@@ -431,12 +438,20 @@ tr.shown td.details-control {
     }
 
     /* END SEARCH BAR */
-    #legendButton {
+    #mainparent.has-header #legendButton {
         top: 55px !important;
     }
 
-    #graphicLegend {
+    #mainparent.has-header #graphicLegend {
         top: 55px !important;
+    }
+
+    #mainparent.no-header #legendButton {
+        top: 15px !important;
+    }
+
+    #mainparent.no-header #graphicLegend {
+        top: 15px !important;
     }
 
     /* START BOTTOM TOOLBAR */
@@ -489,10 +504,19 @@ tr.shown td.details-control {
     }
 
     /* START SEARCH BAR */
-    .searchpanel {
+    #mainparent.has-header .searchpanel {
         position: fixed;
         z-index: 999;
         top: 4em;
+        width: 40%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+    }
+    /* START SEARCH BAR */
+    #mainparent.no-header .searchpanel {
+        position: fixed;
+        z-index: 999;
+        top: 1em;
         width: 40%;
         left: 50%;
         transform: translate(-50%, 0%);
@@ -507,12 +531,20 @@ tr.shown td.details-control {
     }
 
     /* END SEARCH BAR */
-    #legendButton {
+    #mainparent.has-header #legendButton {
         top: 55px !important;
     }
 
-    #graphicLegend {
+    #mainparent.has-header #graphicLegend {
         top: 55px !important;
+    }
+
+    #mainparent.no-header #legendButton {
+        top: 15px !important;
+    }
+
+    #mainparent.no-header #graphicLegend {
+        top: 15px !important;
     }
 
     /* START SELECT SCALE */
@@ -621,10 +653,18 @@ tr.shown td.details-control {
     }
 
     /* START SEARCH BAR */
-    .searchpanel {
+    #mainparent.has-header .searchpanel {
         position: fixed;
         z-index: 999;
         top: 4em;
+        width: 60%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+    }
+    #mainparent.no-header .searchpanel {
+        position: fixed;
+        z-index: 999;
+        top: 1em;
         width: 60%;
         left: 50%;
         transform: translate(-50%, 0%);
@@ -639,12 +679,20 @@ tr.shown td.details-control {
     }
 
     /* END SEARCH BAR */
-    #legendButton {
+    #mainparent.has-header #legendButton {
         top: 55px !important;
     }
 
-    #graphicLegend {
+    #mainparent.has-header #graphicLegend {
         top: 55px !important;
+    }
+
+    #mainparent.no-header #legendButton {
+        top: 15px !important;
+    }
+
+    #mainparent.no-header #graphicLegend {
+        top: 15px !important;
     }
 
     /* START LEFT BAR */
@@ -782,12 +830,20 @@ tr.shown td.details-control {
         font-size: 15px !important;
     }
 
-    #legendButton {
+    #mainparent.has-header #legendButton {
         top: 55px !important;
     }
 
-    #graphicLegend {
+    #mainparent.has-header #graphicLegend {
         top: 55px !important;
+    }
+
+    #mainparent.no-header #legendButton {
+        top: 15px !important;
+    }
+
+    #mainparent.no-header #graphicLegend {
+        top: 15px !important;
     }
 
     a.navbar-brand img {

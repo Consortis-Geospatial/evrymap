@@ -66,6 +66,24 @@ function ReceiveMessage(evt) {
 
                 zoom2XY.removeEditPinModify();
             }
+            else if (inMsg.cmd==="editPolygon") {
+                let layer = inMsg.layer;
+                let showModify = inMsg.showModify;
+                let featid = inMsg.id;
+                $("#hidEditLayer").val(layer);
+                // featureEdit.startEditing(layer);
+                featureEdit.initModifyIframe(featid, showModify);
+            }
+            else if (inMsg.cmd==="createPolygon") {
+                let showModify = inMsg.showModify;
+                let layer = inMsg.layer;
+                // featureEdit.startEditing(layer);
+                featureEdit.initDrawingIframe(showModify);
+            }
+            else if (inMsg.cmd==="hideModify") {
+                featureEdit.resetInteraction('MODIFY');
+                featureEdit.resetInteraction('DRAW');
+            }
         } catch (e) {
             return;
         }

@@ -140,7 +140,7 @@ var zoom2XY = (function () {
                     anchor: [0.5, 23],
                     anchorXUnits: 'fraction',
                     anchorYUnits: 'pixels',
-                    src: 'https://oc2o.com/images/my-location-oc2o.png'
+                    src: 'css/images/icons8-marker-filled-23.png'
                 })
             });
 

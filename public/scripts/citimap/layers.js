@@ -526,8 +526,12 @@ var mapUtils = (function () {
                         if (typeof projDef[val.projection] !== "undefined" && val.projection != "EPSG:4326" && val.projection != "EPSG:3857") {
                             proj4.defs(val.projection,projDef[val.projection]);
                         }
-                          tmpvector = mapUtils.createVectorClusterLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS , val);
-                        
+
+                        // if(val.clusterOptions?.polygons != true)
+                            tmpvector = mapUtils.createVectorClusterLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS , val);
+                        // else
+                            // tmpvector = mapUtils.createVectorJsonLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS);
+
                           tmpvector.set('linkField', val.clusterOptions.linkField);  
                           tmpvector.set('bottomLink', val.clusterOptions.bottomLink); 
                           tmpvector.set('firstFieldMessage', val.clusterOptions.firstFieldMessage);   
@@ -545,7 +549,7 @@ var mapUtils = (function () {
                           }
                           
                     }
-                    else
+                    else 
                         tmpvector = mapUtils.createVectorJsonLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS);
                     
                     
@@ -917,133 +921,254 @@ var mapUtils = (function () {
             var wfsurl = '';
             
 
-            // Animated cluster layer
-            clusterLayer2 = new ol.layer.AnimatedCluster({
+            if(layerConfig.clusterOptions?.polygons != true) {
+                // Animated cluster layer
+                clusterLayer2 = new ol.layer.AnimatedCluster({
                 
 
-                source: new ol.source.Cluster({
-                    distance: 40,
-                    // source: new ol.source.Vector()
-                    source:  new ol.source.Vector({
+                    source: new ol.source.Cluster({
+                        distance: 40,
+                        // source: new ol.source.Vector()
+                        source:  new ol.source.Vector({
                         
                         
-                        url: function (x) {
-                            let mappath = '';
+                            url: function (x) {
+                                let mappath = '';
                             
-                            if( typeof layerConfig.clusterOptions.service_url == "undefined" )
-                            {
-                                if (iswrapped !== "undefined" && iswrapped === true) {
-                                    mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
-                                } else {
-                                    mappath = '?map=' + mapfile;
-                                }
-                                if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                                    wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                    'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
-                                } else {
-                                    wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                    'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
-                                }
-                                //proxyUrl +
-                                url_loader = wfsurl;
-                                return url_loader;
-                            }
-                            else {
-                                url_loader = layerConfig.clusterOptions.service_url;
-                                return url_loader;
-                            }
-                        },
-                        
-
-                        // url: layerConfig.service_url,
-                         // url: clusterLayer2.getSource().getSource().getUrl()(x),
-                        
-                        loader: function (x) {
-                            
-                            // if(clusterLayer2.getSource().getSource().getUrl()(x)) 
-                            {
-                                
-                                $.ajax({
-                                    url:  clusterLayer2.getSource().getSource().getUrl()(x),
-                                    type: "get",
-                                    async: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? true : false,
-                                    
-                                    // cache: true,
-                                    dataType: 'json',
-                                    contentType: "application/x-www-form-urlencoded; charset=utf-8",
-                                   
-                                    success: function (data) {
-                                        if (data.features.length === 0) {
-                                            return null;
-                                        }
-                                        // Add the layer name in the returned data so we know which layer
-                                       
-                                        // Populate the edit layer
-                                       
-                                        let geojson = new ol.format.GeoJSON({
-                                            // defaultDataProjection: projcode,
-                                            // featureProjection: destprojcode
-                                            defaultDataProjection: typeof layerConfig.clusterOptions.service_url != "undefined" ? layerConfig.projection: destprojcode,//has to be EPSG:2100
-                                            featureProjection: destprojcode
-                                        });                                
-                                        let feats =  geojson.readFeatures(data) ;
-                                        
-                                        feats.forEach(function (f) {
-                                           //it checks if id is set in addFeature , if they exist they are not loaded again
-    
-                                        
-                                            {
-                                                //every other geojson layer
-                                                if(legendUtilities.getLayerByName(layerConfig.name).get("edit_pk") !== undefined) {
-                                                    f.setId( f.getProperties()[legendUtilities.getLayerByName(layerConfig.name).get("edit_pk")]);
-                                                }
-                                                clusterLayer2.getSource().getSource().addFeature(f);
-                                            }
-                                        });
-                                        
-                                    },
-                                    complete: function (response) {
-                                    },
-                                    error: function (jqXHR, textStatus, errorThrown) {
-                                        console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error "+errorThrown + "/ " );
-                                    },
-                                    failure: function (jqXHR, _textStatus, errorThrown) {
-                                        console.log("WFS BBOX Vector Layer request failure: " + _textStatus );
+                                if( typeof layerConfig.clusterOptions.service_url == "undefined" )
+                                {
+                                    if (iswrapped !== "undefined" && iswrapped === true) {
+                                        mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
+                                    } else {
+                                        mappath = '?map=' + mapfile;
                                     }
-                                }); 
-                            }
-                        },
-                        // strategy: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? ol.loadingstrategy.bbox : ol.loadingstrategy.all,
-                        strategy: ol.loadingstrategy.all,
-                                                
-                        // strategy: function(x) {  
-                           
-                        //         var bbox = x.join(',');
-                        //         if (bbox != this.get('bbox')) {
-                        //             this.set('bbox', bbox);
-                        //             clusterLayer2.getSource().refresh();   //reloads the features, Checks for ID in loader!! 
-                        //         }
-                        //         return [x];
-                        // },
+                                    if (window.location.host === $('#hidMS').val().split('/')[0]) {
+                                        wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                        'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
+                                    } else {
+                                        wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                        'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
+                                    }
+                                    //proxyUrl +
+                                    url_loader = wfsurl;
+                                    return url_loader;
+                                }
+                                else {
+                                    url_loader = layerConfig.clusterOptions.service_url;
+                                    return url_loader;
+                                }
+                            },
                         
-                         crossOrigin: 'anonymous'
+
+                            // url: layerConfig.service_url,
+                            // url: clusterLayer2.getSource().getSource().getUrl()(x),
+                        
+                            loader: function (x) {
+                            
+                                // if(clusterLayer2.getSource().getSource().getUrl()(x)) 
+                                {
+                                
+                                    $.ajax({
+                                        url:  clusterLayer2.getSource().getSource().getUrl()(x),
+                                        type: "get",
+                                        async: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? true : false,
+                                    
+                                        cache: false,
+                                        dataType: 'json',
+                                        contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                                    
+                                        success: function (data) {
+                                            if (data.features.length === 0) {
+                                                return null;
+                                            }
+                                            // Add the layer name in the returned data so we know which layer
+                                        
+                                            // Populate the edit layer
+                                        
+                                            let geojson = new ol.format.GeoJSON({
+                                                // defaultDataProjection: projcode,
+                                                // featureProjection: destprojcode
+                                                defaultDataProjection: typeof layerConfig.clusterOptions.service_url != "undefined" ? layerConfig.projection: destprojcode,//has to be EPSG:2100
+                                                featureProjection: destprojcode
+                                            });                                
+                                            let feats =  geojson.readFeatures(data) ;
+                                        
+                                            feats.forEach(function (f) {
+                                            //it checks if id is set in addFeature , if they exist they are not loaded again
+        
+                                        
+                                                {
+                                                    //every other geojson layer
+                                                    if(legendUtilities.getLayerByName(layerConfig.name).get("edit_pk") !== undefined) {
+                                                        f.setId( f.getProperties()[legendUtilities.getLayerByName(layerConfig.name).get("edit_pk")]);
+                                                    }
+                                                    clusterLayer2.getSource().getSource().addFeature(f);
+                                                }
+                                            });
+                                        
+                                        },
+                                        complete: function (response) {
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error "+errorThrown + "/ " );
+                                        },
+                                        failure: function (jqXHR, _textStatus, errorThrown) {
+                                            console.log("WFS BBOX Vector Layer request failure: " + _textStatus );
+                                        }
+                                    });
+                                }
+                            },
+                            // strategy: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? ol.loadingstrategy.bbox : ol.loadingstrategy.all,
+                            strategy: ol.loadingstrategy.all,
+                                                
+                            // strategy: function(x) {
+                            
+                            //         var bbox = x.join(',');
+                            //         if (bbox != this.get('bbox')) {
+                            //             this.set('bbox', bbox);
+                            //             clusterLayer2.getSource().refresh();   //reloads the features, Checks for ID in loader!! 
+                            //         }
+                            //         return [x];
+                            // },
+                        
+                            crossOrigin: 'anonymous'
                     
+                        })
                     
-                    
-                    })
-                    
-                }),
+                    }),
                 
-                animationDuration: 700,
+                    animationDuration: 700,
                 
-                // animationMethod:  ol.easing.easeOut,
+                    // animationMethod:  ol.easing.easeOut,
                 
-                // // Cluster style
-                  style: mapUtils.clusterStyle
+                 // Cluster style
+                    style: mapUtils.clusterStyle
             
-            });
-            
-            
+                });
+            }
+            else {
+                clusterLayer2 = new ol.layer.Vector({
+                    
+
+                    
+                        source:  new ol.source.Vector({
+                            
+                            
+                            url: function (x) {
+                                let mappath = '';
+                                
+                                if( typeof layerConfig.clusterOptions.service_url == "undefined" )
+                                {
+                                    if (iswrapped !== "undefined" && iswrapped === true) {
+                                        mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
+                                    } else {
+                                        mappath = '?map=' + mapfile;
+                                    }
+                                    if (window.location.host === $('#hidMS').val().split('/')[0]) {
+                                        wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                        'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
+                                    } else {
+                                        wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                        'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
+                                    }
+                                    //proxyUrl +
+                                    url_loader = wfsurl;
+                                    return url_loader;
+                                }
+                                else {
+                                    url_loader = layerConfig.clusterOptions.service_url;
+                                    return url_loader;
+                                }
+                            },
+                            
+
+                            // url: layerConfig.service_url,
+                            // url: clusterLayer2.getSource().getSource().getUrl()(x),
+                            
+                            loader: function (x) {
+                                
+                                // if(clusterLayer2.getSource().getSource().getUrl()(x)) 
+                                {
+                                    
+                                    $.ajax({
+                                        url:  clusterLayer2.getSource().getUrl()(x),
+                                        type: "get",
+                                        async: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? true : false,
+                                        
+                                        cache: false,
+                                        dataType: 'json',
+                                        contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                                    
+                                        success: function (data) {
+                                            if (data.features.length === 0) {
+                                                return null;
+                                            }
+                                            // Add the layer name in the returned data so we know which layer
+                                        
+                                            // Populate the edit layer
+                                        
+                                            let geojson = new ol.format.GeoJSON({
+                                                // defaultDataProjection: projcode,
+                                                // featureProjection: destprojcode
+                                                defaultDataProjection: typeof layerConfig.clusterOptions.service_url != "undefined" ? layerConfig.projection: destprojcode,//has to be EPSG:2100
+                                                featureProjection: destprojcode
+                                            });                                
+                                            let feats =  geojson.readFeatures(data) ;
+                                            
+                                            feats.forEach(function (f) {
+                                            //it checks if id is set in addFeature , if they exist they are not loaded again
+        
+                                            
+                                                {
+                                                    //every other geojson layer
+                                                    if(legendUtilities.getLayerByName(layerConfig.name).get("edit_pk") !== undefined) {
+                                                        f.setId( f.getProperties()[legendUtilities.getLayerByName(layerConfig.name).get("edit_pk")]);
+                                                    }
+                                                    clusterLayer2.getSource().addFeature(f);
+                                                }
+                                            });
+                                            
+                                        },
+                                        complete: function (response) {
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error "+errorThrown + "/ " );
+                                        },
+                                        failure: function (jqXHR, _textStatus, errorThrown) {
+                                            console.log("WFS BBOX Vector Layer request failure: " + _textStatus );
+                                        }
+                                    }); 
+                                }
+                            },
+                            // strategy: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? ol.loadingstrategy.bbox : ol.loadingstrategy.all,
+                            strategy: ol.loadingstrategy.all,
+                                                    
+                            // strategy: function(x) {  
+                            
+                            //         var bbox = x.join(',');
+                            //         if (bbox != this.get('bbox')) {
+                            //             this.set('bbox', bbox);
+                            //             clusterLayer2.getSource().refresh();   //reloads the features, Checks for ID in loader!! 
+                            //         }
+                            //         return [x];
+                            // },
+                            
+                            crossOrigin: 'anonymous'
+                        
+                        
+                        
+                        }),
+                    
+                    
+                    
+                    // animationMethod:  ol.easing.easeOut,
+                    
+                    // // Cluster style
+                    // style: mapUtils.clusterStyle
+                
+                });
+            }
+
             return clusterLayer2;
         }
         ,
@@ -1130,7 +1255,13 @@ var mapUtils = (function () {
                                                 if(legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
                                                     f.setId( f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
                                                 }
+                                                if(legendUtilities.getLayerByName(data.name).get("clusterOptions") !== undefined &&
+                                                legendUtilities.getLayerByName(data.name).get("clusterOptions").polygons !== true)
                                                 legendUtilities.getLayerByName(data.name + "_SNAPPING_EDIT").getSource().addFeature(f);
+                                                else {
+                                                    legendUtilities.getLayerByName(data.name ).getSource().addFeature(f);
+                                                }
+                                                console.log(legendUtilities.getLayerByName(data.name).getSource().getFeatures());
                                             }
                                         }
                                         else {
@@ -1554,25 +1685,40 @@ var mapUtils = (function () {
                 // selectCluster: false,	// disable cluster selection
                 // Style to draw cluster when selected
                 style: function(f,res){
-                    var cluster = f.get('features');
+                    if(f.hasOwnProperty('features')) {
+                        var cluster = f.get('features');
                     
-                    if (cluster.length>1){
-                        var s = mapUtils.clusterStyle(f,res) ;
-                        return s;
-                    } else if ( f.getProperties().selectclusterfeature == true ){
-                        return [
-                            new ol.style.Style({
-                            image: new ol.style.Circle ({
-                                stroke: new ol.style.Stroke({ color: "rgba(0,0,192,0.5)", width:2 }),
-                                fill: new ol.style.Fill({ color: "rgba(0,0,192,0.3)" }),
-                                radius:5
-                            })
-                            })
-                        ];
+                        if (cluster.length>1){
+                            var s = mapUtils.clusterStyle(f,res) ;
+                            return s;
+                        } else if ( f.getProperties().selectclusterfeature == true ){
+                            return [
+                                new ol.style.Style({
+                                image: new ol.style.Circle ({
+                                    stroke: new ol.style.Stroke({ color: "rgba(0,0,192,0.5)", width:2 }),
+                                    fill: new ol.style.Fill({ color: "rgba(0,0,192,0.3)" }),
+                                    radius:5
+                                })
+                                })
+                            ];
+                        }
+                        else {
+                            var s = mapUtils.clusterStyle(f,res) ;
+                            return s;
+                        }
                     }
                     else {
-                        var s = mapUtils.clusterStyle(f,res) ;
-                        return s;
+                        return [
+                            new ol.style.Style({
+                                stroke: new ol.style.Stroke({
+                                  color: 'blue',
+                                  width: 3,
+                                }),
+                                fill: new ol.style.Fill({
+                                  color: 'rgba(0, 0, 255, 0.1)',
+                                }),
+                              }),
+                        ]
                     }
                 }
             });
@@ -1631,7 +1777,101 @@ var mapUtils = (function () {
                             if(found || (!found && feature.getProperties().selectclusterfeature == true))
                             {
                                 var clusterFeatItems= [];
-                                if(feature.getProperties().features.length == 1)
+                                console.log(feature.getProperties());
+                                if(!feature.getProperties().hasOwnProperty('features') )
+                                {
+                                    let featProps= feature.getProperties();
+
+                                    let identifyFldNames=[];
+                                    let identifyFldLabels=[];
+                                    if(layer.get("identify_fields") != undefined) {
+                                        var identifyFlds = layer.get("identify_fields").split(',');
+                                        identifyFlds.forEach( function (fld) {identifyFldNames.push(fld.split(':')[0]); identifyFldLabels.push(fld.split(':')[1]); });
+                                    }
+                                    let message = {
+                                        Cmd:"selectId",
+                                        value: {}
+                                           
+                                        
+                                    };
+                                    for (i=0;i<identifyFldNames.length;i++){
+
+                                        message['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
+                                    }
+                                    
+                                    let fldNames=[];
+                                    let fldLabels=[];
+                                    if(layer.get("search_fields") != undefined) {
+                                        var searchFlds = layer.get("search_fields").split(',');
+                                        searchFlds.forEach( function (fld) {fldNames.push(fld.split(':')[0]); fldLabels.push(fld.split(':')[1]); });
+                                        //console.log(searchFlds);
+                                        //context menu
+                                    }
+
+                                    for (i=0;i<fldNames.length;i++)
+                                    {
+                                        
+                                        // clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
+
+                                        if(i==0) {
+                                    
+                                            messageString = JSON.stringify(message);
+                                            if(!!firstFieldMessage)
+                                                clusterFeatItems.push({text: fldLabels[i] + " : " + "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageString +");'</a> " +featProps[fldNames[i]]+"</a>" }); 
+                                            else
+                                                clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
+                                            // clusterFeatItems.push({text: fldLabels[i] + " : " + "<a href='#'  (click)="+window.parent.postMessage( JSON.stringify(message), "*") +">"+feature2.getProperties()[fldNames[i]]+"</a>"});
+                                        }
+                                        else
+                                            clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
+                                    }
+                                    
+                                    
+                                    if(featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length >0) {
+                                        for (i=0;i< featProps[linkField].length;i++)
+                                        {
+                                            let messageLink = {
+                                                Cmd:"linkId",
+                                                value: {}
+                                            };
+                                            messageLink['value']['file'] = featProps[linkField][i];
+
+                                            for (j=0;j<identifyFldNames.length;j++){
+
+                                                messageLink['value'][identifyFldNames[j]] = featProps[identifyFldNames[j]];
+                                            }
+                                            
+                                            messageLinkString = JSON.stringify(messageLink);
+                                            
+                                            if(featProps[linkField] != null )
+                                                clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString  +");'</a> " +featProps[linkField][i]['text']+"</a>" });   
+
+                                          
+                                        }
+                                    }
+                                      
+                                    let messageLink2 = {
+                                        Cmd:"bottomLink",
+                                        value: {}
+                                    };
+                                    
+                                    if(identifyFldNames.length >0) {
+                                        for (i=0;i<identifyFldNames.length;i++){
+
+                                            messageLink2['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
+                                        }
+                                    }
+                                        
+                                    messageLinkString2 = JSON.stringify(messageLink2);
+                                    
+                                    if(bottomLink != null  && identifyFldNames.length >0)
+                                        clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString2  +");'</a> " +bottomLink+"</a>" });   
+                                    
+                                        contextmenu.enable();
+                                        contextmenu.clear();
+                                        contextmenu.extend(clusterFeatItems); 
+                                }
+                                else if( feature.getProperties().features.length == 1)
                                 {
                                     let featProps= feature.getProperties().features[0].getProperties();
 

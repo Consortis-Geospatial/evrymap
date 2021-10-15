@@ -407,6 +407,257 @@ var featureEdit = (function () {
                 });
             }
         },
+        initDrawingIframe: function (showModify) {
+            
+            var currentEditLayerName = $('#hidEditLayer').val().trim();
+            if (currentEditLayerName === "") {
+                alert("Could not find edit layer for create");
+                return;
+            }
+            var currentEditLayer = legendUtilities.getLayerByName(currentEditLayerName);
+            currentEditLayer.setStyle(featureEdit.setEditStyle());
+            if (currentEditLayer instanceof ol.layer.Vector) {
+                editLayer = currentEditLayer;
+            } else {
+                currentEditLayer = legendUtilities.getLayerByName(currentEditLayerName + "_EDIT");
+                if (typeof currentEditLayer !== "undefined") {
+                    editLayer = currentEditLayer;
+                } else {
+                    alert("Could not find edit layer for create: " + currentEditLayerName + " or " + currentEditLayerName + "_EDIT");
+                    return;
+                }
+            }
+            featureEdit.unselectEditTools();
+            $('#mapid').css('cursor', 'crosshair');
+            $('#btnCreate').addClass("active");
+            $('#btnEmpty').removeClass("active");
+            $mymap = $('#mapid').data('map');
+            mapUtils.resetMapInteractions($mymap);
+            //Clear edit and map interactions
+            mapUtils.removeDragZoomInteractions($mymap);
+            featureEdit.resetInteraction("DRAW");
+            featureEdit.resetInteraction("MODIFY");
+            featureEdit.resetInteraction("ADDHOLE");
+            featureEdit.resetInteraction("ADDPART");
+            //Enable the stop editing button
+            $('#btnStopEdits').prop('disabled', false);
+
+            if(showModify == "true" || showModify == true) {
+                this.drawIntrAct = new ol.interaction.Draw({
+                    source: editLayer.getSource(),
+                    type: editLayer.get("edit_geomtype"),
+                    style: new ol.style.Style({
+                        image:
+                        //Start of the star style
+                            new ol.style.RegularShape({
+                                fill: new ol.style.Fill({
+                                    color: 'blue'
+                                }),
+                                points: 4,
+                                radius1: 10,
+                                radius2: 1
+                            }),
+                        stroke: new ol.style.Stroke({
+                            color: 'blue',
+                            width: 3
+                        })
+                    })
+                });
+
+                $mymap.addInteraction(this.drawIntrAct);
+                // Undo last point by pressing <esc>
+                var di=this.drawIntrAct;
+                document.addEventListener('keydown', function(e) {
+                    if (e.which == 27)
+                        di.removeLastPoint();
+                });
+                
+                
+                this.drawIntrAct.on('drawend', (event) => {
+                    //get feature 
+                    
+                    let ol3Geom = event.feature.getGeometry();
+                    
+                     // let epsg = cfg.map.projcode;
+                    // let format = new ol.format.WKT();
+                    // let geomObject  = format.writeGeometry(ol3Geom);
+                    let epsg = cfg.map.projcode;
+                    let format = new ol.format.GeoJSON({defaultDataProjection:epsg});
+                    let geomObject  = format.writeGeometryObject(ol3Geom);
+                    geomObject.crs =  {
+                        "type": "name",
+                        "properties": {
+                          "name": epsg
+                          }
+                        }
+                    console.log("DRAWEND",geomObject );
+                    featureEdit.finishIframeCreate(this.drawIntrAct, event.feature);
+                    
+                    let message = {
+                        Cmd: "editXY",
+                        value: {
+                            geom: geomObject
+                        }
+                    };
+                    window.parent.postMessage( JSON.stringify(message), "*");
+                });
+
+                if (typeof editLayer.get("edit_snapping_layers") !== "undefined") {
+                    $.each(editLayer.get("edit_snapping_layers"), function (i, snap_layer) {
+                        featureEdit.initSnapping(snap_layer);
+                    });
+                }
+            }
+            let message = {Cmd: "loaded"};
+            window.parent.postMessage( JSON.stringify(message), "*");
+        },
+        finishIframeCreate: function (iframeInteraction, feat) {
+            //send geometry through message
+            $mymap.removeInteraction(iframeInteraction);
+            this.iframemodify = new ol.interaction.Modify({features:  new ol.Collection([feat])});
+            
+            map.addInteraction(this.iframemodify);
+
+            if (typeof editLayer.get("edit_snapping_layers") !== "undefined") {
+                $.each(editLayer.get("edit_snapping_layers"), function (i, snap_layer) {
+                    featureEdit.initSnapping(snap_layer);
+                });
+            }
+            
+            this.iframemodify.on("modifyend", (event) => {
+                //send geometry through message
+                //get feature 
+                var modifiedFeature;
+                var features = event.features.getArray();
+                console.log(features.length);
+                for (var i = 0; i < features.length; i++) {
+                    var rev = features[i].getRevision();
+                    if (rev > 1) {
+                        console.log("feature with revision:" + rev + " has been modified");
+                        modifiedFeature = features[i];
+                    }
+                }
+                console.log(modifiedFeature);
+
+                //get feature 
+                let ol3Geom = modifiedFeature.getGeometry();
+                let epsg = cfg.map.projcode;
+                let format = new ol.format.GeoJSON({defaultDataProjection:epsg});
+                let geomObject  = format.writeGeometryObject(ol3Geom);
+                geomObject.crs =  {
+                    "type": "name",
+                    "properties": {
+                      "name": epsg
+                      }
+                    }
+                console.log("MODIFYEND",geomObject );
+                let message = {
+                    Cmd: "editXY",
+                    value: {
+                        geom: geomObject
+                    }
+                };
+                window.parent.postMessage( JSON.stringify(message), "*");
+            });
+            
+        },
+        initModifyIframe(featid, showModify) {
+            var currentEditLayerName = $('#hidEditLayer').val().trim();
+            legendUtilities.getLayerByName(currentEditLayerName).setStyle(featureEdit.setEditStyle());
+            let feat = legendUtilities.getLayerByName(currentEditLayerName).getSource().getFeatureById(featid);
+            if(feat != null)
+            mymap.getView().fit(feat.getGeometry().getExtent(),mymap.getSize());
+            
+            if (currentEditLayerName === "") {
+                alert("Could not find edit layer for create");
+                return;
+            }
+            var currentEditLayer = legendUtilities.getLayerByName(currentEditLayerName);
+            if (currentEditLayer instanceof ol.layer.Vector) {
+                editLayer = currentEditLayer;
+            } else {
+                currentEditLayer = legendUtilities.getLayerByName(currentEditLayerName + "_EDIT");
+                if (typeof currentEditLayer !== "undefined") {
+                    editLayer = currentEditLayer;
+                } else {
+                    alert("Could not find edit layer for create: " + currentEditLayerName + " or " + currentEditLayerName + "_EDIT");
+                    return;
+                }
+            }
+            
+            featureEdit.unselectEditTools();
+            $('#mapid').css('cursor', 'crosshair');
+            $mymap = $('#mapid').data('map');
+            mapUtils.resetMapInteractions($mymap);
+            $('#btnEdit').addClass("active");
+            //Clear edit and map interactions
+            mapUtils.removeDragZoomInteractions($mymap);
+            featureEdit.resetInteraction("DRAW");
+            featureEdit.resetInteraction("MODIFY");
+            featureEdit.resetInteraction("ADDHOLE");
+            featureEdit.resetInteraction("ADDPART");
+            $('#btnStopEdits').prop('disabled', false);
+            if ($('#info1').hasClass("active")) {
+                return false;
+            }
+            if(showModify == "true" || showModify == true)  {
+                // var selectIntrAct = featureEdit.setEditSelectInteraction(editLayer);
+                // console.log(selectIntrAct.getFeatures());
+                if (typeof editLayer.get("allow_edit_geom") === "undefined" || editLayer.get("allow_edit_geom")=== true) {
+                    let feat = editLayer.getSource().getFeatureById(featid);
+                    this.modifyIntrAct = new ol.interaction.Modify({
+                        features:  new ol.Collection([feat]),
+                        style: featureEdit.setEditStyle()
+                    });
+                    
+                    this.modifyIntrAct.on("modifyend", 
+                    (event) => {
+                        var modifiedFeature;
+                        var features = event.features.getArray();
+                        console.log(features.length);
+                        for (var i = 0; i < features.length; i++) {
+                            var rev = features[i].getRevision();
+                            if (rev > 1) {
+                                console.log("feature with revision:" + rev + " has been modified");
+                                modifiedFeature = features[i];
+                            }
+                        }
+                        console.log(modifiedFeature);
+
+                        //get feature 
+                        let ol3Geom = modifiedFeature.getGeometry();
+                        let epsg = cfg.map.projcode;
+                        let format = new ol.format.GeoJSON({defaultDataProjection:epsg});
+                        console.log(format);
+                        let geomObject  = format.writeGeometryObject(ol3Geom);
+                        geomObject.crs =  {
+                            "type": "name",
+                            "properties": {
+                              "name": epsg
+                              }
+                            }
+                        console.log("MODIFYEND",geomObject );
+                        let message = {
+                            Cmd: "editXY",
+                            value: {
+                                geom: geomObject
+                            }
+                        };
+                        window.parent.postMessage( JSON.stringify(message), "*");
+                    });
+                    $mymap.addInteraction(this.modifyIntrAct);
+                }
+                // console.log("added modify interaction for " + layername);
+                if (typeof editLayer.get("edit_snapping_layers") !== "undefined") {
+                    $.each(editLayer.get("edit_snapping_layers"), function (i, snap_layer) {
+                        featureEdit.initSnapping(snap_layer);
+                    });
+                }
+            }
+
+            let message = {Cmd: "loaded"};
+            window.parent.postMessage( JSON.stringify(message), "*");
+        },
         initMerge: function () {
             $('#mapid').css('cursor', 'pointer');
             var isComplete = false;

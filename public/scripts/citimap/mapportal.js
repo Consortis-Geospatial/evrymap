@@ -56,6 +56,33 @@ var mapPortal = (function (configfile) {
                     
                 
             }
+            if(action==="createPolygon")
+            {
+                
+                let layer = urlParams.get("layer");
+                let showModify = urlParams.get("showModify");
+                $("#hidEditLayer").val(layer);
+                // featureEdit.startEditing(layer);
+                featureEdit.initDrawingIframe(showModify);
+            }
+            if(action==="editPolygon")
+            {
+                
+                setTimeout(
+                    function() 
+                    {
+                        
+                        let layer = urlParams.get("layer");
+                        let showModify = urlParams.get("showModify");
+                        let featid = urlParams.get("id");
+                        $("#hidEditLayer").val(layer);
+                        // featureEdit.startEditing(layer);
+                        featureEdit.initModifyIframe(featid, showModify);
+                    },2000
+                );
+
+                
+            }
         }
         
     });
