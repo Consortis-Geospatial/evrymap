@@ -1100,7 +1100,7 @@ var mapUtils = (function () {
                                         contentType: "application/x-www-form-urlencoded; charset=utf-8",
                                     
                                         success: function (data) {
-                                            if (data.features.length === 0) {
+                                            if (data.features == null || data.features.length === 0) {
                                                 return null;
                                             }
                                             // Add the layer name in the returned data so we know which layer
