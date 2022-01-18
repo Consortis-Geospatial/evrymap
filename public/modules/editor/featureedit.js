@@ -415,7 +415,7 @@ var featureEdit = (function () {
                 return;
             }
             var currentEditLayer = legendUtilities.getLayerByName(currentEditLayerName);
-            currentEditLayer.setStyle(featureEdit.setEditStyle());
+            // currentEditLayer.setStyle(featureEdit.setEditStyle());
             if (currentEditLayer instanceof ol.layer.Vector) {
                 editLayer = currentEditLayer;
             } else {
@@ -445,23 +445,8 @@ var featureEdit = (function () {
             if(showModify == "true" || showModify == true) {
                 this.drawIntrAct = new ol.interaction.Draw({
                     source: editLayer.getSource(),
-                    type: editLayer.get("edit_geomtype"),
-                    style: new ol.style.Style({
-                        image:
-                        //Start of the star style
-                            new ol.style.RegularShape({
-                                fill: new ol.style.Fill({
-                                    color: 'blue'
-                                }),
-                                points: 4,
-                                radius1: 10,
-                                radius2: 1
-                            }),
-                        stroke: new ol.style.Stroke({
-                            color: 'blue',
-                            width: 3
-                        })
-                    })
+                    type: "MultiPolygon",
+                    style: featureEdit.setEditStyleIframe()
                 });
 
                 $mymap.addInteraction(this.drawIntrAct);
@@ -515,7 +500,7 @@ var featureEdit = (function () {
             //send geometry through message
             $mymap.removeInteraction(iframeInteraction);
             this.iframemodify = new ol.interaction.Modify({features:  new ol.Collection([feat])});
-            
+            feat.setStyle(featureEdit.setEditStyleIframe());
             map.addInteraction(this.iframemodify);
 
             if (typeof editLayer.get("edit_snapping_layers") !== "undefined") {
@@ -563,8 +548,9 @@ var featureEdit = (function () {
         },
         initModifyIframe(featid, showModify) {
             var currentEditLayerName = $('#hidEditLayer').val().trim();
-            legendUtilities.getLayerByName(currentEditLayerName).setStyle(featureEdit.setEditStyle());
+            // legendUtilities.getLayerByName(currentEditLayerName).setStyle(featureEdit.setEditStyle());
             let feat = legendUtilities.getLayerByName(currentEditLayerName).getSource().getFeatureById(featid);
+            feat.setStyle(featureEdit.setEditStyleIframe());
             if(feat != null)
             mymap.getView().fit(feat.getGeometry().getExtent(),mymap.getSize());
             
@@ -607,7 +593,7 @@ var featureEdit = (function () {
                     let feat = editLayer.getSource().getFeatureById(featid);
                     this.modifyIntrAct = new ol.interaction.Modify({
                         features:  new ol.Collection([feat]),
-                        style: featureEdit.setEditStyle()
+                        style: featureEdit.setEditStyleIframe()
                     });
                     
                     this.modifyIntrAct.on("modifyend", 
@@ -622,13 +608,13 @@ var featureEdit = (function () {
                                 modifiedFeature = features[i];
                             }
                         }
-                        console.log(modifiedFeature);
+
 
                         //get feature 
                         let ol3Geom = modifiedFeature.getGeometry();
                         let epsg = cfg.map.projcode;
                         let format = new ol.format.GeoJSON({defaultDataProjection:epsg});
-                        console.log(format);
+                       
                         let geomObject  = format.writeGeometryObject(ol3Geom);
                         geomObject.crs =  {
                             "type": "name",
@@ -636,7 +622,7 @@ var featureEdit = (function () {
                               "name": epsg
                               }
                             }
-                        console.log("MODIFYEND",geomObject );
+
                         let message = {
                             Cmd: "editXY",
                             value: {
@@ -1121,6 +1107,39 @@ var featureEdit = (function () {
             $('#btnEdit').removeClass("active").addClass("active");
             featureEdit.initModify();
             
+        },
+        setEditStyleIframe: function (feature) {
+            var styles = [
+                /* We are using two different styles for the polygons:
+                 *  - The first style is for the polygons themselves.
+                 *  - The second style is to draw the vertices of the polygons.
+                 *    In a custom `geometry` function the vertices of a polygon are
+                 *    returned as `MultiPoint` geometry, which will be used to render
+                 *    the style.
+                 */
+                new  ol.style.Style({
+                  stroke: new ol.style.Stroke({
+                    color: preferences.getEditStrokeColor(),
+                    width: preferences.getEditStrokeWidth(),
+                  }),
+                  fill: new  ol.style.Fill({
+                    color: preferences.getEditFillColor()
+                  }),
+                }),
+                new  ol.style.Style({
+                    image: new  ol.style.Circle({
+                      radius: '2',
+                      stroke: new ol.style.Stroke({
+                          color: preferences.getEditVertexColor(),
+                          width: preferences.getEditVertexWidth()
+                        }),
+                      fill: new  ol.style.Fill({
+                        color: preferences.getEditVertexFillColor()
+                      })
+                    }),
+                  })
+              ];
+            return styles;
         },
         /**
          * 

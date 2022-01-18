@@ -319,7 +319,11 @@ tr.shown td.details-control {
     background-color: white;
     padding: 5px;
 }
-
+/* Context menu */
+.ol-ctx-menu-container{
+    max-height: 350px;
+    overflow-y: auto;
+}
 /* Popup for markers and ZoomToXY dialog */
 
 .popover {

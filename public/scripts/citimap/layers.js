@@ -14,6 +14,8 @@ var mapUtils = (function () {
     var velocityLayer;
 
     var clusterLayer2;
+    var contextmenu;
+
     var styleCache = {};
     
     var openResults = true;
@@ -534,7 +536,8 @@ var mapUtils = (function () {
 
                           tmpvector.set('linkField', val.clusterOptions.linkField);  
                           tmpvector.set('bottomLink', val.clusterOptions.bottomLink); 
-                          tmpvector.set('firstFieldMessage', val.clusterOptions.firstFieldMessage);   
+                          tmpvector.set('firstFieldMessage', val.clusterOptions.firstFieldMessage); 
+                          tmpvector.set('messageFields', val.clusterOptions.messageFields);    
                           tmpvector.set('cluster', true); 
                           if(val.clusterOptions.hasOwnProperty('openResults')) {
                             tmpvector.set('openResults', val.clusterOptions.openResults);
@@ -547,6 +550,7 @@ var mapUtils = (function () {
                             tmpvector.set('closeBbox', val.clusterOptions.closeBbox);
                             closeBbox = val.clusterOptions.closeBbox;
                           }
+                          tmpvector.set('edit_snapping_layers', val.edit_snapping_layers);
                           
                     }
                     else 
@@ -1047,6 +1051,15 @@ var mapUtils = (function () {
                 });
             }
             else {
+                //load style for polygons
+                $('#txbEditColor').val('#ff0000');
+                $('#txbEditWidth').val('5');
+                $('#txbEditFillColor').val('rgba(255,0,0,0.1)');
+                $('#txbSelFillColor').val('rgba(255,0,0,0.1)');
+                $('#txbSelColor').val('#ff0000');
+                $('#txbSelWidth').val('5');
+                
+
                 clusterLayer2 = new ol.layer.Vector({
                     
 
@@ -1117,13 +1130,12 @@ var mapUtils = (function () {
                                             
                                             feats.forEach(function (f) {
                                             //it checks if id is set in addFeature , if they exist they are not loaded again
-        
-                                            
                                                 {
                                                     //every other geojson layer
                                                     if(legendUtilities.getLayerByName(layerConfig.name).get("edit_pk") !== undefined) {
                                                         f.setId( f.getProperties()[legendUtilities.getLayerByName(layerConfig.name).get("edit_pk")]);
                                                     }
+                                                    
                                                     clusterLayer2.getSource().addFeature(f);
                                                 }
                                             });
@@ -1154,9 +1166,7 @@ var mapUtils = (function () {
                             // },
                             
                             crossOrigin: 'anonymous'
-                        
-                        
-                        
+                                                    
                         }),
                     
                     
@@ -1164,7 +1174,10 @@ var mapUtils = (function () {
                     // animationMethod:  ol.easing.easeOut,
                     
                     // // Cluster style
-                    // style: mapUtils.clusterStyle
+                    style:  new ol.style.Style({
+                        fill: new ol.style.Fill({ color: [255,0,0,0] }),
+                        stroke: new ol.style.Stroke({ color: 'red', width: 2 }),
+                    })
                 
                 });
             }
@@ -1711,11 +1724,11 @@ var mapUtils = (function () {
                         return [
                             new ol.style.Style({
                                 stroke: new ol.style.Stroke({
-                                  color: 'blue',
-                                  width: 3,
+                                  color: preferences.getSelectedStrokeColor(),
+                                  width: preferences.getSelectedStrokeWidth(),
                                 }),
                                 fill: new ol.style.Fill({
-                                  color: 'rgba(0, 0, 255, 0.1)',
+                                  color: preferences.getSelectedFillColor(),
                                 }),
                               }),
                         ]
@@ -1729,14 +1742,15 @@ var mapUtils = (function () {
             mymap.getLayers().forEach(function (layer, i) {
                 
                 if (layer.get("cluster") == true) {
-                     var contextmenu = new ContextMenu({
-                        width: 170,
-                        defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
-                        items: [],
-                        eventType: "click"
+                    if(!contextmenu) {
+                        contextmenu = new ContextMenu({
+                            width: 170,
+                            defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
+                            items: [],
+                            eventType: "click"
 
-                    });
-
+                        });
+                    }
                     let linkField = layer.get('linkField');
                     let bottomLink = layer.get('bottomLink');
                     let firstFieldMessage = layer.get('firstFieldMessage');
@@ -1777,15 +1791,15 @@ var mapUtils = (function () {
                             if(found || (!found && feature.getProperties().selectclusterfeature == true))
                             {
                                 var clusterFeatItems= [];
-                                console.log(feature.getProperties());
+                                
                                 if(!feature.getProperties().hasOwnProperty('features') )
                                 {
                                     let featProps= feature.getProperties();
 
                                     let identifyFldNames=[];
                                     let identifyFldLabels=[];
-                                    if(layer.get("identify_fields") != undefined) {
-                                        var identifyFlds = layer.get("identify_fields").split(',');
+                                    if(layer.get("messageFields") != undefined) {
+                                        var identifyFlds = layer.get("messageFields").split(',');
                                         identifyFlds.forEach( function (fld) {identifyFldNames.push(fld.split(':')[0]); identifyFldLabels.push(fld.split(':')[1]); });
                                     }
                                     let message = {
@@ -1877,8 +1891,8 @@ var mapUtils = (function () {
 
                                     let identifyFldNames=[];
                                     let identifyFldLabels=[];
-                                    if(layer.get("identify_fields") != undefined) {
-                                        var identifyFlds = layer.get("identify_fields").split(',');
+                                    if(layer.get("messageFields") != undefined) {
+                                        var identifyFlds = layer.get("messageFields").split(',');
                                         identifyFlds.forEach( function (fld) {identifyFldNames.push(fld.split(':')[0]); identifyFldLabels.push(fld.split(':')[1]); });
                                     }
                                     let message = {
@@ -2064,9 +2078,10 @@ var mapUtils = (function () {
                                     // it came from. It will be used in the spatial query dialog
                                     //TODO: This doesnt work for vector layers and it goes into an endless loop for some reason
                                     try {
-                                        feature.properties._layername = layer.get('name');
+                                        feature.setProperties({_layername: layer.get('name')});
                                         selFeatures.push(feature);
                                         selFeaturesArray.push(feature);
+                                        selLyr.getSource().addFeatures(selFeaturesArray);
                                     } catch (error) {
                                         
                                     }

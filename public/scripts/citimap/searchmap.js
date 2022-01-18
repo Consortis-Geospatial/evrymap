@@ -552,7 +552,7 @@ var searchUtilities = (function () {
         zoomToFeature: function (geomtype, coordstring, lyrName) {
             var featurething;
             var selLyr = searchUtilities.getSelectionLayer(mymap);
-            if (geomtype === "Polygon" || geomtype === "Point" || geomtype === "LineString") {
+            if (geomtype === "MultiPolygon" || geomtype === "Polygon" || geomtype === "Point" || geomtype === "LineString") {
                 var points = JSON.parse(coordstring);
                 if (geomtype === "Point") {
                     var point = new ol.geom.Point(points);
@@ -568,6 +568,13 @@ var searchUtilities = (function () {
                     var poly2 = new ol.geom.LineString(points);
                     featurething = new ol.Feature({
                         geometry: poly2
+                    });
+                } else if (geomtype === "MultiPolygon") {
+                    
+                    var mpoly = new ol.geom.MultiPolygon(points);
+                    selLyr.setStyle(mapUtils.setSelectedStyle() );
+                    featurething = new ol.Feature({
+                        geometry: mpoly,
                     });
                 }
 
@@ -588,8 +595,9 @@ var searchUtilities = (function () {
                     dataProjection: lyrProj
                 });
                 selLyr.getSource().clear();
+                
                 selLyr.getSource().addFeatures([featurething]);
-                if (geomtype === "Polygon" || geomtype === "LineString") {
+                if (geomtype === "MultiPolygon" || geomtype === "Polygon" || geomtype === "LineString") {
                     mymap.getView().fit(selLyr.getSource().getExtent(), mymap.getSize());
                 } else { //Its a point. Zoom to a fixed extent
                     mymap.getView().setCenter(featurething.getGeometry().getCoordinates());
