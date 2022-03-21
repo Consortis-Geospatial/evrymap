@@ -118,12 +118,30 @@
                 titles = [];
                 imgSrc= [];
                 imgRf = [];
+                ids = [];
+                widths =[];
+                heights = [];
+                absolutey= [];
                 legendimglist.forEach(li => {
-                    titles.push(li.children[0].innerHTML);
-                    imgSrc.push(li.children[1].src);
-                    if(li.children[1].attributes['data-uri']?.value != null)
-                        imgRf.push(li.children[1].attributes['data-uri']?.value );
+                    let id = li['id'].substring(4);
+                    if(legendUtilities.getLayerByName(id).getVisible())
+                    {
 
+                        
+                        if(li.children[1].attributes['data-uri']?.value != null) {
+                            ids.push(id);
+                            titles.push(li.children[0].innerHTML);
+                            imgSrc.push(li.children[1].src);
+                            imgRf.push(li.children[1].attributes['data-uri']?.value );
+                            widths.push(+li.children[1].attributes['data-width']?.value );
+                            heights.push(+li.children[1].attributes['data-height']?.value );
+                            
+                            if(absolutey.length!=0 && heights.length>1)
+                                absolutey.push(absolutey[absolutey.length-1] + heights[heights.length-2]/2 +40);
+                            else 
+                                absolutey.push(40);
+                        }
+                    }
 
                 })
                 console.log(imgRf);
@@ -213,9 +231,11 @@
 
                 if($('#chkLegend').prop('checked')) {
                     for ( let i=0; i< imgRf.length ; i++) {
-                        if(imgRf[i] != null) {
-                            docDefinition.content.push({ text: titles[i], style: 'DescrStyle' })
-                            docDefinition.content.push({ image: imgRf[i],})
+                        if(absolutey[i]+heights[i]/2 < imgH) {
+                            if(imgRf[i] != null) {
+                                docDefinition.content.push({ text: titles[i],absolutePosition: {x: 30, y: absolutey[i]-15}, style: 'DescrStyle' });
+                                docDefinition.content.push({ image: imgRf[i], absolutePosition: {x: 30, y: absolutey[i]} ,width: widths[i]/2, height: heights[i]/2,});
+                            }
                         }
                     }
                 }
@@ -244,7 +264,7 @@
             var ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0);
             var dataURL = canvas.toDataURL("image/png");
-            return dataURL;
+            return {dataURL, width: canvas.width, height: canvas.height};
     //.replace(/^data:image\/(png|jpg);base64,/, "");
             //canvas.remove();
          },
