@@ -536,6 +536,7 @@ var mapUtils = (function () {
 
                           tmpvector.set('linkField', val.clusterOptions.linkField);  
                           tmpvector.set('bottomLink', val.clusterOptions.bottomLink); 
+                          tmpvector.set('midLink', val.clusterOptions.midLink); 
                           tmpvector.set('firstFieldMessage', val.clusterOptions.firstFieldMessage); 
                           tmpvector.set('messageFields', val.clusterOptions.messageFields);    
                           tmpvector.set('cluster', true); 
@@ -1753,6 +1754,7 @@ var mapUtils = (function () {
                     }
                     let linkField = layer.get('linkField');
                     let bottomLink = layer.get('bottomLink');
+                    let midLink = layer.get('midLink');
                     let firstFieldMessage = layer.get('firstFieldMessage');
                     // selectCluster.getFeatures().on(['remove'], function (e){});
                         
@@ -1840,7 +1842,27 @@ var mapUtils = (function () {
                                             clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
                                     }
                                     
+                                    let messageLink3 = {
+                                        Cmd:"midLink",
+                                        value: {}
+                                    };
                                     
+                                    if(identifyFldNames.length >0) {
+                                        for (i=0;i<identifyFldNames.length;i++){
+
+                                            messageLink3['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
+                                        }
+                                    }
+                                        
+                                    messageLinkString3 = JSON.stringify(messageLink3);
+                                    
+                                    if(midLink != null && featProps.hasOwnProperty(linkField) && featProps[linkField] != null  && identifyFldNames.length >0)
+                                        clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString3  +");'</a> " +midLink+"</a>" });   
+                                    
+                                        contextmenu.enable();
+                                        contextmenu.clear();
+                                        contextmenu.extend(clusterFeatItems); 
+
                                     if(featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length >0) {
                                         for (i=0;i< featProps[linkField].length;i++)
                                         {
@@ -1932,7 +1954,27 @@ var mapUtils = (function () {
                                         else
                                             clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
                                     }
+
+                                   let messageLink3 = {
+                                        Cmd:"midLink",
+                                        value: {}
+                                    };
                                     
+                                    if(identifyFldNames.length >0) {
+                                        for (i=0;i<identifyFldNames.length;i++){
+
+                                            messageLink3['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
+                                        }
+                                    }
+                                        
+                                    messageLinkString3 = JSON.stringify(messageLink3);
+                                    
+                                    if(midLink != null  && identifyFldNames.length >0 && featProps.hasOwnProperty(linkField) && featProps[linkField] != null)
+                                        clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString3  +");'</a> " +midLink+"</a>" });   
+                                    
+                                        contextmenu.enable();
+                                        contextmenu.clear();
+                                        contextmenu.extend(clusterFeatItems);
                                     
                                     if(featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length >0) {
                                         for (i=0;i< featProps[linkField].length;i++)
@@ -1971,7 +2013,7 @@ var mapUtils = (function () {
                                         
                                     messageLinkString2 = JSON.stringify(messageLink2);
                                     
-                                    if(bottomLink != null  && identifyFldNames.length >0)
+                                    if(bottomLink != null && featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length >0)
                                         clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString2  +");'</a> " +bottomLink+"</a>" });   
                                     
                                         contextmenu.enable();

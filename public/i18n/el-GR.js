@@ -157,6 +157,7 @@
     "_FILLARGEOT": "Αριθμός Γεωτεμαχίου:",
     "_FILLOT": "Αριθμός Οικοδομικού Τετραγώνου:",
     "_USEGRID": "Κάνναβος&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
+    "_USELEGEND": "Υπόμνημα",
     "_SHOWGRIDLABELS": "Συν/νες Καννάβου",
     "_GRIDSTEP": "Βήμα Καννάβου",
     "_NOTE": "Σημείωση",

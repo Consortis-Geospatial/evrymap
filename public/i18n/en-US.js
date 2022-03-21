@@ -154,6 +154,7 @@
     "_DESCRIPTIONTT": "Text that will appear at the bottom of the page",
     "_SCALE": "Scale",
     "_USEGRID": "Show Grid",
+    "_USELEGEND": "Show LEGEND",
     "_SHOWGRIDLABELS": "Show Grid coordinates",
     "_GRIDSTEP": "Grid Step",
     "_NOTE": "Note",

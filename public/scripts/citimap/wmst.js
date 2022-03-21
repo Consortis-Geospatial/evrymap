@@ -168,7 +168,11 @@
             let sep = arrval[3];
             let min = arrval[4];
             let max = arrval[5];
-            let step = arrval[6];
+            let step = arrval[6].split(',');
+            if(step.length<=1)
+            {
+                step = parseInt(step[0]);
+            }
             let mins, maxs, miny, maxy , mind, maxd;
             let tics = [];
             let darr = format.split(sep);
@@ -224,25 +228,102 @@
                 maxd = max.substr(format.indexOf('dd'), 2);
             } else { return; }
 
-            if (unit === "MONTH") {
+            if(!Array.isArray(step))
+            {
+                if (unit === "MONTH") {
+                    
+                    //Find the date components from the format
+
+                    let monthsDiff = (+maxy - +miny)*12;
+                    monthsDiff -= +mins;
+                    monthsDiff += +maxs;
+
+                    $("#wmsTSlider").bootstrapSlider({
+                        formatter: function (value) {
+                            
+                            let v_date = WMSTUtils.monthValueToDate(value, miny, mins, mind, sep );
+                            v_date = WMSTUtils.dateformat(v_date, sep, dict);
+                            return v_date;
+                        },
+                        value: 0,
+                        min: 0,
+                        max: monthsDiff,
+                        step: step,
+                        tooltip: 'always',
+                        tooltip_position: 'bottom'//,
+
+                        //ticks: [0, 1],
+                        //ticks_positions: [0, 100],
+                        //tick_labels: ['0%', '100%']
+                    });
+                    $('#wmsTSlider').bootstrapSlider().on('change', function (e) {
+                        var v = e.value.newValue;
+                        var b = e.value.oldValue;
+                        let v_date = '';
+
+                        v_date = WMSTUtils.monthValueToDate(v, miny, mins, mind, '-');
+                        let timeLayer = legendUtilities.getLayerByName(timeLayerName);
+                        timeLayer.getSource().updateParams({ 'TIME': v_date });
+                    });
+                } else if(unit === "DAY") {
+                    
+                    //Find the date components from the format
+
+                    //in milliseconds, plus 1 day because maximum has to be considered as a day also
+                    let daysDiff = new Date(maxy,maxs,maxd) - new Date(miny,mins,mind) + 1*24*60*60*1000; 
+                    daysDiff = daysDiff/1000; //seconds
+                    daysDiff = daysDiff/60  //minutes
+                    daysDiff = daysDiff/60  //hours
+                    daysDiff = daysDiff/24  //days
+                    daysDiff = Math.round(daysDiff);
+
+                    $("#wmsTSlider").bootstrapSlider({
+                        formatter: function (value) {
+                            
+                            v_date = WMSTUtils.addDays(+miny, +mins, +mind, value, sep);
+                            
+                            v_date = WMSTUtils.dateformat(v_date, sep, dict);
+
+                            return v_date;
+                        },
+                        value: 0,
+                        min: 0,
+                        max: daysDiff,
+                        step: parseInt(step),
+                        tooltip: 'always',
+                        tooltip_position: 'bottom'//,
+
+                    });
+                    $('#wmsTSlider').bootstrapSlider().on('change', function (e) {
+                        var v = e.value.newValue;
+                        var b = e.value.oldValue;
+                        
+                        let v_date = '';
+                        
+                    
+                        
+                        v_date = WMSTUtils.addDays(+miny, +mins, +mind, v, '-');
+                        
+                        let timeLayer = legendUtilities.getLayerByName(timeLayerName);
+                        timeLayer.getSource().updateParams({ 'TIME': v_date });
+                    });
                 
-                //Find the date components from the format
-
-                let monthsDiff = (+maxy - +miny)*12;
-                monthsDiff -= +mins;
-                monthsDiff += +maxs;
-
+                }
+                else {
+                    // for now only support months and days
+                    return;
+                }
+            }
+            else {
                 $("#wmsTSlider").bootstrapSlider({
                     formatter: function (value) {
-                        
-                        let v_date = WMSTUtils.monthValueToDate(value, miny, mins, mind, sep );
-                        v_date = WMSTUtils.dateformat(v_date, sep, dict);
-                        return v_date;
+                        console.log('slider',value,step[value]);
+                        return step[value];
                     },
                     value: 0,
                     min: 0,
-                    max: monthsDiff,
-                    step: parseInt(step),
+                    max: step.length-1,
+                    step: 1,
                     tooltip: 'always',
                     tooltip_position: 'bottom'//,
 
@@ -255,57 +336,10 @@
                     var b = e.value.oldValue;
                     let v_date = '';
 
-                    v_date = WMSTUtils.monthValueToDate(v, miny, mins, mind, '-');
+                    v_date = step[v];
                     let timeLayer = legendUtilities.getLayerByName(timeLayerName);
                     timeLayer.getSource().updateParams({ 'TIME': v_date });
                 });
-            } else if(unit === "DAY") {
-                
-                //Find the date components from the format
-
-                //in milliseconds, plus 1 day because maximum has to be considered as a day also
-                let daysDiff = new Date(maxy,maxs,maxd) - new Date(miny,mins,mind) + 1*24*60*60*1000; 
-                daysDiff = daysDiff/1000; //seconds
-                daysDiff = daysDiff/60  //minutes
-                daysDiff = daysDiff/60  //hours
-                daysDiff = daysDiff/24  //days
-                daysDiff = Math.round(daysDiff);
-
-                $("#wmsTSlider").bootstrapSlider({
-                    formatter: function (value) {
-                        
-                        v_date = WMSTUtils.addDays(+miny, +mins, +mind, value, sep);
-                        
-                        v_date = WMSTUtils.dateformat(v_date, sep, dict);
-
-                        return v_date;
-                    },
-                    value: 0,
-                    min: 0,
-                    max: daysDiff,
-                    step: parseInt(step),
-                    tooltip: 'always',
-                    tooltip_position: 'bottom'//,
-
-                });
-                $('#wmsTSlider').bootstrapSlider().on('change', function (e) {
-                    var v = e.value.newValue;
-                    var b = e.value.oldValue;
-                    
-                    let v_date = '';
-                    
-                   
-                    
-                    v_date = WMSTUtils.addDays(+miny, +mins, +mind, v, '-');
-                    
-                    let timeLayer = legendUtilities.getLayerByName(timeLayerName);
-                    timeLayer.getSource().updateParams({ 'TIME': v_date });
-                });
-            
-            }
-            else {
-                // for now only support months and days
-                return;
             }
         },
         play: function () {

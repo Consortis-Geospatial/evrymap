@@ -335,15 +335,22 @@ var legendUtilities = (function () {
                 htmlLegendContent = htmlLegendContent + '<span style="padding-right:15px;"><small>' + $.i18n._('_TRANSPARENCY') + '</small></br></span>';
                 htmlLegendContent = htmlLegendContent + '<input id="slider' + name + '" type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-ticks="[0, 1]"><span style="font-size:9px"><label id="' + name +'-opacity">&nbsp;0%</label></span></p>';
                 //console.log("tag: " + tag);
+                pushUri = function (event) {
+                    console.log(event);
+                    const dataUrl = printUtilities.getDataUrl(event.currentTarget);
+                    console.log(event.currentTarget);
+                    console.log(dataUrl);
+                    event.currentTarget.setAttribute('data-uri',dataUrl);
+                 }
                 // Create the legend icon for WMS layers from the GetLegendGraphic request UNLESS we have set a group icon OR a custom legend icon 
                 if (tag[0] !== "" && tag[0] === "WMS" && (typeof layer.get('groupLegendImg') === "undefined" || layer.get('groupLegendImg').trim() === "")) {
                     if (typeof layer.get('legendImg') === "undefined" || layer.get('legendImg').trim() === "") {
                         var lyrUrl = tag[1] + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=" + name + "&FORMAT=image/png&SLD_VERSION=1.1.0";
                         htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img src="' + lyrUrl + '" /></span></p>';
                         layer.set("legendImg", lyrUrl);
-                        $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img src="' + lyrUrl + '" /></li>');
+                        $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img src="' + lyrUrl + '" onload="pushUri(event)" /></li>');
                     } else {
-                        $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img src="' + layer.get('legendImg') + '" style="width:20px; height:20px" /></li>');
+                        $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img src="' + layer.get('legendImg') + '" style="width:20px; height:20px" onload="pushUri(event)"/></li>');
                         layer.set("legendImg", layer.get('legendImg'));
                     }
                 } else if (tag[0] !== "" && tag[0] === "GeoJSON") {
@@ -364,7 +371,7 @@ var legendUtilities = (function () {
                             }
                             else descr = "";
                             htmlLegendContent = htmlLegendContent + '<p style="margin-left:20px;margin-top:20px"><span><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" />' + descr + '<span></p>';
-                            $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" /></li>');
+                            $('#legendImgList').append('<li id="img_' + layer.get('name') + '" class="list-group-item"><h5>' + label + '</h5><img style="width:' + imgW + '; height:' + imgH + '; margin-right:3px" src="' + item.split(':')[0] + '" onload="pushUri(event)" /></li>');
                         });
                     }
                 } else if (tag[0] !== "" && tag[0] === "ESRIRESTTILE") {

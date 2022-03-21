@@ -64,7 +64,12 @@
                 '<input type="number" class="form-control" data-toggle="toggle" id="txbGridStep" value="">' +
                 '</div> ' +
                 '</div>' +
-
+                '<div class="row">' +
+                '<div class="form-group  col-lg-12">' +
+                '<label for="chkLegend">' + $.i18n._("_USELEGEND") +'</label>' + '&nbsp;&nbsp;&nbsp;' +
+                '<input type="checkbox"  data-toggle="toggle" id="chkLegend" value="">' +
+                '</div> ' +
+                '</div> ' +
                 '<div class="row">' +
                 '<div class="form-group col-lg-12">' +
                 '<label for="tbTitle">' + $.i18n._("_TITLE") +'</label>' +
@@ -93,13 +98,37 @@
                 '</div>';
             return htmlStr;
         },
-        printMap: function () {
+        printMap: async function () {
             var $map = $('#mapid').data('map');
             var printScale = Number($('#selScale').val());
             var resolution = printUtilities.getResolutionFromScale(printScale);
             $map.getView().setResolution(resolution);
             $map.renderSync();
             var dpi = Number($('#selDPI').val());
+
+            let legendOpen = $('#chkLegend').prop('checked');
+            if(legendOpen) {
+                
+                let legendimglist = $('#legendImgList');
+                if(legendimglist)
+                {
+                    legendimglist = legendimglist[0].childNodes;
+                }
+                
+                titles = [];
+                imgSrc= [];
+                imgRf = [];
+                legendimglist.forEach(li => {
+                    titles.push(li.children[0].innerHTML);
+                    imgSrc.push(li.children[1].src);
+                    if(li.children[1].attributes['data-uri']?.value != null)
+                        imgRf.push(li.children[1].attributes['data-uri']?.value );
+
+
+                })
+                console.log(imgRf);
+            }
+
             $map.once('precompose', function (event) {
                 var canvas = event.context.canvas;
                 printUtilities.setDPI(canvas, dpi);
@@ -182,6 +211,14 @@
                     }
                 };
 
+                if($('#chkLegend').prop('checked')) {
+                    for ( let i=0; i< imgRf.length ; i++) {
+                        if(imgRf[i] != null) {
+                            docDefinition.content.push({ text: titles[i], style: 'DescrStyle' })
+                            docDefinition.content.push({ image: imgRf[i],})
+                        }
+                    }
+                }
                 //pdfMake.createPdf(docDefinition).download('asdasd.pdf');
 
                 // Internet Explorer 6-11
@@ -198,6 +235,19 @@
             });
             $map.renderSync();
         },
+        getDataUrl:  function (img) {
+            // Create canvas
+            var canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            img.setAttribute('crossOrigin', 'anonymous');
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            var dataURL = canvas.toDataURL("image/png");
+            return dataURL;
+    //.replace(/^data:image\/(png|jpg);base64,/, "");
+            //canvas.remove();
+         },
         setDPI: function (canvas, dpi) {
             var scaleFactor = dpi / 96;
             canvas.width = Math.ceil(canvas.width * scaleFactor);
@@ -386,6 +436,10 @@ $(document).ready(function () {
         off: $.i18n._('_NO')
     });
     $('#chkGrid').bootstrapToggle({
+        on: $.i18n._('_YES'),
+        off: $.i18n._('_NO')
+    });
+    $('#chkLegend').bootstrapToggle({
         on: $.i18n._('_YES'),
         off: $.i18n._('_NO')
     });
