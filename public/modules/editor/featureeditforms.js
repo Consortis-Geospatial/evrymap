@@ -892,7 +892,11 @@ var featureEditForms = (function () {
                     if (vals !== null && vals !== "") {
                         var vals;
                         if (cusModule) {
-                            vals = JSON.stringify(data).replace('{', '').replace('}', '').split(',');
+                        let valsArray = [];
+                            for (const property in data) {
+                                valsArray.push(property + ":" + data[property])
+                              }
+                              vals = valsArray;
                         } else {
                             vals = data.d.replace('{', '').replace('}', '').split(',');
                         }
