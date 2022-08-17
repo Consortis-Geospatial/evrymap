@@ -17,40 +17,39 @@ var mapUtils = (function () {
     var contextmenu;
 
     var styleCache = {};
-    
+
     var openResults = true;
     var closeBbox = false;
     var element;
     return {
-        clusterStyle: function (featureCl, resolution){
-            
+        clusterStyle: function (featureCl, resolution) {
+
 
             let sizeCl = featureCl.get('features').length;
-            
+
             let styleCl = styleCache[sizeCl];
-    
-            
+
+
             // console.log("styleCl ",sizeCl,styleCl , styleCache);
-            
+
             // console.log("style",styleCache , styleCl);    
-            if (!styleCl)
-            {
-                
-                var color = sizeCl>25 ? "192,0,0" : sizeCl>8 ? "255,128,0" : "0,128,0";
-                var radius = Math.max(8, Math.min(sizeCl*0.75, 20));
-                var dash = 2*Math.PI*radius/6;
-                dash = [ 0, dash, dash, dash, dash, dash, dash ];
+            if (!styleCl) {
+
+                var color = sizeCl > 25 ? "192,0,0" : sizeCl > 8 ? "255,128,0" : "0,128,0";
+                var radius = Math.max(8, Math.min(sizeCl * 0.75, 20));
+                var dash = 2 * Math.PI * radius / 6;
+                dash = [0, dash, dash, dash, dash, dash, dash];
                 styleCl = styleCache[sizeCl] = new ol.style.Style({
                     image: new ol.style.Circle({
                         radius: radius,
                         stroke: new ol.style.Stroke({
-                        color: "rgba("+color+",0.5)", 
-                        width: 15 ,
-                        lineDash: dash,
-                        lineCap: "butt"
+                            color: "rgba(" + color + ",0.5)",
+                            width: 15,
+                            lineDash: dash,
+                            lineCap: "butt"
                         }),
                         fill: new ol.style.Fill({
-                        color:"rgba("+color+",1)"
+                            color: "rgba(" + color + ",1)"
                         })
                     }),
                     text: new ol.style.Text({
@@ -58,13 +57,13 @@ var mapUtils = (function () {
                         //font: 'bold 12px comic sans ms',
                         //textBaseline: 'top',
                         fill: new ol.style.Fill({
-                        color: '#fff'
+                            color: '#fff'
                         })
                     })
                 });
-               
+
             }
-           
+
             return [styleCl];
         },
         /**
@@ -75,23 +74,23 @@ var mapUtils = (function () {
          * @function initlayers
          * @memberof mapUtils
          */
-        initlayers: function (projcode, projdescr, mapextent , xyzoomlevel) {
+        initlayers: function (projcode, projdescr, mapextent, xyzoomlevel) {
             var layers;
-            
+
             oslayers = [];
             groups = {};
 
             //layers = mapPortal.readConfig("layers");
-            
-            layers=cfg.layers;
 
-            mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields , xyzoomlevel);
-            
-            
-            
+            layers = cfg.layers;
+
+            mymap = mapUtils.createMap(layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields, xyzoomlevel);
+
+
+
             mapUtils.initContextMenu();
 
-            
+
             // if velocity layer exists
             if (velocityControls.getVelocitySettings().mapId && velocityControls.velocityLayerIsLoaded()) {
                 // create velocity map
@@ -199,7 +198,7 @@ var mapUtils = (function () {
                 }
             });
 
-            mymap.on('postrender', function (event) {});
+            mymap.on('postrender', function (event) { });
 
             mymap.on('change', function (event) {
                 //anonymousUser.writeSettings(mymap);
@@ -219,8 +218,8 @@ var mapUtils = (function () {
             $('#curScale').on('input', function () {
                 var val = this.value;
                 if ($('#scales').find('option').filter(function () {
-                        return this.value === val;
-                    }).length) {
+                    return this.value === val;
+                }).length) {
                     mapUtils.zoomToScale(mymap, Number($('#curScale').val()));
                 }
             });
@@ -228,14 +227,14 @@ var mapUtils = (function () {
             mapUtils.createAndAddInteractions(infoOptions, infoTitle, mymap, searchFields, identifyFields);
             //var $schbtn = document.getElementById("searchbtn");
             var lyrtosent = mymap.getLayers();
-            $(document).ready(function(){
+            $(document).ready(function () {
                 $('#searchbtn').on('click', function () {
-                
+
                     searchUtilities.performSearch($('#searchfield').val(), searchFields, layers, identifyFields);
                 });
             });
-                
-           
+
+
 
             //Check if there is a Home view
             if (userUtils.getMapSet("Home") !== null) {
@@ -299,7 +298,7 @@ var mapUtils = (function () {
          * @function createMap
          * @memberof mapUtils
          */
-        createMap: function (layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields , xyzoomlevel) {
+        createMap: function (layers, oslayers, infoOptions, infoTitle, searchFields, projcode, projdescr, mapextent, identifyFields, xyzoomlevel) {
             // Set source and destination projections
             if (typeof projDef === "undefined") { //Projection definitions is not set
                 proj4.defs(
@@ -376,11 +375,11 @@ var mapUtils = (function () {
                 if (val.type === "OSM" && typeof useGMap === "undefined") {
                     osmLayer = mapUtils.createOSMLayer(val);
                     oslayers.push(osmLayer);
-                // Bing Maps
+                    // Bing Maps
                 } else if (val.type === "Bing" && typeof useGMap === "undefined") {
                     bingLayer = mapUtils.createBingLayer(val);
                     oslayers.push(bingLayer);
-                // WMS Layers
+                    // WMS Layers
                 } else if (val.type === "WMS") {
                     var wmsUrl = '';
                     //let mapSettings = mapPortal.readConfig("map");
@@ -488,7 +487,7 @@ var mapUtils = (function () {
                             tmplyr.set('edit_geomcol', val.edit_geomcol);
                             tmplyr.set('allow_edit_geom', val.allow_edit_geom);
                             tmplyr.set('edit_geomtype', val.edit_geomtype);
-                            tmplyr.set('allowNoGeometry', (typeof val.allowNoGeometry === "undefined" || val.allowNoGeometry=== false) ? false : true );
+                            tmplyr.set('allowNoGeometry', (typeof val.allowNoGeometry === "undefined" || val.allowNoGeometry === false) ? false : true);
                             tmplyr.set('edit_snapping_layers', val.edit_snapping_layers);
                             tmplyr.set('edit_fields', val.edit_fields);
                             tmplyr.set('edit_service_url', val.edit_service_url);
@@ -522,42 +521,42 @@ var mapUtils = (function () {
                     } else {
                         wfsUrl = window.location.protocol + '//' + mapservUrl + '?map=' + val.mapfile;
                     }
-                   
-                    
-                    if(val.clusterOptions) {
+
+
+                    if (val.clusterOptions) {
                         if (typeof projDef[val.projection] !== "undefined" && val.projection != "EPSG:4326" && val.projection != "EPSG:3857") {
-                            proj4.defs(val.projection,projDef[val.projection]);
+                            proj4.defs(val.projection, projDef[val.projection]);
                         }
 
                         // if(val.clusterOptions?.polygons != true)
-                            tmpvector = mapUtils.createVectorClusterLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS , val);
+                        tmpvector = mapUtils.createVectorClusterLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS, val);
                         // else
-                            // tmpvector = mapUtils.createVectorJsonLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS);
+                        // tmpvector = mapUtils.createVectorJsonLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS);
 
-                          tmpvector.set('linkField', val.clusterOptions.linkField);  
-                          tmpvector.set('bottomLink', val.clusterOptions.bottomLink); 
-                          tmpvector.set('midLink', val.clusterOptions.midLink); 
-                          tmpvector.set('firstFieldMessage', val.clusterOptions.firstFieldMessage); 
-                          tmpvector.set('messageFields', val.clusterOptions.messageFields);    
-                          tmpvector.set('cluster', true); 
-                          if(val.clusterOptions.hasOwnProperty('openResults')) {
+                        tmpvector.set('linkField', val.clusterOptions.linkField);
+                        tmpvector.set('bottomLink', val.clusterOptions.bottomLink);
+                        tmpvector.set('midLink', val.clusterOptions.midLink);
+                        tmpvector.set('firstFieldMessage', val.clusterOptions.firstFieldMessage);
+                        tmpvector.set('messageFields', val.clusterOptions.messageFields);
+                        tmpvector.set('cluster', true);
+                        if (val.clusterOptions.hasOwnProperty('openResults')) {
                             tmpvector.set('openResults', val.clusterOptions.openResults);
                             openResults = val.clusterOptions.openResults;
-                          }
-                          else {
+                        }
+                        else {
                             openResults = true;
-                          }
-                          if(val.clusterOptions.hasOwnProperty('closeBbox')) {
+                        }
+                        if (val.clusterOptions.hasOwnProperty('closeBbox')) {
                             tmpvector.set('closeBbox', val.clusterOptions.closeBbox);
                             closeBbox = val.clusterOptions.closeBbox;
-                          }
-                          tmpvector.set('edit_snapping_layers', val.edit_snapping_layers);
-                          
+                        }
+                        tmpvector.set('edit_snapping_layers', val.edit_snapping_layers);
+
                     }
-                    else 
+                    else
                         tmpvector = mapUtils.createVectorJsonLayer(val.mapfile, val.table_name, val.color, val.linewidth, val.fill, val.fillcolor, mapSettings.useWrappedMS);
-                    
-                    
+
+
                     tmpvector.set('name', val.name);
                     tmpvector.set('table_name', val.table_name);
                     tmpvector.set('tag', [val.type, wfsUrl]);
@@ -578,7 +577,7 @@ var mapUtils = (function () {
                     }
                     if (typeof val.allowHover !== "undefined") {
                         tmpvector.set('allowHover', val.allowHover);
-                    } 
+                    }
                     // else {
                     //     tmpvector.set('allowHover', false);
                     // }
@@ -619,7 +618,7 @@ var mapUtils = (function () {
                             tmpvector.set('edit_geomcol', val.edit_geomcol);
                             tmpvector.set('allow_edit_geom', val.allow_edit_geom);
                             tmpvector.set('edit_geomtype', val.edit_geomtype);
-                            tmpvector.set('allowNoGeometry', (typeof val.allowNoGeometry === "undefined" || val.allowNoGeometry=== false) ? false : true );
+                            tmpvector.set('allowNoGeometry', (typeof val.allowNoGeometry === "undefined" || val.allowNoGeometry === false) ? false : true);
                             tmpvector.set('edit_snapping_layers', val.edit_snapping_layers);
                             tmpvector.set('edit_fields', val.edit_fields);
                             tmpvector.set('edit_service_url', val.edit_service_url);
@@ -640,7 +639,7 @@ var mapUtils = (function () {
                         tmpvector.set('editable', false);
                     }
                     // End Check if layer is editable
-                    
+
                     if (typeof val.group !== "undefined") {
                         groups[grp].push(tmpvector);
                     } else {
@@ -782,7 +781,7 @@ var mapUtils = (function () {
                 new ol.layer.Tile({
                     source: new ol.source.OSM({
                         attributions: ['<a target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ' +
-                        'contributors.'],
+                            'contributors.'],
                         crossOrigin: 'anonymous',
                         url: url
                     })
@@ -863,36 +862,37 @@ var mapUtils = (function () {
         },
         initContextMenu: function () {
             mymap.getLayers().forEach(function (layer, i) {
-                
-                if (typeof layer.get("contextMenu") !== "undefined" && layer.get("visible")==true && !!layer.get("cluster") == false )  {
-                    
+
+                if (typeof layer.get("contextMenu") !== "undefined" && layer.get("visible") == true && !!layer.get("cluster") == false) {
+
                     var contextmenu = new ContextMenu({
                         width: 170,
                         defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
                         items: []
                     });
                     contextmenu.on('beforeopen', function (evt) {
-                        
+
                         contextmenu.close();
                         var feature = mymap.forEachFeatureAtPixel(evt.pixel, function (ft, l) {
                             return ft;
                         });
 
-                        let found=false;
+                        let found = false;
                         if (feature) { // open only on features
-                            
-                             layer.getSource().getFeatures().forEach(function(feat){ if(feat === feature) {
 
-                                
-                                    found=true;        
-                             } } )
-                            
-                            if(found)
-                            {
-                                
+                            layer.getSource().getFeatures().forEach(function (feat) {
+                                if (feat === feature) {
+
+
+                                    found = true;
+                                }
+                            })
+
+                            if (found) {
+
                                 contextmenu.enable();
                                 contextmenu.clear();
-                                contextmenu.extend(layer.get("contextMenu"));                             
+                                contextmenu.extend(layer.get("contextMenu"));
                                 mymap.addControl(contextmenu);
                             }
                             else {
@@ -920,28 +920,27 @@ var mapUtils = (function () {
          * @param {string} layerConfig layerConfig
          * @memberof mapUtils 
          */
-        createVectorClusterLayer:  function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped, layerConfig) {
+        createVectorClusterLayer: function (mapfile, table_name, color, linewidth, hasfill, fillcolor, iswrapped, layerConfig) {
             let url_loader;
 
             var wfsurl = '';
-            
 
-            if(layerConfig.clusterOptions?.polygons != true) {
+
+            if (layerConfig.clusterOptions?.polygons != true) {
                 // Animated cluster layer
                 clusterLayer2 = new ol.layer.AnimatedCluster({
-                
+
 
                     source: new ol.source.Cluster({
                         distance: 40,
                         // source: new ol.source.Vector()
-                        source:  new ol.source.Vector({
-                        
-                        
+                        source: new ol.source.Vector({
+
+
                             url: function (x) {
                                 let mappath = '';
-                            
-                                if( typeof layerConfig.clusterOptions.service_url == "undefined" )
-                                {
+
+                                if (typeof layerConfig.clusterOptions.service_url == "undefined") {
                                     if (iswrapped !== "undefined" && iswrapped === true) {
                                         mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
                                     } else {
@@ -949,10 +948,10 @@ var mapUtils = (function () {
                                     }
                                     if (window.location.host === $('#hidMS').val().split('/')[0]) {
                                         wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                        'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
+                                            'bbox=' + x.join(',') + mymap.getView().getProjection().getCode();
                                     } else {
                                         wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                        'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
+                                            'bbox=' + x.join(',') + mymap.getView().getProjection().getCode();
                                     }
                                     //proxyUrl +
                                     url_loader = wfsurl;
@@ -963,71 +962,71 @@ var mapUtils = (function () {
                                     return url_loader;
                                 }
                             },
-                        
+
 
                             // url: layerConfig.service_url,
                             // url: clusterLayer2.getSource().getSource().getUrl()(x),
-                        
+
                             loader: function (x) {
-                            
+
                                 // if(clusterLayer2.getSource().getSource().getUrl()(x)) 
                                 {
-                                
+
                                     $.ajax({
-                                        url:  clusterLayer2.getSource().getSource().getUrl()(x),
+                                        url: clusterLayer2.getSource().getSource().getUrl()(x),
                                         type: "get",
                                         async: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? true : false,
-                                    
+
                                         cache: false,
                                         dataType: 'json',
                                         contentType: "application/x-www-form-urlencoded; charset=utf-8",
-                                    
+
                                         success: function (data) {
                                             if (data.features.length === 0) {
                                                 return null;
                                             }
                                             // Add the layer name in the returned data so we know which layer
-                                        
+
                                             // Populate the edit layer
-                                        
+
                                             let geojson = new ol.format.GeoJSON({
                                                 // defaultDataProjection: projcode,
                                                 // featureProjection: destprojcode
-                                                defaultDataProjection: typeof layerConfig.clusterOptions.service_url != "undefined" ? layerConfig.projection: destprojcode,//has to be EPSG:2100
+                                                defaultDataProjection: typeof layerConfig.clusterOptions.service_url != "undefined" ? layerConfig.projection : destprojcode,//has to be EPSG:2100
                                                 featureProjection: destprojcode
-                                            });                                
-                                            let feats =  geojson.readFeatures(data) ;
-                                        
+                                            });
+                                            let feats = geojson.readFeatures(data);
+
                                             feats.forEach(function (f) {
-                                            //it checks if id is set in addFeature , if they exist they are not loaded again
-        
-                                        
+                                                //it checks if id is set in addFeature , if they exist they are not loaded again
+
+
                                                 {
                                                     //every other geojson layer
-                                                    if(legendUtilities.getLayerByName(layerConfig.name).get("edit_pk") !== undefined) {
-                                                        f.setId( f.getProperties()[legendUtilities.getLayerByName(layerConfig.name).get("edit_pk")]);
+                                                    if (legendUtilities.getLayerByName(layerConfig.name).get("edit_pk") !== undefined) {
+                                                        f.setId(f.getProperties()[legendUtilities.getLayerByName(layerConfig.name).get("edit_pk")]);
                                                     }
                                                     clusterLayer2.getSource().getSource().addFeature(f);
                                                 }
                                             });
-                                        
+
                                         },
                                         complete: function (response) {
                                         },
                                         error: function (jqXHR, textStatus, errorThrown) {
-                                            console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error "+errorThrown + "/ " );
+                                            console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error " + errorThrown + "/ ");
                                         },
                                         failure: function (jqXHR, _textStatus, errorThrown) {
-                                            console.log("WFS BBOX Vector Layer request failure: " + _textStatus );
+                                            console.log("WFS BBOX Vector Layer request failure: " + _textStatus);
                                         }
                                     });
                                 }
                             },
                             // strategy: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? ol.loadingstrategy.bbox : ol.loadingstrategy.all,
                             strategy: ol.loadingstrategy.all,
-                                                
+
                             // strategy: function(x) {
-                            
+
                             //         var bbox = x.join(',');
                             //         if (bbox != this.get('bbox')) {
                             //             this.set('bbox', bbox);
@@ -1035,20 +1034,20 @@ var mapUtils = (function () {
                             //         }
                             //         return [x];
                             // },
-                        
+
                             crossOrigin: 'anonymous'
-                    
+
                         })
-                    
+
                     }),
-                
+
                     animationDuration: 700,
-                
+
                     // animationMethod:  ol.easing.easeOut,
-                
-                 // Cluster style
+
+                    // Cluster style
                     style: mapUtils.clusterStyle
-            
+
                 });
             }
             else {
@@ -1059,127 +1058,126 @@ var mapUtils = (function () {
                 $('#txbSelFillColor').val('rgba(255,0,0,0.1)');
                 $('#txbSelColor').val('#ff0000');
                 $('#txbSelWidth').val('5');
-                
+
 
                 clusterLayer2 = new ol.layer.Vector({
-                    
 
-                    
-                        source:  new ol.source.Vector({
-                            
-                            
-                            url: function (x) {
-                                let mappath = '';
-                                
-                                if( typeof layerConfig.clusterOptions.service_url == "undefined" )
-                                {
-                                    if (iswrapped !== "undefined" && iswrapped === true) {
-                                        mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
-                                    } else {
-                                        mappath = '?map=' + mapfile;
-                                    }
-                                    if (window.location.host === $('#hidMS').val().split('/')[0]) {
-                                        wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                        'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
-                                    } else {
-                                        wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                        'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
-                                    }
-                                    //proxyUrl +
-                                    url_loader = wfsurl;
-                                    return url_loader;
-                                }
-                                else {
-                                    url_loader = layerConfig.clusterOptions.service_url;
-                                    return url_loader;
-                                }
-                            },
-                            
 
-                            // url: layerConfig.service_url,
-                            // url: clusterLayer2.getSource().getSource().getUrl()(x),
-                            
-                            loader: function (x) {
-                                
-                                // if(clusterLayer2.getSource().getSource().getUrl()(x)) 
-                                {
-                                    
-                                    $.ajax({
-                                        url:  clusterLayer2.getSource().getUrl()(x),
-                                        type: "get",
-                                        async: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? true : false,
-                                        
-                                        cache: false,
-                                        dataType: 'json',
-                                        contentType: "application/x-www-form-urlencoded; charset=utf-8",
-                                    
-                                        success: function (data) {
-                                            if (data.features == null || data.features.length === 0) {
-                                                return null;
-                                            }
-                                            // Add the layer name in the returned data so we know which layer
-                                        
-                                            // Populate the edit layer
-                                        
-                                            let geojson = new ol.format.GeoJSON({
-                                                // defaultDataProjection: projcode,
-                                                // featureProjection: destprojcode
-                                                defaultDataProjection: typeof layerConfig.clusterOptions.service_url != "undefined" ? layerConfig.projection: destprojcode,//has to be EPSG:2100
-                                                featureProjection: destprojcode
-                                            });                                
-                                            let feats =  geojson.readFeatures(data) ;
-                                            
-                                            feats.forEach(function (f) {
-                                            //it checks if id is set in addFeature , if they exist they are not loaded again
-                                                {
-                                                    //every other geojson layer
-                                                    if(legendUtilities.getLayerByName(layerConfig.name).get("edit_pk") !== undefined) {
-                                                        f.setId( f.getProperties()[legendUtilities.getLayerByName(layerConfig.name).get("edit_pk")]);
-                                                    }
-                                                    
-                                                    clusterLayer2.getSource().addFeature(f);
-                                                }
-                                            });
-                                            
-                                        },
-                                        complete: function (response) {
-                                        },
-                                        error: function (jqXHR, textStatus, errorThrown) {
-                                            console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error "+errorThrown + "/ " );
-                                        },
-                                        failure: function (jqXHR, _textStatus, errorThrown) {
-                                            console.log("WFS BBOX Vector Layer request failure: " + _textStatus );
+
+                    source: new ol.source.Vector({
+
+
+                        url: function (x) {
+                            let mappath = '';
+
+                            if (typeof layerConfig.clusterOptions.service_url == "undefined") {
+                                if (iswrapped !== "undefined" && iswrapped === true) {
+                                    mappath = '/' + mapfile.split('\\')[mapfile.split('\\').length - 1].split('.')[0];
+                                } else {
+                                    mappath = '?map=' + mapfile;
+                                }
+                                if (window.location.host === $('#hidMS').val().split('/')[0]) {
+                                    wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                        'bbox=' + x.join(',') + mymap.getView().getProjection().getCode();
+                                } else {
+                                    wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
+                                        'bbox=' + x.join(',') + mymap.getView().getProjection().getCode();
+                                }
+                                //proxyUrl +
+                                url_loader = wfsurl;
+                                return url_loader;
+                            }
+                            else {
+                                url_loader = layerConfig.clusterOptions.service_url;
+                                return url_loader;
+                            }
+                        },
+
+
+                        // url: layerConfig.service_url,
+                        // url: clusterLayer2.getSource().getSource().getUrl()(x),
+
+                        loader: function (x) {
+
+                            // if(clusterLayer2.getSource().getSource().getUrl()(x)) 
+                            {
+
+                                $.ajax({
+                                    url: clusterLayer2.getSource().getUrl()(x),
+                                    type: "get",
+                                    async: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? true : false,
+
+                                    cache: false,
+                                    dataType: 'json',
+                                    contentType: "application/x-www-form-urlencoded; charset=utf-8",
+
+                                    success: function (data) {
+                                        if (data.features == null || data.features.length === 0) {
+                                            return null;
                                         }
-                                    }); 
-                                }
-                            },
-                            // strategy: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? ol.loadingstrategy.bbox : ol.loadingstrategy.all,
-                            strategy: ol.loadingstrategy.all,
-                                                    
-                            // strategy: function(x) {  
-                            
-                            //         var bbox = x.join(',');
-                            //         if (bbox != this.get('bbox')) {
-                            //             this.set('bbox', bbox);
-                            //             clusterLayer2.getSource().refresh();   //reloads the features, Checks for ID in loader!! 
-                            //         }
-                            //         return [x];
-                            // },
-                            
-                            crossOrigin: 'anonymous'
-                                                    
-                        }),
-                    
-                    
-                    
+                                        // Add the layer name in the returned data so we know which layer
+
+                                        // Populate the edit layer
+
+                                        let geojson = new ol.format.GeoJSON({
+                                            // defaultDataProjection: projcode,
+                                            // featureProjection: destprojcode
+                                            defaultDataProjection: typeof layerConfig.clusterOptions.service_url != "undefined" ? layerConfig.projection : destprojcode,//has to be EPSG:2100
+                                            featureProjection: destprojcode
+                                        });
+                                        let feats = geojson.readFeatures(data);
+
+                                        feats.forEach(function (f) {
+                                            //it checks if id is set in addFeature , if they exist they are not loaded again
+                                            {
+                                                //every other geojson layer
+                                                if (legendUtilities.getLayerByName(layerConfig.name).get("edit_pk") !== undefined) {
+                                                    f.setId(f.getProperties()[legendUtilities.getLayerByName(layerConfig.name).get("edit_pk")]);
+                                                }
+
+                                                clusterLayer2.getSource().addFeature(f);
+                                            }
+                                        });
+
+                                    },
+                                    complete: function (response) {
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error " + errorThrown + "/ ");
+                                    },
+                                    failure: function (jqXHR, _textStatus, errorThrown) {
+                                        console.log("WFS BBOX Vector Layer request failure: " + _textStatus);
+                                    }
+                                });
+                            }
+                        },
+                        // strategy: typeof layerConfig.clusterOptions.async == "undefined" || layerConfig.clusterOptions.async == true ? ol.loadingstrategy.bbox : ol.loadingstrategy.all,
+                        strategy: ol.loadingstrategy.all,
+
+                        // strategy: function(x) {  
+
+                        //         var bbox = x.join(',');
+                        //         if (bbox != this.get('bbox')) {
+                        //             this.set('bbox', bbox);
+                        //             clusterLayer2.getSource().refresh();   //reloads the features, Checks for ID in loader!! 
+                        //         }
+                        //         return [x];
+                        // },
+
+                        crossOrigin: 'anonymous'
+
+                    }),
+
+
+
                     // animationMethod:  ol.easing.easeOut,
-                    
+
                     // // Cluster style
-                    style:  new ol.style.Style({
-                        fill: new ol.style.Fill({ color: [255,0,0,0] }),
+                    style: new ol.style.Style({
+                        fill: new ol.style.Fill({ color: [255, 0, 0, 0] }),
                         stroke: new ol.style.Stroke({ color: 'red', width: 2 }),
                     })
-                
+
                 });
             }
 
@@ -1225,10 +1223,10 @@ var mapUtils = (function () {
                             }
                             if (window.location.host === $('#hidMS').val().split('/')[0]) {
                                 wfsurl = window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
+                                    'bbox=' + x.join(',') + mymap.getView().getProjection().getCode();
                             } else {
                                 wfsurl = proxyUrl + window.location.protocol + '//' + $('#hidMS').val() + mappath + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=ms:' + table_name + '&outputFormat=geojson&' +
-                                'bbox=' + x.join(',')  + mymap.getView().getProjection().getCode();
+                                    'bbox=' + x.join(',') + mymap.getView().getProjection().getCode();
                             }
                         } else {
                             wfs_url = wfsurl;
@@ -1236,78 +1234,76 @@ var mapUtils = (function () {
                         return wfsurl;
                     },
                     loader: function (x) {
-                        console.log("loader",geoJsonLayer.getSource().getUrl()(x))
-                        if(geoJsonLayer.getSource().getUrl()(x)) {
+                        console.log("loader", geoJsonLayer.getSource().getUrl()(x))
+                        if (geoJsonLayer.getSource().getUrl()(x)) {
 
                             $.ajax({
                                 url: geoJsonLayer.getSource().getUrl()(x),
                                 async: true,
                                 dataType: 'json',
-                                
+
                                 success: function (data) {
                                     if (data.features.length === 0) {
                                         return null;
                                     }
                                     // Add the layer name in the returned data so we know which layer
-                                    
+
                                     // Populate the edit layer
-                                    var geojson = new ol.format.GeoJSON();                                
-                                    let feats =  geojson.readFeatures(data) ;
-                                    
+                                    var geojson = new ol.format.GeoJSON();
+                                    let feats = geojson.readFeatures(data);
+
                                     feats.forEach(function (f) {
-                                       //it checks if id is set in addFeature , if they exist they are not loaded again
+                                        //it checks if id is set in addFeature , if they exist they are not loaded again
 
                                         //editMode landify
-                                        if( (typeof editLayer !=="undefined") && (legendUtilities.getLayerByName(data.name).get("editable")==true) )
-                                        {
-                                            if(data.name +"_EDIT" === editLayer.get("name"))
-                                            {
-                                                f.setId( f.getProperties()[editLayer.get("edit_pk")]);
+                                        if ((typeof editLayer !== "undefined") && (legendUtilities.getLayerByName(data.name).get("editable") == true)) {
+                                            if (data.name + "_EDIT" === editLayer.get("name")) {
+                                                f.setId(f.getProperties()[editLayer.get("edit_pk")]);
                                                 editLayer.getSource().addFeature(f);
-                                            } 
+                                            }
                                             else {
-                                                if(legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
-                                                    f.setId( f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
+                                                if (legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
+                                                    f.setId(f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
                                                 }
-                                                if(legendUtilities.getLayerByName(data.name).get("clusterOptions") !== undefined &&
-                                                legendUtilities.getLayerByName(data.name).get("clusterOptions").polygons !== true)
-                                                legendUtilities.getLayerByName(data.name + "_SNAPPING_EDIT").getSource().addFeature(f);
+                                                if (legendUtilities.getLayerByName(data.name).get("clusterOptions") !== undefined &&
+                                                    legendUtilities.getLayerByName(data.name).get("clusterOptions").polygons !== true)
+                                                    legendUtilities.getLayerByName(data.name + "_SNAPPING_EDIT").getSource().addFeature(f);
                                                 else {
-                                                    legendUtilities.getLayerByName(data.name ).getSource().addFeature(f);
+                                                    legendUtilities.getLayerByName(data.name).getSource().addFeature(f);
                                                 }
                                                 console.log(legendUtilities.getLayerByName(data.name).getSource().getFeatures());
                                             }
                                         }
                                         else {
                                             //every other geojson layer
-                                            if(data.hasOwnProperty('name')) {
-                                                if(legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
-                                                    f.setId( f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
+                                            if (data.hasOwnProperty('name')) {
+                                                if (legendUtilities.getLayerByName(data.name).get("edit_pk") !== undefined) {
+                                                    f.setId(f.getProperties()[legendUtilities.getLayerByName(data.name).get("edit_pk")]);
                                                 }
                                                 legendUtilities.getLayerByName(data.name).getSource().addFeature(f);
                                             }
                                             else {
-                                                if(legendUtilities.getLayerByName(table_name).get("edit_pk") !== undefined) {
-                                                    f.setId( f.getProperties()[legendUtilities.getLayerByName(table_name).get("edit_pk")]);
+                                                if (legendUtilities.getLayerByName(table_name).get("edit_pk") !== undefined) {
+                                                    f.setId(f.getProperties()[legendUtilities.getLayerByName(table_name).get("edit_pk")]);
                                                 }
                                                 legendUtilities.getLayerByName(table_name).getSource().addFeature(f);
                                             }
                                         }
                                     });
-                                    
+
                                 },
                                 complete: function (response) {
                                 },
                                 error: function (jqXHR, textStatus, errorThrown) {
-                                    console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error "+errorThrown + "/ " );
+                                    console.log("WFS BBOX Vector Layer request error: " + textStatus + "/ error " + errorThrown + "/ ");
                                 },
                                 failure: function (jqXHR, _textStatus, errorThrown) {
-                                    console.log("WFS BBOX Vector Layer request failure: " + _textStatus );
+                                    console.log("WFS BBOX Vector Layer request failure: " + _textStatus);
                                 }
-                            }); 
+                            });
                         }
                     },
-                    strategy: function(x) {  
+                    strategy: function (x) {
                         var bbox = x.join(',');
                         if (bbox != this.get('bbox')) {
                             this.set('bbox', bbox);
@@ -1556,7 +1552,7 @@ var mapUtils = (function () {
                 //mapUtils.selectCluster();
                 //  $map.on('singleclick', mapUtils.mapClickEvent);
 
-                if(!openResults)
+                if (!openResults)
                     mapUtils.selectCluster();
             }
         },
@@ -1582,12 +1578,12 @@ var mapUtils = (function () {
                     map.removeInteraction(interaction);
                     $("#btnSelByRect").removeClass("active");
                 }
-                
-                if (interaction instanceof ol.interaction.Select && (interaction instanceof ol.interaction.SelectCluster)) {    
+
+                if (interaction instanceof ol.interaction.Select && (interaction instanceof ol.interaction.SelectCluster)) {
                     map.removeInteraction(interaction);
                     interaction.un('click');
                 }
-                
+
             });
             // Check if we are in the urban page and if so
             // unregister the click event
@@ -1604,7 +1600,7 @@ var mapUtils = (function () {
             // map.un('singleclick', mapUtils.mapClickEvent);
 
             mapUtils.selectCluster();
-            
+
         },
         createAndAddInteractions: function (infoOptions, infoTitle, map, searchFieldsList, identifyFields) {
             var $mymapFI = map;
@@ -1639,7 +1635,7 @@ var mapUtils = (function () {
             //Set select interaction for identify
             mapUtils.setIdentifySelectInteraction();
             //Create the select by rectangle tool
-            if(!closeBbox)
+            if (!closeBbox)
                 mapUtils.selByRectangleTool();
 
             mapUtils.selectCluster();
@@ -1649,75 +1645,75 @@ var mapUtils = (function () {
          * Select interaction for cluster layers
          * @memberof mapUtils 
          */
-        selectCluster: function() {
+        selectCluster: function () {
             // Style for selection
             var img = new ol.style.Circle({
                 radius: 5,
                 stroke: new ol.style.Stroke({
-                color:"rgba(0,255,255,1)", 
-                width:1 
+                    color: "rgba(0,255,255,1)",
+                    width: 1
                 }),
                 fill: new ol.style.Fill({
-                color:"rgba(0,255,255,0.3)"
+                    color: "rgba(0,255,255,0.3)"
                 })
             });
             var style0 = new ol.style.Style({
                 image: img
-              });
+            });
             var style1 = new ol.style.Style({
-            image: img,
-            // Draw a link beetween points (or not)
-            stroke: new ol.style.Stroke({
-                color:"#fff", 
-                width:1 
-            }) 
+                image: img,
+                // Draw a link beetween points (or not)
+                stroke: new ol.style.Stroke({
+                    color: "#fff",
+                    width: 1
+                })
             });
             // Select interaction to spread cluster out and select features
-            
+
             var selectCluster = new ol.interaction.SelectCluster({
                 // Point radius: to calculate distance between the features
-                pointRadius:20,
+                pointRadius: 20,
                 animate: true,
                 // Feature style when it springs apart
-                featureStyle: function(){
-                return [ style1 ]
+                featureStyle: function () {
+                    return [style1]
                 },
-                filter: function(feature, layer){
-                   
-                    if(layer!=null) {
-                        if (layer.get('cluster') != undefined )
-                      
-                        return true;
+                filter: function (feature, layer) {
+
+                    if (layer != null) {
+                        if (layer.get('cluster') != undefined)
+
+                            return true;
                     }
                     else {
-                        if( feature.getProperties()["features"]!=null)
+                        if (feature.getProperties()["features"] != null)
                             return true;
                         else return false;
                     }
-                    
+
                 },
                 // selectCluster: false,	// disable cluster selection
                 // Style to draw cluster when selected
-                style: function(f,res){
-                    if(f.hasOwnProperty('features')) {
+                style: function (f, res) {
+                    if (f.hasOwnProperty('features')) {
                         var cluster = f.get('features');
-                    
-                        if (cluster.length>1){
-                            var s = mapUtils.clusterStyle(f,res) ;
+
+                        if (cluster.length > 1) {
+                            var s = mapUtils.clusterStyle(f, res);
                             return s;
-                        } else if ( f.getProperties().selectclusterfeature == true ){
+                        } else if (f.getProperties().selectclusterfeature == true) {
                             return [
                                 new ol.style.Style({
-                                image: new ol.style.Circle ({
-                                    stroke: new ol.style.Stroke({ color: "rgba(0,0,192,0.5)", width:2 }),
-                                    fill: new ol.style.Fill({ color: "rgba(0,0,192,0.3)" }),
-                                    radius:5
-                                })
+                                    image: new ol.style.Circle({
+                                        stroke: new ol.style.Stroke({ color: "rgba(0,0,192,0.5)", width: 2 }),
+                                        fill: new ol.style.Fill({ color: "rgba(0,0,192,0.3)" }),
+                                        radius: 5
+                                    })
                                 })
                             ];
                         }
                         else {
-                            var s = mapUtils.clusterStyle(f,res) ;
+                            var s = mapUtils.clusterStyle(f, res);
                             return s;
                         }
                     }
@@ -1725,25 +1721,25 @@ var mapUtils = (function () {
                         return [
                             new ol.style.Style({
                                 stroke: new ol.style.Stroke({
-                                  color: preferences.getSelectedStrokeColor(),
-                                  width: preferences.getSelectedStrokeWidth(),
+                                    color: preferences.getSelectedStrokeColor(),
+                                    width: preferences.getSelectedStrokeWidth(),
                                 }),
                                 fill: new ol.style.Fill({
-                                  color: preferences.getSelectedFillColor(),
+                                    color: preferences.getSelectedFillColor(),
                                 }),
-                              }),
+                            }),
                         ]
                     }
                 }
             });
             mymap.addInteraction(selectCluster);
-            
+
             //context menu
-            
+
             mymap.getLayers().forEach(function (layer, i) {
-                
+
                 if (layer.get("cluster") == true) {
-                    if(!contextmenu) {
+                    if (!contextmenu) {
                         contextmenu = new ContextMenu({
                             width: 170,
                             defaultItems: false, // defaultItems are (for now) Zoom In/Zoom Out
@@ -1757,14 +1753,14 @@ var mapUtils = (function () {
                     let midLink = layer.get('midLink');
                     let firstFieldMessage = layer.get('firstFieldMessage');
                     // selectCluster.getFeatures().on(['remove'], function (e){});
-                        
+
                     mymap.addControl(contextmenu);
                     contextmenu.disable();
                     //event for features in feature of cluster
                     // On selected => get feature in cluster and show info
                     // selectCluster.getFeatures().on(['add'], function (e){
-                        
-                        
+
+
                     //     var c = e.element.get('features');
                     //     var clusterFeatItems= [];
                     //     if (c.length==1){
@@ -1778,270 +1774,264 @@ var mapUtils = (function () {
                         var feature = mymap.forEachFeatureAtPixel(evt.pixel, function (ft, l) {
                             return ft;
                         });
-                        let found=false;
-                        
+                        let found = false;
 
-                        
+
+
                         if (feature) { // open only on features
-                             layer.getSource().getFeatures().forEach(function(feat){ if(feat === feature) {
-                                found=true; 
-                              
-                             } } )
-                            
-                            
-                             //if is a main cluster(found) OR is a feature in a main cluster 
-                            if(found || (!found && feature.getProperties().selectclusterfeature == true))
-                            {
-                                var clusterFeatItems= [];
-                                
-                                if(!feature.getProperties().hasOwnProperty('features') )
-                                {
-                                    let featProps= feature.getProperties();
+                            layer.getSource().getFeatures().forEach(function (feat) {
+                                if (feat === feature) {
+                                    found = true;
 
-                                    let identifyFldNames=[];
-                                    let identifyFldLabels=[];
-                                    if(layer.get("messageFields") != undefined) {
-                                        var identifyFlds = layer.get("messageFields").split(',');
-                                        identifyFlds.forEach( function (fld) {identifyFldNames.push(fld.split(':')[0]); identifyFldLabels.push(fld.split(':')[1]); });
-                                    }
-                                    let message = {
-                                        Cmd:"selectId",
-                                        value: {}
-                                           
-                                        
-                                    };
-                                    for (i=0;i<identifyFldNames.length;i++){
-
-                                        message['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
-                                    }
-                                    
-                                    let fldNames=[];
-                                    let fldLabels=[];
-                                    if(layer.get("search_fields") != undefined) {
-                                        var searchFlds = layer.get("search_fields").split(',');
-                                        searchFlds.forEach( function (fld) {fldNames.push(fld.split(':')[0]); fldLabels.push(fld.split(':')[1]); });
-                                        //console.log(searchFlds);
-                                        //context menu
-                                    }
-
-                                    for (i=0;i<fldNames.length;i++)
-                                    {
-                                        
-                                        // clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
-
-                                        if(i==0) {
-                                    
-                                            messageString = JSON.stringify(message);
-                                            if(!!firstFieldMessage)
-                                                clusterFeatItems.push({text: fldLabels[i] + " : " + "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageString +");'</a> " +featProps[fldNames[i]]+"</a>" }); 
-                                            else
-                                                clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
-                                            // clusterFeatItems.push({text: fldLabels[i] + " : " + "<a href='#'  (click)="+window.parent.postMessage( JSON.stringify(message), "*") +">"+feature2.getProperties()[fldNames[i]]+"</a>"});
-                                        }
-                                        else
-                                            clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
-                                    }
-                                    
-                                    let messageLink3 = {
-                                        Cmd:"midLink",
-                                        value: {}
-                                    };
-                                    
-                                    if(identifyFldNames.length >0) {
-                                        for (i=0;i<identifyFldNames.length;i++){
-
-                                            messageLink3['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
-                                        }
-                                    }
-                                        
-                                    messageLinkString3 = JSON.stringify(messageLink3);
-                                    
-                                    if(midLink != null && featProps.hasOwnProperty(linkField) && featProps[linkField] != null  && identifyFldNames.length >0)
-                                        clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString3  +");'</a> " +midLink+"</a>" });   
-                                    
-                                        contextmenu.enable();
-                                        contextmenu.clear();
-                                        contextmenu.extend(clusterFeatItems); 
-
-                                    if(featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length >0) {
-                                        for (i=0;i< featProps[linkField].length;i++)
-                                        {
-                                            let messageLink = {
-                                                Cmd:"linkId",
-                                                value: {}
-                                            };
-                                            messageLink['value']['file'] = featProps[linkField][i];
-
-                                            for (j=0;j<identifyFldNames.length;j++){
-
-                                                messageLink['value'][identifyFldNames[j]] = featProps[identifyFldNames[j]];
-                                            }
-                                            
-                                            messageLinkString = JSON.stringify(messageLink);
-                                            
-                                            if(featProps[linkField] != null )
-                                                clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString  +");'</a> " +featProps[linkField][i]['text']+"</a>" });   
-
-                                          
-                                        }
-                                    }
-                                      
-                                    let messageLink2 = {
-                                        Cmd:"bottomLink",
-                                        value: {}
-                                    };
-                                    
-                                    if(identifyFldNames.length >0) {
-                                        for (i=0;i<identifyFldNames.length;i++){
-
-                                            messageLink2['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
-                                        }
-                                    }
-                                        
-                                    messageLinkString2 = JSON.stringify(messageLink2);
-                                    
-                                    if(bottomLink != null  && identifyFldNames.length >0)
-                                        clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString2  +");'</a> " +bottomLink+"</a>" });   
-                                    
-                                        contextmenu.enable();
-                                        contextmenu.clear();
-                                        contextmenu.extend(clusterFeatItems); 
                                 }
-                                else if( feature.getProperties().features.length == 1)
-                                {
-                                    let featProps= feature.getProperties().features[0].getProperties();
+                            })
 
-                                    let identifyFldNames=[];
-                                    let identifyFldLabels=[];
-                                    if(layer.get("messageFields") != undefined) {
+
+                            //if is a main cluster(found) OR is a feature in a main cluster 
+                            if (found || (!found && feature.getProperties().selectclusterfeature == true)) {
+                                var clusterFeatItems = [];
+
+                                if (!feature.getProperties().hasOwnProperty('features')) {
+                                    let featProps = feature.getProperties();
+
+                                    let identifyFldNames = [];
+                                    let identifyFldLabels = [];
+                                    if (layer.get("messageFields") != undefined) {
                                         var identifyFlds = layer.get("messageFields").split(',');
-                                        identifyFlds.forEach( function (fld) {identifyFldNames.push(fld.split(':')[0]); identifyFldLabels.push(fld.split(':')[1]); });
+                                        identifyFlds.forEach(function (fld) { identifyFldNames.push(fld.split(':')[0]); identifyFldLabels.push(fld.split(':')[1]); });
                                     }
                                     let message = {
-                                        Cmd:"selectId",
+                                        Cmd: "selectId",
                                         value: {}
-                                           
-                                        
+
+
                                     };
-                                    for (i=0;i<identifyFldNames.length;i++){
+                                    for (i = 0; i < identifyFldNames.length; i++) {
 
                                         message['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
                                     }
-                                    
-                                    let fldNames=[];
-                                    let fldLabels=[];
-                                    if(layer.get("search_fields") != undefined) {
+
+                                    let fldNames = [];
+                                    let fldLabels = [];
+                                    if (layer.get("search_fields") != undefined) {
                                         var searchFlds = layer.get("search_fields").split(',');
-                                        searchFlds.forEach( function (fld) {fldNames.push(fld.split(':')[0]); fldLabels.push(fld.split(':')[1]); });
+                                        searchFlds.forEach(function (fld) { fldNames.push(fld.split(':')[0]); fldLabels.push(fld.split(':')[1]); });
                                         //console.log(searchFlds);
                                         //context menu
                                     }
 
-                                    for (i=0;i<fldNames.length;i++)
-                                    {
-                                        
+                                    for (i = 0; i < fldNames.length; i++) {
+
                                         // clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
 
-                                        if(i==0) {
-                                    
+                                        if (i == 0) {
+
                                             messageString = JSON.stringify(message);
-                                            if(!!firstFieldMessage)
-                                                clusterFeatItems.push({text: fldLabels[i] + " : " + "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageString +");'</a> " +featProps[fldNames[i]]+"</a>" }); 
+                                            if (!!firstFieldMessage)
+                                                clusterFeatItems.push({ text: fldLabels[i] + " : " + "<a href='#'  onclick='mapUtils.selectClusterFromId(" + messageString + ");'</a> " + featProps[fldNames[i]] + "</a>" });
                                             else
-                                                clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
+                                                clusterFeatItems.push({ text: fldLabels[i] + " : " + featProps[fldNames[i]] });
                                             // clusterFeatItems.push({text: fldLabels[i] + " : " + "<a href='#'  (click)="+window.parent.postMessage( JSON.stringify(message), "*") +">"+feature2.getProperties()[fldNames[i]]+"</a>"});
                                         }
                                         else
-                                            clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
+                                            clusterFeatItems.push({ text: fldLabels[i] + " : " + featProps[fldNames[i]] });
                                     }
 
-                                   let messageLink3 = {
-                                        Cmd:"midLink",
+                                    let messageLink3 = {
+                                        Cmd: "midLink",
                                         value: {}
                                     };
-                                    
-                                    if(identifyFldNames.length >0) {
-                                        for (i=0;i<identifyFldNames.length;i++){
+
+                                    if (identifyFldNames.length > 0) {
+                                        for (i = 0; i < identifyFldNames.length; i++) {
 
                                             messageLink3['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
                                         }
                                     }
-                                        
+
                                     messageLinkString3 = JSON.stringify(messageLink3);
-                                    
-                                    if(midLink != null  && identifyFldNames.length >0 && featProps.hasOwnProperty(linkField) && featProps[linkField] != null)
-                                        clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString3  +");'</a> " +midLink+"</a>" });   
-                                    
-                                        contextmenu.enable();
-                                        contextmenu.clear();
-                                        contextmenu.extend(clusterFeatItems);
-                                    
-                                    if(featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length >0) {
-                                        for (i=0;i< featProps[linkField].length;i++)
-                                        {
+
+                                    if (midLink != null && featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length > 0)
+                                        clusterFeatItems.push({ text: "<a href='#'  onclick='mapUtils.selectClusterFromId(" + messageLinkString3 + ");'</a> " + midLink + "</a>" });
+
+                                    contextmenu.enable();
+                                    contextmenu.clear();
+                                    contextmenu.extend(clusterFeatItems);
+
+                                    if (featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length > 0) {
+                                        for (i = 0; i < featProps[linkField].length; i++) {
                                             let messageLink = {
-                                                Cmd:"linkId",
+                                                Cmd: "linkId",
                                                 value: {}
                                             };
                                             messageLink['value']['file'] = featProps[linkField][i];
 
-                                            for (j=0;j<identifyFldNames.length;j++){
+                                            for (j = 0; j < identifyFldNames.length; j++) {
 
                                                 messageLink['value'][identifyFldNames[j]] = featProps[identifyFldNames[j]];
                                             }
-                                            
-                                            messageLinkString = JSON.stringify(messageLink);
-                                            
-                                            if(featProps[linkField] != null )
-                                                clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString  +");'</a> " +featProps[linkField][i]['text']+"</a>" });   
 
-                                          
+                                            messageLinkString = JSON.stringify(messageLink);
+
+                                            if (featProps[linkField] != null)
+                                                clusterFeatItems.push({ text: "<a href='#'  onclick='mapUtils.selectClusterFromId(" + messageLinkString + ");'</a> " + featProps[linkField][i]['text'] + "</a>" });
+
+
                                         }
                                     }
-                                      
+
                                     let messageLink2 = {
-                                        Cmd:"bottomLink",
+                                        Cmd: "bottomLink",
                                         value: {}
                                     };
-                                    
-                                    if(identifyFldNames.length >0) {
-                                        for (i=0;i<identifyFldNames.length;i++){
+
+                                    if (identifyFldNames.length > 0) {
+                                        for (i = 0; i < identifyFldNames.length; i++) {
 
                                             messageLink2['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
                                         }
                                     }
-                                        
+
                                     messageLinkString2 = JSON.stringify(messageLink2);
-                                    
-                                    if(bottomLink != null && featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length >0)
-                                        clusterFeatItems.push({text:  "<a href='#'  onclick='mapUtils.selectClusterFromId("+messageLinkString2  +");'</a> " +bottomLink+"</a>" });   
-                                    
-                                        contextmenu.enable();
-                                        contextmenu.clear();
-                                        contextmenu.extend(clusterFeatItems);  
+
+                                    if (bottomLink != null && identifyFldNames.length > 0)
+                                        clusterFeatItems.push({ text: "<a href='#'  onclick='mapUtils.selectClusterFromId(" + messageLinkString2 + ");'</a> " + bottomLink + "</a>" });
+
+                                    contextmenu.enable();
+                                    contextmenu.clear();
+                                    contextmenu.extend(clusterFeatItems);
+                                }
+                                else if (feature.getProperties().features.length == 1) {
+                                    let featProps = feature.getProperties().features[0].getProperties();
+
+                                    let identifyFldNames = [];
+                                    let identifyFldLabels = [];
+                                    if (layer.get("messageFields") != undefined) {
+                                        var identifyFlds = layer.get("messageFields").split(',');
+                                        identifyFlds.forEach(function (fld) { identifyFldNames.push(fld.split(':')[0]); identifyFldLabels.push(fld.split(':')[1]); });
+                                    }
+                                    let message = {
+                                        Cmd: "selectId",
+                                        value: {}
+
+
+                                    };
+                                    for (i = 0; i < identifyFldNames.length; i++) {
+
+                                        message['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
+                                    }
+
+                                    let fldNames = [];
+                                    let fldLabels = [];
+                                    if (layer.get("search_fields") != undefined) {
+                                        var searchFlds = layer.get("search_fields").split(',');
+                                        searchFlds.forEach(function (fld) { fldNames.push(fld.split(':')[0]); fldLabels.push(fld.split(':')[1]); });
+                                        //console.log(searchFlds);
+                                        //context menu
+                                    }
+
+                                    for (i = 0; i < fldNames.length; i++) {
+
+                                        // clusterFeatItems.push({text: fldLabels[i] + " : " + featProps[fldNames[i]]});
+
+                                        if (i == 0) {
+
+                                            messageString = JSON.stringify(message);
+                                            if (!!firstFieldMessage)
+                                                clusterFeatItems.push({ text: fldLabels[i] + " : " + "<a href='#'  onclick='mapUtils.selectClusterFromId(" + messageString + ");'</a> " + featProps[fldNames[i]] + "</a>" });
+                                            else
+                                                clusterFeatItems.push({ text: fldLabels[i] + " : " + featProps[fldNames[i]] });
+                                            // clusterFeatItems.push({text: fldLabels[i] + " : " + "<a href='#'  (click)="+window.parent.postMessage( JSON.stringify(message), "*") +">"+feature2.getProperties()[fldNames[i]]+"</a>"});
+                                        }
+                                        else
+                                            clusterFeatItems.push({ text: fldLabels[i] + " : " + featProps[fldNames[i]] });
+                                    }
+
+                                    let messageLink3 = {
+                                        Cmd: "midLink",
+                                        value: {}
+                                    };
+
+                                    if (identifyFldNames.length > 0) {
+                                        for (i = 0; i < identifyFldNames.length; i++) {
+
+                                            messageLink3['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
+                                        }
+                                    }
+
+                                    messageLinkString3 = JSON.stringify(messageLink3);
+
+                                    if (midLink != null && identifyFldNames.length > 0 && featProps.hasOwnProperty(linkField) && featProps[linkField] != null)
+                                        clusterFeatItems.push({ text: "<a href='#'  onclick='mapUtils.selectClusterFromId(" + messageLinkString3 + ");'</a> " + midLink + "</a>" });
+
+                                    contextmenu.enable();
+                                    contextmenu.clear();
+                                    contextmenu.extend(clusterFeatItems);
+
+                                    if (featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length > 0) {
+                                        for (i = 0; i < featProps[linkField].length; i++) {
+                                            let messageLink = {
+                                                Cmd: "linkId",
+                                                value: {}
+                                            };
+                                            messageLink['value']['file'] = featProps[linkField][i];
+
+                                            for (j = 0; j < identifyFldNames.length; j++) {
+
+                                                messageLink['value'][identifyFldNames[j]] = featProps[identifyFldNames[j]];
+                                            }
+
+                                            messageLinkString = JSON.stringify(messageLink);
+
+                                            if (featProps[linkField] != null)
+                                                clusterFeatItems.push({ text: "<a href='#'  onclick='mapUtils.selectClusterFromId(" + messageLinkString + ");'</a> " + featProps[linkField][i]['text'] + "</a>" });
+
+
+                                        }
+                                    }
+
+                                    let messageLink2 = {
+                                        Cmd: "bottomLink",
+                                        value: {}
+                                    };
+
+                                    if (identifyFldNames.length > 0) {
+                                        for (i = 0; i < identifyFldNames.length; i++) {
+
+                                            messageLink2['value'][identifyFldNames[i]] = featProps[identifyFldNames[i]];
+                                        }
+                                    }
+
+                                    messageLinkString2 = JSON.stringify(messageLink2);
+
+                                    if (bottomLink != null && featProps.hasOwnProperty(linkField) && featProps[linkField] != null && identifyFldNames.length > 0)
+                                        clusterFeatItems.push({ text: "<a href='#'  onclick='mapUtils.selectClusterFromId(" + messageLinkString2 + ");'</a> " + bottomLink + "</a>" });
+
+                                    contextmenu.enable();
+                                    contextmenu.clear();
+                                    contextmenu.extend(clusterFeatItems);
                                     //clusterFeatItems= [{text: feature.getProperties().features[0].getProperties().permit_no}];
                                 }
-                                else if(feature.getProperties().features.length > 1)
-                                {
+                                else if (feature.getProperties().features.length > 1) {
                                     contextmenu.disable();
                                     // clusterFeatItems= [{text: feature.getProperties().features.length + " features"}];
                                     // contextmenu.enable();
                                     // contextmenu.clear();
                                     // contextmenu.extend(clusterFeatItems);  
-                                    
+
                                 }
-                                
-                                 
-                                     
-                           
+
+
+
+
                             }
-                            
+
                         } else {
                             contextmenu.disable();
-                         
+
                         }
                     });
-                   
+
                 }
             });
 
@@ -2052,9 +2042,9 @@ var mapUtils = (function () {
          * Sends message of feature in parent. for use in iframe and clusters if firstfield is message
          * @memberof mapUtils 
          */
-        selectClusterFromId: function(message) {
-            
-            window.parent.postMessage( JSON.stringify(message), "*") ;
+        selectClusterFromId: function (message) {
+
+            window.parent.postMessage(JSON.stringify(message), "*");
         }
         ,
         selByRectangleTool: function () {
@@ -2120,14 +2110,14 @@ var mapUtils = (function () {
                                     // it came from. It will be used in the spatial query dialog
                                     //TODO: This doesnt work for vector layers and it goes into an endless loop for some reason
                                     try {
-                                        feature.setProperties({_layername: layer.get('name')});
+                                        feature.setProperties({ _layername: layer.get('name') });
                                         selFeatures.push(feature);
                                         selFeaturesArray.push(feature);
                                         selLyr.getSource().addFeatures(selFeaturesArray);
                                     } catch (error) {
-                                        
+
                                     }
-                                    
+
                                 }
                             });
                         }
@@ -2152,8 +2142,8 @@ var mapUtils = (function () {
                                     if (sublayer.getVisible()) {
                                         var url = sublayer.getSource().getGetFeatureInfoUrl(
                                             evt.coordinate, $map.getView().getResolution(), projcode, {
-                                                'INFO_FORMAT': layer.get("feature_info_format")
-                                            });
+                                            'INFO_FORMAT': layer.get("feature_info_format")
+                                        });
                                         if (url) {
                                             //console.log(url);
                                             $.ajax({
@@ -2330,7 +2320,7 @@ var mapUtils = (function () {
                 style: mapUtils.setSelectedStyle,
                 filter: function (feat, layer) {
                     if ($("#info1").hasClass("active") && !layer.get('cluster')) {
-                     
+
                         return true;
                     } else {
                         return false;
@@ -2350,7 +2340,7 @@ var mapUtils = (function () {
             // var element;
             var cpElement;
             var featItem;
-            
+
 
             var cppopup = new ol.Overlay({
                 element: document.getElementById('cpPopup'),
@@ -2361,12 +2351,12 @@ var mapUtils = (function () {
 
             // Clear any selections
             var selLyr = searchUtilities.getSelectionLayer($map);
-            
+
             $map.addOverlay(cppopup);
-            
+
             $(element).popover('destroy');
             $(cpElement).popover('destroy');
-            
+
             var fGeoJSON = new ol.format.GeoJSON();
             var popTemplate = '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>';
 
@@ -2374,14 +2364,14 @@ var mapUtils = (function () {
             var pinItem = null;
             var editPinItem = null;
             $map.getLayers().forEach(function (layer) {
-                 
+
                 if (layer.get('name') === 'pinLayer' && layer.getSource().getFeatures().length > 0) {
                     pinItem = mapUtils.getClickResults($map, layer, evt);
                 }
 
             });
             if (pinItem !== null && pinItem.length > 0) {
-                
+
                 setTimeout(function () {
                     var popup = new ol.Overlay({
                         element: document.getElementById('popup'),
@@ -2392,12 +2382,12 @@ var mapUtils = (function () {
                     });
                     $map.addOverlay(popup);
                     element = popup.getElement();
-                    
-                    
+
+
                     var coordinates = pinItem[0].getGeometry().getCoordinates();
                     popup.setPosition(coordinates);
                     coordinate = evt.coordinate;
-                
+
                     popup.setPosition(coordinate);
                     $(element).popover({
                         placement: 'top',
@@ -2419,22 +2409,22 @@ var mapUtils = (function () {
                             }
                         })
                     });
-                    
+
                     $(element).popover('show');
                 }, 200);
                 return false;
             }
-            if (pinItem !== null ) {
+            if (pinItem !== null) {
 
-                
+
                 // $(element).popover('destroy');
                 return;
             }
-            
-            
+
+
             $map.getLayers().forEach(function (layer) {
-               
-                if ( !(layer instanceof ol.layer.AnimatedCluster) && (layer instanceof ol.layer.Vector) && layer.get('name') !== 'OSM' && layer.get('name') !== 'selection' && layer.get('name') !== 'pinlayer' && layer.getVisible() && layer.get("queryable") && $('#info1').hasClass('active') && layer.get('name') !== 'measure_layer') {
+
+                if (!(layer instanceof ol.layer.AnimatedCluster) && (layer instanceof ol.layer.Vector) && layer.get('name') !== 'OSM' && layer.get('name') !== 'selection' && layer.get('name') !== 'pinlayer' && layer.getVisible() && layer.get("queryable") && $('#info1').hasClass('active') && layer.get('name') !== 'measure_layer') {
                     if ($('#info1').hasClass('active')) {
                         //console.log(layer.get('name'));
                         featItem = mapUtils.getClickResults($map, layer, evt);
@@ -2453,37 +2443,36 @@ var mapUtils = (function () {
                         $('#searchResultsUl a').first().tab('show');
                     }
                 }
-                else if((layer.get('cluster') == true )&& $('#info1').hasClass('active'))
-                {
-                    if(openResults) {
-                            let featItems = [];
-                            let feature = mymap.forEachFeatureAtPixel(evt.pixel,
-                                function (feature, lyr) {
-                                    if(lyr != null) { //hover for editpin doesn't have a layer
-                                        if (lyr.get("name") === layer.get("name")) {
-                                            let clusterElems = feature.getProperties()["features"];
+                else if ((layer.get('cluster') == true) && $('#info1').hasClass('active')) {
+                    if (openResults) {
+                        let featItems = [];
+                        let feature = mymap.forEachFeatureAtPixel(evt.pixel,
+                            function (feature, lyr) {
+                                if (lyr != null) { //hover for editpin doesn't have a layer
+                                    if (lyr.get("name") === layer.get("name")) {
+                                        let clusterElems = feature.getProperties()["features"];
 
-                                            clusterElems.forEach(x =>  featItems.push(x));
-                                        
-                                        }
+                                        clusterElems.forEach(x => featItems.push(x));
+
                                     }
                                 }
-                            );
-
-                            if (featItems) {
-                                
-                                //Vector layer- not the pin layer
-                                var arrSearch_fields = [];
-                                var arrIdentify_fields = [];
-                                if (typeof layer.get('search_fields') === "string" && typeof layer.get('search_fields') !== "undefined" && layer.get('search_fields') !== "") {
-                                    arrSearch_fields = layer.get('search_fields').split(',');
-                                }
-                                if (typeof layer.get('identify_fields') === "string" && typeof layer.get('identify_fields') !== "undefined" && layer.get('identify_fields') !== "") {
-                                    arrIdentify_fields = layer.get('identify_fields').split(',');
-                                }
-                                searchUtilities.renderQueryResultsAsTable(fGeoJSON.writeFeaturesObject(featItems), layer.get('label'), layer.get('name'), arrSearch_fields, arrIdentify_fields);
-                                $('#searchResultsUl a').first().tab('show');
                             }
+                        );
+
+                        if (featItems) {
+
+                            //Vector layer- not the pin layer
+                            var arrSearch_fields = [];
+                            var arrIdentify_fields = [];
+                            if (typeof layer.get('search_fields') === "string" && typeof layer.get('search_fields') !== "undefined" && layer.get('search_fields') !== "") {
+                                arrSearch_fields = layer.get('search_fields').split(',');
+                            }
+                            if (typeof layer.get('identify_fields') === "string" && typeof layer.get('identify_fields') !== "undefined" && layer.get('identify_fields') !== "") {
+                                arrIdentify_fields = layer.get('identify_fields').split(',');
+                            }
+                            searchUtilities.renderQueryResultsAsTable(fGeoJSON.writeFeaturesObject(featItems), layer.get('label'), layer.get('name'), arrSearch_fields, arrIdentify_fields);
+                            $('#searchResultsUl a').first().tab('show');
+                        }
                     }
                 }
                 else { // Not vector layer
@@ -2496,8 +2485,8 @@ var mapUtils = (function () {
                                 if (sublayer.getVisible() && sublayer.get("queryable")) {
                                     var url = sublayer.getSource().getGetFeatureInfoUrl(
                                         evt.coordinate, $map.getView().getResolution(), projcode, {
-                                            'INFO_FORMAT': 'geojson'
-                                        });
+                                        'INFO_FORMAT': 'geojson'
+                                    });
                                     if (url) {
                                         //console.log(url);
                                         $.ajax({
@@ -2529,9 +2518,9 @@ var mapUtils = (function () {
                             if ((layer.getSource() instanceof ol.source.ImageWMS) || (layer.getSource() instanceof ol.source.TileWMS)) {
                                 var url = layer.getSource().getGetFeatureInfoUrl(
                                     evt.coordinate, $map.getView().getResolution(), projcode, {
-                                        'INFO_FORMAT': layer.get('feature_info_format'),
-                                        'FEATURE_COUNT': '100'
-                                    });
+                                    'INFO_FORMAT': layer.get('feature_info_format'),
+                                    'FEATURE_COUNT': '100'
+                                });
                                 if (url) {
                                     $.ajax({
                                         url: url,
@@ -2640,10 +2629,10 @@ var mapUtils = (function () {
             });
         },
         mapMouseHoverEvent: function () {
-            var hasHover=false;
+            var hasHover = false;
             mymap.getLayers().forEach(function (layer, i) {
                 if (typeof layer.get("allowHover") !== "undefined") {
-                    hasHover=true;
+                    hasHover = true;
                 }
             });
             if (!hasHover) {
@@ -2661,7 +2650,7 @@ var mapUtils = (function () {
             var hover = new ol.interaction.Hover({
                 cursor: "help",
                 // layerFilter : function(filterlayer) {
-                   
+
                 //     if(filterlayer != null) {
                 //         if(filterlayer.getProperties().name != "editPinLayer")
                 //             return true
@@ -2799,15 +2788,15 @@ var mapUtils = (function () {
             var feature = mymapFI.forEachFeatureAtPixel(evt.pixel,
                 function (feature, lyr) {
                     //modify pin in cluster gets recognised as a feature and doesn't have a layer
-                    if(lyr == null)
-                    return;
+                    if (lyr == null)
+                        return;
 
                     // console.log(feature, lyr, layer);
                     if (lyr.get("name") === layer.get("name")) {
                         featItems.push(feature);
                     }
                 });
-                
+
             return featItems;
         },
         // Changes XML to JSON
@@ -2919,7 +2908,11 @@ var mapUtils = (function () {
         addWind(timeIso) {
             // var timeIso = new Date().toISOString();
             var searchLimit = velocityControls.getVelocitySettings().timeSettings.days;
-            var velocityUrl = `${velocityControls.getVelocitySettings().serverLocation}`;
+
+            let velocityUrl = `${velocityControls.getVelocitySettings().serverLocation}`;
+            if (!!velocityControls.getVelocitySettings().serverPort)
+                velocityUrl += ':' + `${velocityControls.getVelocitySettings().serverPort}`
+
 
             $('#legendButton').hide();
             $('.wms-t-control').hide();
@@ -2963,7 +2956,7 @@ var mapUtils = (function () {
             velocityLayer.removeFromMap();
             $('#legendButton').show();
             $('.wms-t-control').show();
-            
+
         }
     };
 })();
