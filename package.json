@@ -31,7 +31,7 @@
     "edge-js": "^12.3.1",
     "ejs": ">=2.5.5",
     "eslint-config-defaults": "^9.0.0",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "express-fileupload": "^1.1.6",
     "http-errors": "~1.6.3",
     "http-proxy-middleware": "^0.19.1",
